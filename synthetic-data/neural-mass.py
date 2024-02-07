@@ -72,7 +72,7 @@ for i in range(num_samples):
         print(f"Integration failed for sample {i}")
 
 # Save the simulation data
-np.save('neural_mass_simulations.npy', all_simulations)
+np.save('./data/neural_mass_simulations.npy', all_simulations)
 
 # Plot the time series
 plt.figure(figsize=(12, 10))

@@ -47,6 +47,7 @@ def VAR1():
     plt.ylabel('Value')
     plt.legend()
     plt.show()
+    np.save("./data/VAR1_dataset.npy", X)
     return X
 
 def VAR4():
@@ -93,14 +94,13 @@ def VAR4():
     plt.ylabel('Value')
     plt.legend()
     plt.show()
+    np.save("./data/VAR4_dataset.npy", data)
     return data
 
 
 # %%
 if __name__ == "__main__":
-    VAR1_data = VAR1()
-    np.save("./data/VAR1_dataset.npy", VAR1_data)
-    VAR4_data = VAR4()
-    np.save("./data/VAR4_dataset.npy", VAR4_data)
+    VAR1()
+    VAR4()
 
 # %%

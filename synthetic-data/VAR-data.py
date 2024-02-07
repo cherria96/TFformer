@@ -97,5 +97,10 @@ def VAR4():
 
 
 # %%
-VAR1_data = VAR1()
-VAR4_data = VAR4()
+if __name__ == "__main__":
+    VAR1_data = VAR1()
+    np.save("./data/VAR1_dataset.npy", VAR1_data)
+    VAR4_data = VAR4()
+    np.save("./data/VAR4_dataset.npy", VAR4_data)
+
+# %%

@@ -37,7 +37,8 @@ t_eval = np.arange(t_span[0], t_span[1], 0.01)  # Evaluate every 0.01 seconds
 
 # Solve the Lorenz system
 sol = solve_ivp(lorenz_system, t_span, initial_state, args=(sigma, beta, rho, c), t_eval=t_eval, rtol=1e-10, atol=1e-10)
-
+np.save("./data/Lorenz_time.npy", sol.t)
+np.save("./data/Lorenz_solution.npy", sol.y)
 # Plotting the results for X1, X2, X3
 plt.figure(figsize=(14, 5))
 plt.plot(sol.t, sol.y[0], label='X1')

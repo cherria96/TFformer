@@ -48,7 +48,6 @@ def VAR1():
     plt.legend()
     plt.show()
     np.save("./data/VAR1_dataset.npy", X)
-    return X
 
 def VAR4():
     # System 3: VAR(4) process in five variables
@@ -94,8 +93,7 @@ def VAR4():
     plt.ylabel('Value')
     plt.legend()
     plt.show()
-    np.save("./data/VAR4_dataset.npy", data)
-    return data
+    np.save("./data/VAR4_dataset.npy", data.transpose(2,1,0))
 
 
 # %%

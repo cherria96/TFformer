@@ -74,16 +74,12 @@ for i in range(num_samples):
 # Save the simulation data
 np.save('neural_mass_simulations.npy', all_simulations)
 
-#%%
-# After solving, you can plot the results
-plt.plot(solution.t, solution.y[0], label = 'X1')  # Assuming y[0] is the variable of interest
-plt.plot(solution.t, solution.y[1], label = 'X2')  # Assuming y[0] is the variable of interest
-plt.plot(solution.t, solution.y[2], label = 'X3')  # Assuming y[0] is the variable of interest
+# Plot the time series
+plt.figure(figsize=(12, 10))
+for k in range(K):
+  plt.subplot(K, 1, k+1)
+  for i in range(vars):
+    plt.plot(all_simulations[0,:,i+num_variables*k])
 
-plt.xlabel('Time (s)')
-plt.ylabel('Amplitude')
-plt.title('Synthetic EEG Data from Neural Mass Model')
-plt.show()
-
-
+plt.title('Time Series')
 # %%

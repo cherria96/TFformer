@@ -2,6 +2,8 @@
 import numpy as np
 from statsmodels.tsa.stattools import grangercausalitytests
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 class granger_causality:
 
     def __init__(self, data_path:str, maxlag:int = 4) -> None:
@@ -20,10 +22,13 @@ class granger_causality:
     def _causality(self, vars):
         test_result = grangercausalitytests(vars, 
                                             maxlag=self.maxlag, 
-                                            verbose=True)
+                                            verbose=False)
         return test_result
     def test(self):
         results = pd.DataFrame(columns=['Cause', 'Effect', 'F Statistic', 'p-value'])
+        causality_matrix = np.zeros((self.data_shape[2], self.data_shape[2]))
+        p_value_matrix = np.ones((self.data_shape[2], self.data_shape[2]))  # Start with p-values of 1
+
         for i in range(self.data_shape[2]):
              for j in range(self.data_shape[2]):
                 if i != j:
@@ -34,23 +39,32 @@ class granger_causality:
                     results = results._append({'Cause': f"Var{i}", 'Effect': f"Var{j}", 
                                               'F Statistic': f_statistic, 'p-value': p_value}, 
                                               ignore_index=True)
+                    p_value_matrix[i, j] = p_value
+                    if p_value < 0.05:  # If the result is significant
+                        causality_matrix[i, j] = f_statistic  # Store the F-statistic
+
         # Optionally, filter results for significant relationships only (e.g., p-value < 0.05)
         significant_results = results[results['p-value'] < 0.05]
 
         # Show the results
-        print(significant_results)
+        # Heatmap visualization
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(causality_matrix, annot=False, cmap='viridis', fmt=".2f")
+        plt.title('Granger Causality F-Statistics')
+        plt.xlabel('Effect')
+        plt.ylabel('Cause')
+        plt.show()
+
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(p_value_matrix, annot=False, cmap='viridis', fmt=".2f", mask=p_value_matrix >= 0.05)
+        plt.title('Granger Causality p-values')
+        plt.xlabel('Effect')
+        plt.ylabel('Cause')
+        plt.show()
+
+        return significant_results
 
 if __name__ == "__main__":
-    data_path= "../synthetic-data/data/" + "VAR1_dataset.npy" #arg_file
+    data_path= "../synthetic-data/data/" + "neural_mass_simulations.npy" #arg_file
     causality = granger_causality(data_path)
-    causality.test()
-
-
-
-
-        
-        
-        
-
-
-# %%
+    results = causality.test()

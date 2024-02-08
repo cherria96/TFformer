@@ -3,11 +3,11 @@ from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 
 # Model parameters
-A = 3.25
+A = 3.45
 B = 22.0
 a = 100.0
 b = 50.0
-C = 135.0
+C = 80
 C1 = C
 C2 = 0.8 * C
 C3 = 0.25 * C
@@ -59,7 +59,7 @@ p_t_interp = lambda t: np.array([np.interp(t, t_eval, p_t[j]) for j in range(K)]
 
 
 # Simulation loop
-num_samples = 100  # Number of different simulations (samples)
+num_samples = 1  # Number of different simulations (samples)
 all_simulations = np.zeros((num_samples, len(t_eval), total_variables))  # Array to store all simulations
 
 for i in range(num_samples):
@@ -73,13 +73,13 @@ for i in range(num_samples):
 
 # Save the simulation data
 np.save('./data/neural_mass_simulations.npy', all_simulations)
-
+#%%
 # Plot the time series
 plt.figure(figsize=(12, 10))
 for k in range(K):
   plt.subplot(K, 1, k+1)
-  for i in range(vars):
-    plt.plot(all_simulations[0,:,i+num_variables*k])
+  plt.plot(all_simulations[0,:,num_variables*k])
 
 plt.title('Time Series')
+
 # %%

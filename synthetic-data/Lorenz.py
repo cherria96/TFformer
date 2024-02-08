@@ -28,17 +28,35 @@ def lorenz_system(t, state, sigma, beta, rho, c):
 
     return [dx1dt, dy1dt, dz1dt, dx2dt, dy2dt, dz2dt, dx3dt, dy3dt, dz3dt]
 
-# Initial conditions for each of the three systems
-initial_state = np.random.random(9)
 
-# Time points to solve the system on
-t_span = (0, 25)  # From 0 to 25 seconds
-t_eval = np.arange(t_span[0], t_span[1], 0.01)  # Evaluate every 0.01 seconds
+num_samples = 100  # Number of different simulations (samples)
+num_time_points = 1000  # Number of time points in each simulation
+t_span = [0, 25]  # Time span for the simulations
+t_eval = np.linspace(t_span[0], t_span[1], num_time_points)  # Evaluation points
 
-# Solve the Lorenz system
-sol = solve_ivp(lorenz_system, t_span, initial_state, args=(sigma, beta, rho, c), t_eval=t_eval, rtol=1e-10, atol=1e-10)
-np.save("./data/Lorenz_time.npy", sol.t)
-np.save("./data/Lorenz_solution.npy", sol.y)
+# Initialize an array to hold all simulations
+all_simulations = np.zeros((num_samples, num_time_points, 9))  # 3 for x, y, z variables
+
+# Run simulations with different initial conditions
+for i in range(num_samples):
+    initial_state = np.random.random(9)  # Random initial conditions for each sample
+    sol = solve_ivp(lorenz_system, t_span, initial_state, args=(sigma, beta, rho, c), t_eval=t_eval, method='RK45', rtol=1e-10, atol=1e-10)
+    all_simulations[i] = sol.y.T  # Transpose to match the desired shape
+
+output_path = "./data/lorenz.npy"  # Update with your desired path
+np.save(output_path, all_simulations)
+# # Initial conditions for each of the three systems
+# initial_state = np.random.random(9)
+
+# # Time points to solve the system on
+# t_span = (0, 25)  # From 0 to 25 seconds
+# t_eval = np.arange(t_span[0], t_span[1], 0.01)  # Evaluate every 0.01 seconds
+
+# # Solve the Lorenz system
+# sol = solve_ivp(lorenz_system, t_span, initial_state, args=(sigma, beta, rho, c), t_eval=t_eval, rtol=1e-10, atol=1e-10)
+# np.save("./data/Lorenz_time.npy", sol.t)
+# np.save("./data/Lorenz_solution.npy", sol.y)
+
 # Plotting the results for X1, X2, X3
 plt.figure(figsize=(14, 5))
 plt.plot(sol.t, sol.y[0], label='X1')
@@ -49,5 +67,6 @@ plt.xlabel('Time')
 plt.ylabel('X values')
 plt.legend()
 plt.show()
+
 
 # %%

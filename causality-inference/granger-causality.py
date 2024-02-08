@@ -65,6 +65,6 @@ class granger_causality:
         return significant_results
 
 if __name__ == "__main__":
-    data_path= "../synthetic-data/data/" + "neural_mass_simulations.npy" #arg_file
+    data_path= "../synthetic-data/data/" + "lorenz.npy" #arg_file
     causality = granger_causality(data_path)
     results = causality.test()

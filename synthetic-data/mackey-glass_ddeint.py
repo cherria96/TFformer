@@ -36,7 +36,7 @@ def values_before_zero(t):
 # Time points for the integration
 t_start = 0
 t_end = 4096
-t_points = np.linspace(t_start, t_end, 4096)
+t_points = np.linspace(t_start, t_end, t_end)
 
 # Run simulations with different initial conditions
 sol = ddeint(mackey_glass, values_before_zero, t_points)

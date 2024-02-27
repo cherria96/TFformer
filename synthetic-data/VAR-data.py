@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Parameters
-num_samples = 100
+num_samples = 1
 num_time_points = 1000  # Example length of the time series
 std_devs = [1, 0.2, 0.3]  # Standard deviations for theta_t, eta_t, and epsilon_t
 

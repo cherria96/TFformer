@@ -1,68 +1,12 @@
 from pytorch_lightning import LightningModule
 import torch
 from torch import nn
-
+from utils import TransformerMultiInputblock, BROutcomeHead
 '''
 수진
 - active entries?? 무슨 용도인지 아직 모르겠음. 
 - 우선 Input 3개 (X,A,Y) 만 있다고 가정했음. (projection horizon 제외했음)
 '''
-
-class TransformerMultiInputblock:  
-    '''
-    utils_transformer.py
-    '''
-    def __init__(self, hidden, attn_heads, head_size, feed_forward_hidden, dropout, attn_dropout,
-                self_positional_encoding_k=None, self_positional_encoding_v=None, n_inputs=2, final_layer=False,
-                disable_cross_attention=False, isolate_subnetwork='', **kwargs):
-        super().__init__()
-        pass
-
-class BROutcomeHead:
-    '''
-    utils.py: BRTreatmentOutcomeHead.build_outcome
-    '''
-    def __init__(self, seq_hidden_units, br_size, fc_hidden_units, dim_treatments, dim_outcome, alpha=0.0, update_alpha=True,
-                balancing='grad_reverse'):
-        super().__init__()
-        self.seq_hidden_units = seq_hidden_units
-        self.br_size = br_size
-        self.fc_hidden_units = fc_hidden_units
-        self.dim_treatments = dim_treatments
-        self.dim_outcome = dim_outcome
-        self.alpha = alpha if not update_alpha else 0.0
-        self.alpha_max = alpha
-        self.balancing = balancing
-
-        self.linear1 = nn.Linear(self.seq_hidden_units, self.br_size)
-        self.elu1 = nn.ELU()
-
-        self.linear2 = nn.Linear(self.br_size, self.fc_hidden_units)
-        self.elu2 = nn.ELU()
-        self.linear3 = nn.Linear(self.fc_hidden_units, self.dim_treatments)
-
-        self.linear4 = nn.Linear(self.br_size + self.dim_treatments, self.fc_hidden_units)
-        self.elu3 = nn.ELU()
-        self.linear5 = nn.Linear(self.fc_hidden_units, self.dim_outcome)
-
-        self.treatment_head_params = ['linear2', 'linear3']
-
-
-    def build_outcome(self, br, curr_A):
-        ''' 
-        GY: outcome prediction network
-        '''
-        x = torch.cat((br, curr_A), dim=-1)
-        x = self.elu3(self.linear4(x))
-        outcome = self.linear5(x)
-        return outcome
-
-    def build_br(self, output):
-        br = self.elu1(self.linear1(output))
-        return br
-
-
-
 
 class CT(LightningModule):
     def __init__(self, ):

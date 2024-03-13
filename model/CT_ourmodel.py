@@ -1,6 +1,8 @@
 from pytorch_lightning import LightningModule
 import torch
 from torch import nn
+from torch_ema import ExponentialMovingAverage
+import torch.optim as optim
 from utils_transformer import TransformerMultiInputBlock, AbsolutePositionalEncoding, RelativePositionalEncoding
 from utils import BROutcomeHead
 '''
@@ -36,6 +38,12 @@ class CT(LightningModule):
         self.max_seq_length = 60 #Originally it's different for each data (cancer sim:60, mimic3_real:60, mimic3_synthetic:100)
         self.positional_encoding_trainable = True
         self.pe_max_relative_position = 15
+
+        # Exponential Moving Average
+        self.ema = True
+        self.beta = 0.99
+        if self.ema:
+            self.ema_treatment = ExponentialMovingAverage(self.model.parameter(),decay = self.beta)
 
         sub_args = None
         self.__init__specific(sub_args)
@@ -73,7 +81,7 @@ class CT(LightningModule):
 
         # Init of positional encoding https://github.com/Valentyn1997/CausalTransformer/blob/27b253affa1a1e5190452be487fcbd45093dca00/src/models/edct.py#L78
         # Use relative positionalencoding only
-        
+
         self.self_positional_encoding = self.self_positional_encoding_k = self.self_positional_encoding_v = None
         
         self.self_positional_encoding_k = \
@@ -145,16 +153,43 @@ class CT(LightningModule):
 
 
     def training_step(self, batch, batch_idx):
-        pass
+        if self.ema:
+            with self.ema_treatment.average_parmeters():
+                treatment_pred, outcome_pred, _ = self.model(batch) #model 구조에 따라 바꾸어야 할 듯, prediction part만 쓴 거라서 본래 모델의 성능을 파악하기는 어려울 듯함.
+        else:
+            treatment_pred, outcome_pred, _ = self.model(batch)
+        mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
+        self.log(f'train_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
+        return mse_loss
 
     def validation_step(self, batch, batch_idx):
-        pass
+        if self.ema:
+            with self.ema_treatment.average_parmeters():
+                treatment_pred, outcome_pred, _ = self.model(batch) 
+        else:
+            treatment_pred, outcome_pred, _ = self.model(batch) 
+        mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
+        self.log(f'vlidation_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
+    
 
     def test_step(self, batch, batch_idx):
-        pass
+        if self.ema:
+            with self.ema_treatment.average_parmeters():
+                treatment_pred, outcome_pred, _ = self.model(batch) 
+        else:
+            treatment_pred, outcome_pred, _ = self.model(batch) 
+        mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
+        self.log(f'vlidation_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
     
+
     def configure_optimizers(self):
-        pass
+        # Follow config of ct https://github.com/Valentyn1997/CausalTransformer/blob/27b253affa1a1e5190452be487fcbd45093dca00/config/backbone/ct.yaml#L22
+
+        lr = 0.01 
+        optimizer = optim.Adam(self.model.parameter(), lr = lr) # 어디서 model paramters 받아와야 하지?  
+        lr_scheduler = optim.lr_scheduler.ExpontialLR(optimizer,gamma = 0.99)
+
+        return [optimizer], [lr_scheduler]
 
 
     

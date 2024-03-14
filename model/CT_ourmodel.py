@@ -37,6 +37,9 @@ class CT(LightningModule):
         self.positional_encoding_trainable = True
         self.pe_max_relative_position = 15
 
+        self.cpe_max = 18 # TBD
+        sel
+
         sub_args = None
         self.__init__specific(sub_args)
 
@@ -97,6 +100,16 @@ class CT(LightningModule):
                                                                       self_positional_encoding_v=self.self_positional_encoding_v
                                                                       ,n_inputs=self.n_inputs,disable_cross_attention = False,
                                                                       isolate_subnetwork=sub_args.isolate_subnetwork) for _ in range(self.num_layer)])
+
+
+        # cross positional encoding
+        self.cross_positional_encoding = self.cross_positional_encoding_k = self.cross_positional_encoding_v = None
+        self.cross_positional_encoding_k = \
+            RelativePositionalEncoding(self.cpe_max_relative_position, self.head_size,
+                                        self.cross_positional_encoding_trainable, cross_attn = True)
+        self.cross_positional_encoding_v = \
+            RelativePositionalEncoding(self.cpe_max_relative_position, self.head_size,
+                                        self.cross_positional_encoding_trainable, cross_attn = True)
 
 
         # output layer 

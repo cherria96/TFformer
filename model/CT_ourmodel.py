@@ -38,7 +38,9 @@ class CT(LightningModule):
         self.pe_max_relative_position = 15
 
         self.cpe_max = 18 # TBD
-        sel
+        self.cpe_max_relative_position = None #TBD
+        self.cross_positional_encoding_trainable = None #TBD
+
 
         sub_args = None
         self.__init__specific(sub_args)
@@ -111,14 +113,36 @@ class CT(LightningModule):
             RelativePositionalEncoding(self.cpe_max_relative_position, self.head_size,
                                         self.cross_positional_encoding_trainable, cross_attn = True)
 
-
+        # dropout
+        self.output_dropout = nn.Dropout(self.dropout_rate)
+        
         # output layer 
         self.br_head = BROutcomeHead()
 
     def forward(self, batch):
         '''
-        batch.items = [prev_A, X, prev_Y, static_inputs, curr_A, active_entries]
+        batch: Dict
+            batch.keys = [prev_A, X, prev_Y, static_inputs, curr_A, active_entries]
+        fixed split : tells the model up to which point in the sequence the data is considered as observed and from which point the data is to be predicted
+            model can use real data up to the 'fixed_split' point and then switch to using its predictions or masked values beyond this point
+        active entries: (binary tensor) indicates the active or valid entries in the sequence data fro each instance in the batch
+            since not all sequences have the same length, batch['active entries'] serves as a mask to differentiate between real data points and padded points
+            to ensure that computations only consider the valid parts of each sequence 
+
         '''
+        fixed_split = batch['future_past_split'] if 'future_past_split' in batch else None 
+        # Data augmentation of the training data (under 3 conditions: training phase, augmentation flag, presence of Vitals)
+        if self.training and self.is_augmentation and self.has_vital:
+            assert fixed_split is None
+            # twice the size of active entries: for both the original and the augmented copies of the batch
+            fixed_split = torch.empty((2 * len(batch['active_entries']),)).type_as(batch['active_entries']) 
+            for i, seq_len in enumerate(batch['active entries'].sum(1).int()):
+                fixed_split[i] = seq_len #original batch
+                fixed_split[len(batch['active_entries']) + i] = torch.randint(0, int(seq_len) + 1, (1,)).item() #augmented batch
+
+            for (k,v) in batch.items():
+                batch[k] = torch.cat((v,v), dim = 0)
+
         prev_A = batch["prev_A"]
         X = batch["X"]
         prev_Y = batch["prev_Y"]
@@ -132,8 +156,6 @@ class CT(LightningModule):
     
     def build_br(self, prev_A, X, prev_Y, static_features, active_entries):
         '''
-        Required: define self_positional_encoding, output_dropout
-        -> src/edct.py
         '''
         active_entries_Y = torch.clone(active_entries)
         active_entries_X = torch.clone(active_entries)

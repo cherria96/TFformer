@@ -5,7 +5,6 @@ from torch_ema import ExponentialMovingAverage
 import torch.optim as optim
 from utils_transformer import TransformerMultiInputBlock, AbsolutePositionalEncoding, RelativePositionalEncoding
 from utils import BROutcomeHead
-from torch.utils.data import DataLoader
 
 '''
 수진
@@ -254,15 +253,3 @@ class CT(LightningModule):
 
         return [optimizer], [lr_scheduler]
 
-data_path = '../synthetic-data/data/henon_map_dataset.npy'
-    dataset  = np.load(data_path)
-    dataset = dataset.squeeze()
-    # print(dataset_collection.shape) # (4096,5)
-    train_data = dataset[:3600]
-    test_data = dataset[3600:]
-
-    train = pd.DataFrame(train_data, columns = ['prev_treatments','prev_outputs','static_features','current_treatments','active_entries'])
-    #print(train)
-    ## Data loader 
-    train_loader = DataLoader(train, batch_size = 10)
-    test_loader = DataLoader(test, batch_size=10)

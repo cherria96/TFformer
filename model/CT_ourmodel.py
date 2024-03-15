@@ -14,8 +14,7 @@ import numpy as np
 
 class CT(LightningModule):
     def __init__(self, dim_A=None, dim_X = None, dim_Y = None, dim_V = None,dim_hidden = None,
-                 seq_hidden_units = None, num_heads = None, head_size = None, dropout_rate = None, 
-                  num_layer = None, cpe_max_relative_position = None, cross_positional_encoding_trainable = None ):
+                 seq_hidden_units = None, num_heads = None, dropout_rate = None, num_layer = None):
         super().__init__()
 
         self.basic_block_cls = TransformerMultiInputBlock
@@ -30,7 +29,7 @@ class CT(LightningModule):
         # Parameters for basic block cls
         self.seq_hidden_units = seq_hidden_units #TBD
         self.num_heads = num_heads #TBD
-        self.head_size = head_size #TBD
+        self.head_size = self.seq_hidden_units // self.num_heads
         self.dropout_rate = dropout_rate #TBD
         self.num_layer = num_layer #TBD
 
@@ -43,8 +42,8 @@ class CT(LightningModule):
         self.pe_max_relative_position = 15
 
         self.cpe_max = 18 # TBD
-        self.cpe_max_relative_position = cpe_max_relative_position #TBD
-        self.cross_positional_encoding_trainable = cross_positional_encoding_trainable #TBD
+        # self.cpe_max_relative_position = cpe_max_relative_position #TBD
+        # self.cross_positional_encoding_trainable = cross_positional_encoding_trainable #TBD
         
         # Exponential Moving Average
         self.ema = True
@@ -122,13 +121,13 @@ class CT(LightningModule):
 
 
         # cross positional encoding
-        self.cross_positional_encoding = self.cross_positional_encoding_k = self.cross_positional_encoding_v = None
-        self.cross_positional_encoding_k = \
-            RelativePositionalEncoding(self.cpe_max_relative_position, self.head_size,
-                                        self.cross_positional_encoding_trainable, cross_attn = True)
-        self.cross_positional_encoding_v = \
-            RelativePositionalEncoding(self.cpe_max_relative_position, self.head_size,
-                                        self.cross_positional_encoding_trainable, cross_attn = True)
+        # self.cross_positional_encoding = self.cross_positional_encoding_k = self.cross_positional_encoding_v = None
+        # self.cross_positional_encoding_k = \
+        #     RelativePositionalEncoding(self.cpe_max_relative_position, self.head_size,
+        #                                 self.cross_positional_encoding_trainable, cross_attn = True)
+        # self.cross_positional_encoding_v = \
+        #     RelativePositionalEncoding(self.cpe_max_relative_position, self.head_size,
+        #                                 self.cross_positional_encoding_trainable, cross_attn = True)
 
         # dropout
         self.output_dropout = nn.Dropout(self.dropout_rate)

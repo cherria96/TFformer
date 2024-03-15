@@ -5,6 +5,8 @@ from torch_ema import ExponentialMovingAverage
 import torch.optim as optim
 from utils_transformer import TransformerMultiInputBlock, AbsolutePositionalEncoding, RelativePositionalEncoding
 from utils import BROutcomeHead
+from torch.utils.data import DataLoader
+
 '''
 수진
 - active entries?? 무슨 용도인지 아직 모르겠음. 
@@ -218,7 +220,7 @@ class CT(LightningModule):
             with self.ema_treatment.average_parmeters():
                 treatment_pred, outcome_pred, _ = self.model(batch) #model 구조에 따라 바꾸어야 할 듯, prediction part만 쓴 거라서 본래 모델의 성능을 파악하기는 어려울 듯함.
         else:
-            treatment_pred, outcome_pred, _ = self.model(batch)
+            outcome_pred, _ = self.model(batch)
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         self.log(f'train_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
         return mse_loss
@@ -226,9 +228,9 @@ class CT(LightningModule):
     def validation_step(self, batch, batch_idx):
         if self.ema:
             with self.ema_treatment.average_parmeters():
-                treatment_pred, outcome_pred, _ = self.model(batch) 
+                outcome_pred, _ = self.model(batch) 
         else:
-            treatment_pred, outcome_pred, _ = self.model(batch) 
+            outcome_pred, _ = self.model(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         self.log(f'vlidation_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
     
@@ -236,9 +238,9 @@ class CT(LightningModule):
     def test_step(self, batch, batch_idx):
         if self.ema:
             with self.ema_treatment.average_parmeters():
-                treatment_pred, outcome_pred, _ = self.model(batch) 
+                outcome_pred, _ = self.model(batch) 
         else:
-            treatment_pred, outcome_pred, _ = self.model(batch) 
+            outcome_pred, _ = self.model(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         self.log(f'vlidation_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
     
@@ -252,13 +254,15 @@ class CT(LightningModule):
 
         return [optimizer], [lr_scheduler]
 
+data_path = '../synthetic-data/data/henon_map_dataset.npy'
+    dataset  = np.load(data_path)
+    dataset = dataset.squeeze()
+    # print(dataset_collection.shape) # (4096,5)
+    train_data = dataset[:3600]
+    test_data = dataset[3600:]
 
-    
-    
-
-        
-
-    
-    
-
-    
+    train = pd.DataFrame(train_data, columns = ['prev_treatments','prev_outputs','static_features','current_treatments','active_entries'])
+    #print(train)
+    ## Data loader 
+    train_loader = DataLoader(train, batch_size = 10)
+    test_loader = DataLoader(test, batch_size=10)

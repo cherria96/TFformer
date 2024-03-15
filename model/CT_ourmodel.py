@@ -5,6 +5,7 @@ from torch_ema import ExponentialMovingAverage
 import torch.optim as optim
 from utils_transformer import TransformerMultiInputBlock, AbsolutePositionalEncoding, RelativePositionalEncoding
 from utils import BROutcomeHead
+import numpy as np
 '''
 수진
 - active entries?? 무슨 용도인지 아직 모르겠음. 
@@ -252,8 +253,19 @@ class CT(LightningModule):
 
         return [optimizer], [lr_scheduler]
 
+data_path = '../synthetic-data/data/henon_map_dataset.npy'
+dataset  = np.load(data_path)
+dataset = dataset.squeeze()
+# print(dataset_collection.shape) # (4096,5)
+train_data = dataset[:3600]
+test_data = dataset[3600:]
 
-    
+train = pd.DataFrame(train_data, columns = ['prev_treatments','prev_outputs','static_features','current_treatments','active_entries'])
+#print(train)
+## Data loader 
+train_loader = DataLoader(train, batch_size = 10)
+test_loader = DataLoader(test, batch_size=10)
+
     
 
         

@@ -157,7 +157,7 @@ class CT(LightningModule):
             with self.ema_treatment.average_parmeters():
                 treatment_pred, outcome_pred, _ = self.model(batch) #model 구조에 따라 바꾸어야 할 듯, prediction part만 쓴 거라서 본래 모델의 성능을 파악하기는 어려울 듯함.
         else:
-            treatment_pred, outcome_pred, _ = self.model(batch)
+            outcome_pred, _ = self.model(batch)
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         self.log(f'train_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
         return mse_loss
@@ -165,9 +165,9 @@ class CT(LightningModule):
     def validation_step(self, batch, batch_idx):
         if self.ema:
             with self.ema_treatment.average_parmeters():
-                treatment_pred, outcome_pred, _ = self.model(batch) 
+                outcome_pred, _ = self.model(batch) 
         else:
-            treatment_pred, outcome_pred, _ = self.model(batch) 
+            outcome_pred, _ = self.model(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         self.log(f'vlidation_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
     
@@ -175,9 +175,9 @@ class CT(LightningModule):
     def test_step(self, batch, batch_idx):
         if self.ema:
             with self.ema_treatment.average_parmeters():
-                treatment_pred, outcome_pred, _ = self.model(batch) 
+                outcome_pred, _ = self.model(batch) 
         else:
-            treatment_pred, outcome_pred, _ = self.model(batch) 
+            outcome_pred, _ = self.model(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         self.log(f'vlidation_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
     

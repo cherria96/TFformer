@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-K = 5           # number of features
+K = 6           # number of features
 C = 0.2         # coupling strength
 T = 512         # time (length of time series data)
 S = 1000        # steps for iteration

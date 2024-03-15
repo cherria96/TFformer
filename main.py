@@ -1,8 +1,13 @@
+#%%
+import sys
+sys.path.append("/Users/sujinchoi/Desktop/TFformer")
 import pytorch_lightning as pl
 from model.CT_ourmodel import CT
 from torch.utils.data import Dataset
 import torch
 from torch.utils.data import DataLoader
+import numpy as np
+import pandas as pd
 
 class DataCreate(Dataset):
     def __init__(self, A, X, Y, V, sequence_lengths):
@@ -23,12 +28,11 @@ class DataCreate(Dataset):
         self.sequence_lengths = sequence_lengths
 
     def __len__(self):
-        return len(self.treatments)
+        return len(self.A)
 
     def __getitem__(self, idx):
         seq_len = self.sequence_lengths[idx]
-        active_entries = torch.zeros(self.max_seq_length)  # Assuming max_seq_length is defined
-        active_entries[:seq_len] = 1
+        active_entries = torch.ones(seq_len)
         
         return {
             'prev_A': self.A[idx, :-1],  # Assuming last treatment is `curr_A`
@@ -39,13 +43,39 @@ class DataCreate(Dataset):
             'active_entries': active_entries
         }
 
-A = None
-X = None
-Y = None
-V = None
-sequence_lengths= None
-neural_mass = DataCreate(A,X,Y,V,sequence_lengths)
-train_loader = DataLoader(neural_mass, batch_size=32, shuffle=True)
+
+# Example dimensions
+num_samples = 100  # Number of samples in the dataset
+seq_length = 60  # Length of each sequence
+dim_A = 5  # Dimension of treatments
+dim_X = 10  # Dimension of vitals
+dim_Y = 1  # Dimension of outputs
+dim_V = 3  # Dimension of static inputs
+
+# Simulate data
+A = torch.randn(num_samples, seq_length, dim_A)
+X = torch.randn(num_samples, seq_length, dim_X)
+# Y = torch.randint(0, 2, (num_samples, seq_length, dim_Y)).float()  # Binary outcomes
+Y = torch.randn(num_samples, seq_length, dim_Y)
+V = torch.randn(num_samples, dim_V)
+sequence_lengths = torch.full((num_samples,), seq_length, dtype=torch.long)  # Here, all sequences are of the same length for simplicity
+
+# Initialize the dataset
+batch_size = 32
+train_dataset = DataCreate(A, X, Y, V, sequence_lengths)
+test_dataset = DataCreate(A, X, Y, V, sequence_lengths)
+
+# Create the DataLoader
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
+# Example of iterating over the DataLoader
+for batch in train_loader:
+    # Each 'batch' is a dictionary matching the expected input structure of your model
+    print(batch['prev_A'].shape)  # Example: access the 'prev_A' component of the batch
+    break  # Break after one iteration for demonstration
+
 trainer = pl.Trainer()
-model = CT()
+model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V)
 trainer.fit(model, train_loader)
+trainer.test(test_loader)

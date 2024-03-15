@@ -13,24 +13,26 @@ import numpy as np
 '''
 
 class CT(LightningModule):
-    def __init__(self, ):
+    def __init__(self, dim_A=None, dim_X = None, dim_Y = None, dim_V = None,dim_hidden = None,
+                 seq_hidden_units = None, num_heads = None, head_size = None, dropout_rate = None, 
+                  num_layer = None, cpe_max_relative_position = None, cross_positional_encoding_trainable = None ):
         super().__init__()
 
         self.basic_block_cls = TransformerMultiInputBlock
 
         # Params for input transformation
-        self.dim_A = None # TBD or get from init input
-        self.dim_X = None # TBD or get from init input
-        self.dim_Y = None # TBD or get from init input
-        self.dim_V = None # TBD or get from init input
-        self.dim_hidden = None # TBD
+        self.dim_A = dim_A # TBD or get from init input
+        self.dim_X = dim_X # TBD or get from init input
+        self.dim_Y = dim_Y # TBD or get from init input
+        self.dim_V = dim_V # TBD or get from init input
+        self.dim_hidden = dim_hidden # TBD
 
         # Parameters for basic block cls
-        self.seq_hidden_units = None #TBD
-        self.num_heads = None #TBD
-        self.head_size = None #TBD
-        self.dropout_rate = None #TBD
-        self.num_layer = None #TBD
+        self.seq_hidden_units = seq_hidden_units #TBD
+        self.num_heads = num_heads #TBD
+        self.head_size = head_size #TBD
+        self.dropout_rate = dropout_rate #TBD
+        self.num_layer = num_layer #TBD
 
         # Params for poisitional encoding
         # Follow the parameter of ct config file https://github.com/Valentyn1997/CausalTransformer/blob/27b253affa1a1e5190452be487fcbd45093dca00/config/backbone/ct.yaml#L20
@@ -41,14 +43,14 @@ class CT(LightningModule):
         self.pe_max_relative_position = 15
 
         self.cpe_max = 18 # TBD
-        self.cpe_max_relative_position = None #TBD
-        self.cross_positional_encoding_trainable = None #TBD
+        self.cpe_max_relative_position = cpe_max_relative_position #TBD
+        self.cross_positional_encoding_trainable = cross_positional_encoding_trainable #TBD
         
         # Exponential Moving Average
         self.ema = True
         self.beta = 0.99
         if self.ema:
-            self.ema_treatment = ExponentialMovingAverage(self.model.parameter(),decay = self.beta)
+            self.ema_treatment = ExponentialMovingAverage(self.parameters(),decay = self.beta)
 
 
         sub_args = None
@@ -75,7 +77,7 @@ class CT(LightningModule):
             dim_Y : outputs
             dim_V : static inputs
         """
-        super(CT, self).__init__specific(sub_args)
+        # super(CT, self).__init__specific(sub_args)
 
 
         # input transformation
@@ -217,9 +219,9 @@ class CT(LightningModule):
     def training_step(self, batch, batch_idx):
         if self.ema:
             with self.ema_treatment.average_parmeters():
-                treatment_pred, outcome_pred, _ = self.model(batch) #model 구조에 따라 바꾸어야 할 듯, prediction part만 쓴 거라서 본래 모델의 성능을 파악하기는 어려울 듯함.
+                outcome_pred, _ = self(batch) #model 구조에 따라 바꾸어야 할 듯, prediction part만 쓴 거라서 본래 모델의 성능을 파악하기는 어려울 듯함.
         else:
-            treatment_pred, outcome_pred, _ = self.model(batch)
+            outcome_pred, _ = self(batch)
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         self.log(f'train_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
         return mse_loss
@@ -227,9 +229,9 @@ class CT(LightningModule):
     def validation_step(self, batch, batch_idx):
         if self.ema:
             with self.ema_treatment.average_parmeters():
-                treatment_pred, outcome_pred, _ = self.model(batch) 
+                outcome_pred, _ = self(batch) 
         else:
-            treatment_pred, outcome_pred, _ = self.model(batch) 
+            outcome_pred, _ = self(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         self.log(f'vlidation_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
     
@@ -237,9 +239,9 @@ class CT(LightningModule):
     def test_step(self, batch, batch_idx):
         if self.ema:
             with self.ema_treatment.average_parmeters():
-                treatment_pred, outcome_pred, _ = self.model(batch) 
+                outcome_pred, _ = self(batch) 
         else:
-            treatment_pred, outcome_pred, _ = self.model(batch) 
+            outcome_pred, _ = self(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         self.log(f'vlidation_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
     
@@ -248,25 +250,12 @@ class CT(LightningModule):
         # Follow config of ct https://github.com/Valentyn1997/CausalTransformer/blob/27b253affa1a1e5190452be487fcbd45093dca00/config/backbone/ct.yaml#L22
 
         lr = 0.01 
-        optimizer = optim.Adam(self.model.parameter(), lr = lr) # 어디서 model paramters 받아와야 하지?  
+        optimizer = optim.Adam(self.parameters(), lr = lr) # 어디서 model paramters 받아와야 하지?  
         lr_scheduler = optim.lr_scheduler.ExpontialLR(optimizer,gamma = 0.99)
 
         return [optimizer], [lr_scheduler]
 
-data_path = '../synthetic-data/data/henon_map_dataset.npy'
-dataset  = np.load(data_path)
-dataset = dataset.squeeze()
-# print(dataset_collection.shape) # (4096,5)
-train_data = dataset[:3600]
-test_data = dataset[3600:]
 
-train = pd.DataFrame(train_data, columns = ['prev_treatments','prev_outputs','static_features','current_treatments','active_entries'])
-#print(train)
-## Data loader 
-train_loader = DataLoader(train, batch_size = 10)
-test_loader = DataLoader(test, batch_size=10)
-
-    
 
         
 

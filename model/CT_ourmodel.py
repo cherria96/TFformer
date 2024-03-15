@@ -13,25 +13,28 @@ import numpy as np
 '''
 
 class CT(LightningModule):
-    def __init__(self, dim_A=None, dim_X = None, dim_Y = None, dim_V = None,dim_hidden = None,
-                 seq_hidden_units = None, num_heads = None, dropout_rate = None, num_layer = None):
+    def __init__(self, dim_A=None, dim_X = None, dim_Y = None, dim_V = None,
+                 seq_hidden_units = 16, num_heads = 2, head_size = None, dropout_rate = 0.2, 
+                  num_layer = 1):
         super().__init__()
 
         self.basic_block_cls = TransformerMultiInputBlock
 
         # Params for input transformation
-        self.dim_A = dim_A # TBD or get from init input
-        self.dim_X = dim_X # TBD or get from init input
-        self.dim_Y = dim_Y # TBD or get from init input
-        self.dim_V = dim_V # TBD or get from init input
-        self.dim_hidden = dim_hidden # TBD
+        self.dim_A = dim_A # equal to the treatment dimension in original code
+        self.dim_X = dim_X 
+        self.dim_Y = dim_Y # equal to the outcome dimension in original code
+        self.dim_V = dim_V 
 
         # Parameters for basic block cls
-        self.seq_hidden_units = seq_hidden_units #TBD
-        self.num_heads = num_heads #TBD
-        self.head_size = self.seq_hidden_units // self.num_heads
-        self.dropout_rate = dropout_rate #TBD
-        self.num_layer = num_layer #TBD
+        self.seq_hidden_units = seq_hidden_units #16
+        self.num_heads = num_heads # 2
+        self.head_size = seq_hidden_units // num_heads 
+        self.dropout_rate = dropout_rate # range from 0.1 to 0.5
+        self.num_layer = num_layer #1
+        self.br_size = 16 # relate to input size
+        self.fc_hidden_units = 48 # relate to the size of balanced representation
+        self.alpha =0.01
 
         # Params for poisitional encoding
         # Follow the parameter of ct config file https://github.com/Valentyn1997/CausalTransformer/blob/27b253affa1a1e5190452be487fcbd45093dca00/config/backbone/ct.yaml#L20
@@ -41,9 +44,7 @@ class CT(LightningModule):
         self.positional_encoding_trainable = True
         self.pe_max_relative_position = 15
 
-        self.cpe_max = 18 # TBD
-        # self.cpe_max_relative_position = cpe_max_relative_position #TBD
-        # self.cross_positional_encoding_trainable = cross_positional_encoding_trainable #TBD
+        self.cpe_max = 18 
         
         # Exponential Moving Average
         self.ema = True
@@ -83,10 +84,10 @@ class CT(LightningModule):
         '''
         We need to take these weights to interpret attention matrix
         '''
-        self.A_input_transformation = nn.Linear(self.dim_A, self.dim_hidden) 
-        self.X_input_transformation = nn.Linear(self.dim_X, self.dim_hidden)
-        self.Y_input_transformation = nn.Linear(self.dim_Y, self.dim_hidden) 
-        self.V_input_transformation = nn.Linear(self.dim_V, self.dim_hidden)
+        self.A_input_transformation = nn.Linear(self.dim_A, self.seq_hidden_units) 
+        self.X_input_transformation = nn.Linear(self.dim_X, self.seq_hidden_units)
+        self.Y_input_transformation = nn.Linear(self.dim_Y, self.seq_hidden_units) 
+        self.V_input_transformation = nn.Linear(self.dim_V, self.seq_hidden_units)
         self.n_inputs = 3
 
         # Init of positional encoding https://github.com/Valentyn1997/CausalTransformer/blob/27b253affa1a1e5190452be487fcbd45093dca00/src/models/edct.py#L78
@@ -120,20 +121,11 @@ class CT(LightningModule):
                                                                       isolate_subnetwork=sub_args.isolate_subnetwork) for _ in range(self.num_layer)])
 
 
-        # cross positional encoding
-        # self.cross_positional_encoding = self.cross_positional_encoding_k = self.cross_positional_encoding_v = None
-        # self.cross_positional_encoding_k = \
-        #     RelativePositionalEncoding(self.cpe_max_relative_position, self.head_size,
-        #                                 self.cross_positional_encoding_trainable, cross_attn = True)
-        # self.cross_positional_encoding_v = \
-        #     RelativePositionalEncoding(self.cpe_max_relative_position, self.head_size,
-        #                                 self.cross_positional_encoding_trainable, cross_attn = True)
-
         # dropout
         self.output_dropout = nn.Dropout(self.dropout_rate)
         
         # output layer 
-        self.br_head = BROutcomeHead()
+        self.br_head = BROutcomeHead(self.seq_hidden_units, self.br_size, self.fc_hidden_units, self.dim_A, self.dim_Y,self.alpha)
 
     def forward(self, batch):
         '''

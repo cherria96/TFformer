@@ -39,14 +39,22 @@ class CT(LightningModule):
         self.positional_encoding_trainable = True
         self.pe_max_relative_position = 15
 
+        self.cpe_max = 18 # TBD
+        self.cpe_max_relative_position = None #TBD
+        self.cross_positional_encoding_trainable = None #TBD
+        
         # Exponential Moving Average
         self.ema = True
         self.beta = 0.99
         if self.ema:
             self.ema_treatment = ExponentialMovingAverage(self.model.parameter(),decay = self.beta)
 
+
         sub_args = None
         self.__init__specific(sub_args)
+
+        self.is_augmentation = False
+        self.has_vitals = True
 
         
     """
@@ -96,6 +104,9 @@ class CT(LightningModule):
         (경민)
         positional encoding k,v가 어디서 정의되야 하는걸까?, 왜 overview에는 안그려져 있지?
         isolate_subnetwork뜻이 뭐지
+        -> either 't' 'v' 'o' ''
+        e.g. if 't': isolation for the subnetwork dealing with 'treatments'. 
+        treatment-related information doesn't interfere with learning of other data types within the model
         """
         self.transformer_blocks = nn.ModuleList([self.basic_block_cls(self.seq_hidden_units, 
                                                                       self.num_heads, self.head_size, 
@@ -107,45 +118,95 @@ class CT(LightningModule):
                                                                       isolate_subnetwork=sub_args.isolate_subnetwork) for _ in range(self.num_layer)])
 
 
+        # cross positional encoding
+        self.cross_positional_encoding = self.cross_positional_encoding_k = self.cross_positional_encoding_v = None
+        self.cross_positional_encoding_k = \
+            RelativePositionalEncoding(self.cpe_max_relative_position, self.head_size,
+                                        self.cross_positional_encoding_trainable, cross_attn = True)
+        self.cross_positional_encoding_v = \
+            RelativePositionalEncoding(self.cpe_max_relative_position, self.head_size,
+                                        self.cross_positional_encoding_trainable, cross_attn = True)
+
+        # dropout
+        self.output_dropout = nn.Dropout(self.dropout_rate)
+        
         # output layer 
         self.br_head = BROutcomeHead()
 
     def forward(self, batch):
         '''
-        batch.items = [prev_A, X, prev_Y, static_inputs, curr_A, active_entries]
+        batch: Dict
+            batch.keys = [prev_A, X, prev_Y, static_inputs, curr_A, active_entries]
+        fixed split : tells the model up to which point in the sequence the data is considered as observed and from which point the data is to be predicted
+            model can use real data up to the 'fixed_split' point and then switch to using its predictions or masked values beyond this point
+        active entries: (binary tensor) indicates the active or valid entries in the sequence data fro each instance in the batch
+            since not all sequences have the same length, batch['active entries'] serves as a mask to differentiate between real data points and padded points
+            to ensure that computations only consider the valid parts of each sequence 
+
         '''
+        fixed_split = batch['future_past_split'] if 'future_past_split' in batch else None 
+        # Data augmentation of the training data (under 3 conditions: training phase, augmentation flag, presence of Vitals)
+        if self.training and self.is_augmentation and self.has_vitals: # Mini-batch augmentation with masking
+            assert fixed_split is None
+            # twice the size of active entries: for both the original and the augmented copies of the batch
+            fixed_split = torch.empty((2 * len(batch['active_entries']),)).type_as(batch['active_entries']) 
+            for i, seq_len in enumerate(batch['active entries'].sum(1).int()):
+                fixed_split[i] = seq_len #original batch
+                fixed_split[len(batch['active_entries']) + i] = torch.randint(0, int(seq_len) + 1, (1,)).item() #augmented batch
+
+            for (k,v) in batch.items():
+                batch[k] = torch.cat((v,v), dim = 0)
+
         prev_A = batch["prev_A"]
-        X = batch["X"]
+        X = batch["X"] if self.has_vitals else None
         prev_Y = batch["prev_Y"]
         static_features = batch["static inputs"]
         curr_A = batch["curr_A"]
         active_entries = batch['active_entries']
 
-        br = self.build_br(prev_A, X, prev_Y, static_features, active_entries)
+        br = self.build_br(prev_A, X, prev_Y, static_features, active_entries, fixed_split)
         outcome_pred = self.br_head.build_outcome(br, curr_A)
         return br, outcome_pred
     
-    def build_br(self, prev_A, X, prev_Y, static_features, active_entries):
+    def build_br(self, prev_A, X, prev_Y, static_features, active_entries, fixed_split):
         '''
-        Required: define self_positional_encoding, output_dropout
-        -> src/edct.py
         '''
         active_entries_Y = torch.clone(active_entries)
         active_entries_X = torch.clone(active_entries)
 
+        if fixed_split is not None and self.has_vitals:
+            for i in range(len(active_entries)):
+                #Masking X in range [fixed_split: ]
+                active_entries_X[i, int(fixed_split[i]):, : ] = 0.0
+                X[i, int(fixed_split[i]):] = 0.0
+
         x_t = self.A_input_transformation(prev_A)
         x_o = self.Y_input_transformation(prev_Y)
-        x_v = self.X_input_transformation(X) 
+        x_v = self.X_input_transformation(X) if self.has_vitals else None
         x_s = self.V_input_transformation(static_features.unsqueeze(1))
 
         for block in self.transformer_blocks:
-            x_t = x_t + self.self_positional_encoding(x_t)
-            x_o = x_o + self.self_positional_encoding(x_o)
-            x_v = x_v + self.self_positional_encoding(x_v) 
+            if self.self_positional_encoding is not None:
+                x_t = x_t + self.self_positional_encoding(x_t)
+                x_o = x_o + self.self_positional_encoding(x_o)
+                x_v = x_v + self.self_positional_encoding(x_v) if self.has_vitals else None
 
-            x_t, x_o, x_v = block((x_t, x_o, x_v), x_s, active_entries_Y, active_entries_X)
-
-            x = (x_o + x_t + x_v) / 3
+            if self.has_vitals:
+                x_t, x_o, x_v = block((x_t, x_o, x_v), x_s, active_entries_Y, active_entries_X)
+            else:
+                x_t, x_o = block((x_t, x_o), x_s, active_entries_Y)
+        if not self.has_vitals:
+            x = (x_o + x_t) / 2
+        else:
+            if fixed_split is not None: # Test seq data
+                x = torch.empty_like(x_o)
+                for i in range(len(active_entries)):
+                    # Masking X in range [fixed_split:]
+                    m = int(fixed_split[i])
+                    x[i, :m] = (x_o[i, :m] + x_t[i, :m] + x_v[i, :m]) / 3
+                    x[i, m:] = (x_o[i, :m] + x_t[i, :m]) / 2
+            else: # Train data has always X
+                x = (x_o + x_t + x_v) / 3   
         
         output = self.output_dropout(x)
         br = self.br_head.build_br(output)

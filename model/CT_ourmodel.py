@@ -96,6 +96,9 @@ class CT(LightningModule):
         (경민)
         positional encoding k,v가 어디서 정의되야 하는걸까?, 왜 overview에는 안그려져 있지?
         isolate_subnetwork뜻이 뭐지
+        -> either 't' 'v' 'o' ''
+        e.g. if 't': isolation for the subnetwork dealing with 'treatments'. 
+        treatment-related information doesn't interfere with learning of other data types within the model
         """
         self.transformer_blocks = nn.ModuleList([self.basic_block_cls(self.seq_hidden_units, 
                                                                       self.num_heads, self.head_size, 

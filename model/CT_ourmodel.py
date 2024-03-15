@@ -45,6 +45,9 @@ class CT(LightningModule):
         sub_args = None
         self.__init__specific(sub_args)
 
+        self.is_augmentation = False
+        self.has_vitals = True
+
         
     """
     (경민)
@@ -132,7 +135,7 @@ class CT(LightningModule):
         '''
         fixed_split = batch['future_past_split'] if 'future_past_split' in batch else None 
         # Data augmentation of the training data (under 3 conditions: training phase, augmentation flag, presence of Vitals)
-        if self.training and self.is_augmentation and self.has_vital:
+        if self.training and self.is_augmentation and self.has_vitals: # Mini-batch augmentation with masking
             assert fixed_split is None
             # twice the size of active entries: for both the original and the augmented copies of the batch
             fixed_split = torch.empty((2 * len(batch['active_entries']),)).type_as(batch['active_entries']) 
@@ -144,35 +147,55 @@ class CT(LightningModule):
                 batch[k] = torch.cat((v,v), dim = 0)
 
         prev_A = batch["prev_A"]
-        X = batch["X"]
+        X = batch["X"] if self.has_vitals else None
         prev_Y = batch["prev_Y"]
         static_features = batch["static inputs"]
         curr_A = batch["curr_A"]
         active_entries = batch['active_entries']
 
-        br = self.build_br(prev_A, X, prev_Y, static_features, active_entries)
+        br = self.build_br(prev_A, X, prev_Y, static_features, active_entries, fixed_split)
         outcome_pred = self.br_head.build_outcome(br, curr_A)
         return br, outcome_pred
     
-    def build_br(self, prev_A, X, prev_Y, static_features, active_entries):
+    def build_br(self, prev_A, X, prev_Y, static_features, active_entries, fixed_split):
         '''
         '''
         active_entries_Y = torch.clone(active_entries)
         active_entries_X = torch.clone(active_entries)
 
+        if fixed_split is not None and self.has_vitals:
+            for i in range(len(active_entries)):
+                #Masking X in range [fixed_split: ]
+                active_entries_X[i, int(fixed_split[i]):, : ] = 0.0
+                X[i, int(fixed_split[i]):] = 0.0
+
         x_t = self.A_input_transformation(prev_A)
         x_o = self.Y_input_transformation(prev_Y)
-        x_v = self.X_input_transformation(X) 
+        x_v = self.X_input_transformation(X) if self.has_vitals else None
         x_s = self.V_input_transformation(static_features.unsqueeze(1))
 
         for block in self.transformer_blocks:
-            x_t = x_t + self.self_positional_encoding(x_t)
-            x_o = x_o + self.self_positional_encoding(x_o)
-            x_v = x_v + self.self_positional_encoding(x_v) 
+            if self.self_positional_encoding is not None:
+                x_t = x_t + self.self_positional_encoding(x_t)
+                x_o = x_o + self.self_positional_encoding(x_o)
+                x_v = x_v + self.self_positional_encoding(x_v) if self.has_vitals else None
 
-            x_t, x_o, x_v = block((x_t, x_o, x_v), x_s, active_entries_Y, active_entries_X)
-
-            x = (x_o + x_t + x_v) / 3
+            if self.has_vitals:
+                x_t, x_o, x_v = block((x_t, x_o, x_v), x_s, active_entries_Y, active_entries_X)
+            else:
+                x_t, x_o = block((x_t, x_o), x_s, active_entries_Y)
+        if not self.has_vitals:
+            x = (x_o + x_t) / 2
+        else:
+            if fixed_split is not None: # Test seq data
+                x = torch.empty_like(x_o)
+                for i in range(len(active_entries)):
+                    # Masking X in range [fixed_split:]
+                    m = int(fixed_split[i])
+                    x[i, :m] = (x_o[i, :m] + x_t[i, :m] + x_v[i, :m]) / 3
+                    x[i, m:] = (x_o[i, :m] + x_t[i, :m]) / 2
+            else: # Train data has always X
+                x = (x_o + x_t + x_v) / 3   
         
         output = self.output_dropout(x)
         br = self.br_head.build_br(output)

@@ -103,7 +103,9 @@ class Attention(nn.Module):
             scores = scores + torch.einsum('b h q d, q k d -> b h q k', query, R_k)
 
         scores = scores / math.sqrt(query.size(-1))
-
+        #print('score shae:',scores.shape) #torch.Size([32, 2, 60, 60])
+        #print('mask is',mask.shape) #torch.Size([1, 1, 32, 3600])
+        mask = torch.ones([1,1,60,60],device= scores.device)
         if mask is not None:
             scores = scores.masked_fill(mask == 0, -1e9)
 
@@ -152,6 +154,7 @@ class MultiHeadedAttention(nn.Module):
         query_, key_, value_ = [layer(x).view(batch_size, -1, self.num_heads, self.head_size).transpose(1, 2)
                                 for layer, x in zip(self.linear_layers, (query, key, value))]
         # 2) apply self_attention on all the projected vectors in batch.
+        #print('qkv size', query_.shape,key_.shape,value_.shape) #torch.Size([32, 2, 60, 5]) torch.Size([32, 2, 60, 5]) torch.Size([32, 2, 60, 5])
         x, attn = self.attention(query_, key_, value_, mask=mask, dropout=self.dropout, one_direction=one_direction)
 
         # 3) "concat" using a view and apply a final linear.

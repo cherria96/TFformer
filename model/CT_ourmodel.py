@@ -3,9 +3,10 @@ import torch
 from torch import nn
 from torch_ema import ExponentialMovingAverage
 import torch.optim as optim
-from utils_transformer import TransformerMultiInputBlock, AbsolutePositionalEncoding, RelativePositionalEncoding
-from utils import BROutcomeHead
+from model.utils_transformer import TransformerMultiInputBlock, AbsolutePositionalEncoding, RelativePositionalEncoding
+from model.utils import BROutcomeHead
 import numpy as np
+import pdb
 '''
 수진
 - active entries?? 무슨 용도인지 아직 모르겠음. 
@@ -14,7 +15,7 @@ import numpy as np
 
 class CT(LightningModule):
     def __init__(self, dim_A=None, dim_X = None, dim_Y = None, dim_V = None,
-                 seq_hidden_units = 16, num_heads = 2, head_size = None, dropout_rate = 0.2, 
+                 seq_hidden_units = 10, num_heads = 2, head_size = None, dropout_rate = 0.2, 
                   num_layer = 1):
         super().__init__()
 
@@ -27,13 +28,13 @@ class CT(LightningModule):
         self.dim_V = dim_V 
 
         # Parameters for basic block cls
-        self.seq_hidden_units = seq_hidden_units #16
+        self.seq_hidden_units = seq_hidden_units #10
         self.num_heads = num_heads # 2
         self.head_size = seq_hidden_units // num_heads 
         self.dropout_rate = dropout_rate # range from 0.1 to 0.5
         self.num_layer = num_layer #1
-        self.br_size = 16 # relate to input size
-        self.fc_hidden_units = 48 # relate to the size of balanced representation
+        self.br_size = 10 # relate to input size
+        self.fc_hidden_units = 5 # relate to the size of balanced representation
         self.alpha =0.01
 
         # Params for poisitional encoding
@@ -53,9 +54,8 @@ class CT(LightningModule):
             self.ema_treatment = ExponentialMovingAverage(self.parameters(),decay = self.beta)
 
 
-        sub_args = None
-        self.__init__specific(sub_args)
-
+        self.__init__specific()
+        self.trainingg = True
         self.is_augmentation = False
         self.has_vitals = True
 
@@ -65,7 +65,7 @@ class CT(LightningModule):
     우리 한가지 case(multi)인데 init이랑 init specific이 나누어야 할까?
     sub args나 외부 argument쓰는게 헷갈리게 만드는 요인같은데 일단 가능한 거는 init함수에 써볼게!
     """
-    def __init__specific(self, sub_args):
+    def __init__specific(self):
         """
         Initialization of specific sub-network (only multi)
         Args:
@@ -105,20 +105,16 @@ class CT(LightningModule):
         # transformer blocks 
         """
         (경민)
-        positional encoding k,v가 어디서 정의되야 하는걸까?, 왜 overview에는 안그려져 있지?
         isolate_subnetwork뜻이 뭐지
-        -> either 't' 'v' 'o' ''
-        e.g. if 't': isolation for the subnetwork dealing with 'treatments'. 
-        treatment-related information doesn't interfere with learning of other data types within the model
         """
         self.transformer_blocks = nn.ModuleList([self.basic_block_cls(self.seq_hidden_units, 
                                                                       self.num_heads, self.head_size, 
                                                                       self.seq_hidden_units * 4,self.dropout_rate,
-                                                                      self.dropout_rate if sub_args.attn_dropout else 0.0,
+                                                                      self.dropout_rate ,
                                                                       self_positional_encoding_k=self.self_positional_encoding_k,
                                                                       self_positional_encoding_v=self.self_positional_encoding_v
                                                                       ,n_inputs=self.n_inputs,disable_cross_attention = False,
-                                                                      isolate_subnetwork=sub_args.isolate_subnetwork) for _ in range(self.num_layer)])
+                                                                      isolate_subnetwork='_') for _ in range(self.num_layer)])
 
 
         # dropout
@@ -154,17 +150,19 @@ class CT(LightningModule):
         prev_A = batch["prev_A"]
         X = batch["X"] if self.has_vitals else None
         prev_Y = batch["prev_Y"]
-        static_features = batch["static inputs"]
+        static_features = batch["static_inputs"]
         curr_A = batch["curr_A"]
         active_entries = batch['active_entries']
 
+        #print('pevA, prevY , X, static feature shape:',prev_A.shape,prev_Y.shape, X.shape, static_features.shape)
+        #-> torch.Size([32, 60, 5]) torch.Size([32, 60, 1]) torch.Size([32, 60, 10]) torch.Size([32, 3])
         br = self.build_br(prev_A, X, prev_Y, static_features, active_entries, fixed_split)
+        #print("br, curr A shape",br.shape, curr_A.shape)
+        #->torch.Size([8, 60, 10]) torch.Size([8, 60, 5])
         outcome_pred = self.br_head.build_outcome(br, curr_A)
         return br, outcome_pred
     
     def build_br(self, prev_A, X, prev_Y, static_features, active_entries, fixed_split):
-        '''
-        '''
         active_entries_Y = torch.clone(active_entries)
         active_entries_X = torch.clone(active_entries)
 
@@ -178,13 +176,14 @@ class CT(LightningModule):
         x_o = self.Y_input_transformation(prev_Y)
         x_v = self.X_input_transformation(X) if self.has_vitals else None
         x_s = self.V_input_transformation(static_features.unsqueeze(1))
+        #print('xt, xo, xv shape before:', x_t.shape, x_o.shape, x_v.shape)#(32,60,10) (32,60,10) (32,60,10)
 
         for block in self.transformer_blocks:
             if self.self_positional_encoding is not None:
                 x_t = x_t + self.self_positional_encoding(x_t)
                 x_o = x_o + self.self_positional_encoding(x_o)
                 x_v = x_v + self.self_positional_encoding(x_v) if self.has_vitals else None
-
+            # print('xt, xo, xv shape:', x_t.shape, x_o.shape, x_v.shape) #(32,60,10) (32,60,10) (32,60,10)
             if self.has_vitals:
                 x_t, x_o, x_v = block((x_t, x_o, x_v), x_s, active_entries_Y, active_entries_X)
             else:
@@ -209,48 +208,45 @@ class CT(LightningModule):
 
     def training_step(self, batch, batch_idx):
         if self.ema:
-            with self.ema_treatment.average_parmeters():
-                outcome_pred, _ = self(batch) #model 구조에 따라 바꾸어야 할 듯, prediction part만 쓴 거라서 본래 모델의 성능을 파악하기는 어려울 듯함.
+            with self.ema_treatment.average_parameters():
+                outcome_pred, _ = self(batch) 
         else:
             outcome_pred, _ = self(batch)
+        # print('outcome shape, prediction and gt', outcome_pred.shape,batch['outputs'].shape)
+        # torch.Size([32, 60, 10]) torch.Size([32, 60, 10])
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
-        self.log(f'train_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
-        return mse_loss
+        self.log(f'train_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True) 
+        # 왜 우리 prediction 결과과 (25,60, 10)이지? 기존 모델은 .mean()안해도 되는데
+        # parameter 탓인가?
+        return mse_loss.mean()
 
     def validation_step(self, batch, batch_idx):
         if self.ema:
-            with self.ema_treatment.average_parmeters():
+            with self.ema_treatment.average_parameters():
                 outcome_pred, _ = self(batch) 
         else:
             outcome_pred, _ = self(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
-        self.log(f'vlidation_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
+        self.log(f'vlidation_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
     
 
     def test_step(self, batch, batch_idx):
         if self.ema:
-            with self.ema_treatment.average_parmeters():
+            with self.ema_treatment.average_parameters():
                 outcome_pred, _ = self(batch) 
         else:
             outcome_pred, _ = self(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
-        self.log(f'vlidation_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True)
+        self.log(f'vlidation_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
     
 
     def configure_optimizers(self):
         # Follow config of ct https://github.com/Valentyn1997/CausalTransformer/blob/27b253affa1a1e5190452be487fcbd45093dca00/config/backbone/ct.yaml#L22
 
         lr = 0.01 
-        optimizer = optim.Adam(self.parameters(), lr = lr) # 어디서 model paramters 받아와야 하지?  
-        lr_scheduler = optim.lr_scheduler.ExpontialLR(optimizer,gamma = 0.99)
+        optimizer = optim.Adam(self.parameters(), lr = lr)
+        lr_scheduler = optim.lr_scheduler.ExponentialLR(optimizer,gamma = 0.99)
 
         return [optimizer], [lr_scheduler]
 
 
-
-        
-
-    
-    
-
-    

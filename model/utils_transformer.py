@@ -103,11 +103,12 @@ class Attention(nn.Module):
             scores = scores + torch.einsum('b h q d, q k d -> b h q k', query, R_k)
 
         scores = scores / math.sqrt(query.size(-1))
+    
         #print('score shae:',scores.shape) #torch.Size([32, 2, 60, 60])
         #print('mask is',mask.shape) #torch.Size([1, 1, 32, 3600])
-        mask = torch.ones([1,1,60,60],device= scores.device)
-        if mask is not None:
-            scores = scores.masked_fill(mask == 0, -1e9)
+        mask = torch.ones([1,1,59,59],device= scores.device)
+        # if mask is not None:
+        #     scores = scores.masked_fill(mask == 0, -1e9)
 
         if one_direction:  # Required for self-attention, but not for cross-attention
             direction_mask = torch.ones_like(scores)

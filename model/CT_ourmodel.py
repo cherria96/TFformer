@@ -199,6 +199,7 @@ class CT(LightningModule):
                     x[i, :m] = (x_o[i, :m] + x_t[i, :m] + x_v[i, :m]) / 3
                     x[i, m:] = (x_o[i, :m] + x_t[i, :m]) / 2
             else: # Train data has always X
+                print("shape x_o, x_t, x_v", x_o.shape, x_t.shape, x_v.shape)
                 x = (x_o + x_t + x_v) / 3   
         
         output = self.output_dropout(x)
@@ -209,9 +210,9 @@ class CT(LightningModule):
     def training_step(self, batch, batch_idx):
         if self.ema:
             with self.ema_treatment.average_parameters():
-                outcome_pred, _ = self(batch) 
+                _, outcome_pred= self(batch) 
         else:
-            outcome_pred, _ = self(batch)
+            _, outcome_pred= self(batch)
         # print('outcome shape, prediction and gt', outcome_pred.shape,batch['outputs'].shape)
         # torch.Size([32, 60, 10]) torch.Size([32, 60, 10])
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
@@ -227,7 +228,7 @@ class CT(LightningModule):
         else:
             outcome_pred, _ = self(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
-        self.log(f'vlidation_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
+        self.log(f'validation_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
     
 
     def test_step(self, batch, batch_idx):
@@ -237,7 +238,7 @@ class CT(LightningModule):
         else:
             outcome_pred, _ = self(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
-        self.log(f'vlidation_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
+        self.log(f'validation_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
     
 
     def configure_optimizers(self):

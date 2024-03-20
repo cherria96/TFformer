@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 class DataCreate(Dataset):
-    def __init__(self, A, X, Y, V,output, sequence_lengths):
+    def __init__(self, A, X, Y, V,sequence_lengths):
         """
         Initialize dataset.
         
@@ -26,7 +26,7 @@ class DataCreate(Dataset):
         self.Y = Y
         self.V = V
         self.sequence_lengths = sequence_lengths
-        self.output = output # outcome을 Y에서 가져와야 할 것 같은데 일단 돌아가게만 해볼게
+        # self.output = output # outcome을 Y에서 가져와야 할 것 같은데 일단 돌아가게만 해볼게
 
     def __len__(self):
         return len(self.A)
@@ -37,12 +37,12 @@ class DataCreate(Dataset):
         
         return {
             'prev_A': self.A[idx, :-1],  # Assuming last treatment is `curr_A`
-            'X': self.X[idx],
+            'X': self.X[idx, :-1],
             'prev_Y': self.Y[idx, :-1],  # Assuming similar structure to A
             'static_inputs': self.V[idx],
-            'curr_A': self.A[idx, :-1],
+            'curr_A': self.A[idx, -1].unsqueeze(0),
             'active_entries': active_entries,
-            'outputs':self.output[idx,:-1]
+            'outputs':self.Y[idx,:-1].unsqueeze(0)
         }
 
 
@@ -54,18 +54,18 @@ dim_X = 10  # Dimension of vitals
 dim_Y = 1  # Dimension of outputs
 dim_V = 3  # Dimension of static inputs
 # Simulate data
-A = torch.randn(num_samples, seq_length+1, dim_A) # 왜 얘네 (25,59,5)이지? 그래서 +1 해두긴했어
+A = torch.randn(num_samples, seq_length, dim_A) # 왜 얘네 (25,59,5)이지? 그래서 +1 해두긴했어
 X = torch.randn(num_samples, seq_length, dim_X)
 # Y = torch.randint(0, 2, (num_samples, seq_length, dim_Y)).float()  # Binary outcomes
-Y = torch.randn(num_samples, seq_length+1, dim_Y)
+Y = torch.randn(num_samples, seq_length, dim_Y)
 V = torch.randn(num_samples, dim_V)
-output = torch.randn(num_samples,seq_length+1,10)
+# output = torch.randn(num_samples,seq_length+1,10)
 sequence_lengths = torch.full((num_samples,), seq_length, dtype=torch.long)  # Here, all sequences are of the same length for simplicity
 
 # Initialize the dataset
 batch_size = 32
-train_dataset = DataCreate(A, X, Y, V,output, sequence_lengths)
-test_dataset = DataCreate(A, X, Y, V,output, sequence_lengths)
+train_dataset = DataCreate(A, X, Y, V, sequence_lengths)
+test_dataset = DataCreate(A, X, Y, V,sequence_lengths)
 
 # Create the DataLoader
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -81,3 +81,4 @@ trainer = pl.Trainer(accelerator = "cpu",max_epochs = 10)
 model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V)
 trainer.fit(model, train_loader)
 trainer.test(model,test_loader)
+# %%

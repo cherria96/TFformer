@@ -55,9 +55,9 @@ class CT(LightningModule):
 
 
         self.__init__specific()
-        self.trainingg = True
+        self.training = True
         self.is_augmentation = False
-        self.has_vitals = True
+        self.has_vitals = False
 
         
     """
@@ -126,7 +126,7 @@ class CT(LightningModule):
     def forward(self, batch):
         '''
         batch: Dict
-            batch.keys = [prev_A, X, prev_Y, static_inputs, curr_A, active_entries]
+            batch.keys = [prev_treatments, X, prev_outputs, static_features, current_treatments, active_entries]
         fixed split : tells the model up to which point in the sequence the data is considered as observed and from which point the data is to be predicted
             model can use real data up to the 'fixed_split' point and then switch to using its predictions or masked values beyond this point
         active entries: (binary tensor) indicates the active or valid entries in the sequence data fro each instance in the batch
@@ -147,22 +147,22 @@ class CT(LightningModule):
             for (k,v) in batch.items():
                 batch[k] = torch.cat((v,v), dim = 0)
 
-        prev_A = batch["prev_A"]
-        X = batch["X"] if self.has_vitals else None
-        prev_Y = batch["prev_Y"]
-        static_features = batch["static_inputs"]
-        curr_A = batch["curr_A"]
+        prev_treatments = batch["prev_treatments"]
+        vitals = batch["vitals"] if self.has_vitals else None
+        prev_outputs = batch["prev_outputs"]
+        static_features = batch["static_features"]
+        current_treatments = batch["current_treatments"]
         active_entries = batch['active_entries']
 
-        #print('pevA, prevY , X, static feature shape:',prev_A.shape,prev_Y.shape, X.shape, static_features.shape)
+        #print('pevA, prevY , vitals, static feature shape:',prev_treatments.shape,prev_outputs.shape, vitals.shape, static_features.shape)
         #-> torch.Size([32, 60, 5]) torch.Size([32, 60, 1]) torch.Size([32, 60, 10]) torch.Size([32, 3])
-        br = self.build_br(prev_A, X, prev_Y, static_features, active_entries, fixed_split)
-        #print("br, curr A shape",br.shape, curr_A.shape)
+        br = self.build_br(prev_treatments, vitals, prev_outputs, static_features, active_entries, fixed_split)
+        #print("br, curr A shape",br.shape, current_treatments.shape)
         #->torch.Size([8, 60, 10]) torch.Size([8, 60, 5])
-        outcome_pred = self.br_head.build_outcome(br, curr_A)
+        outcome_pred = self.br_head.build_outcome(br, current_treatments)
         return br, outcome_pred
     
-    def build_br(self, prev_A, X, prev_Y, static_features, active_entries, fixed_split):
+    def build_br(self, prev_treatments, X, prev_outputs, static_features, active_entries, fixed_split):
         active_entries_Y = torch.clone(active_entries)
         active_entries_X = torch.clone(active_entries)
 
@@ -172,8 +172,8 @@ class CT(LightningModule):
                 active_entries_X[i, int(fixed_split[i]):, : ] = 0.0
                 X[i, int(fixed_split[i]):] = 0.0
 
-        x_t = self.A_input_transformation(prev_A)
-        x_o = self.Y_input_transformation(prev_Y)
+        x_t = self.A_input_transformation(prev_treatments)
+        x_o = self.Y_input_transformation(prev_outputs)
         x_v = self.X_input_transformation(X) if self.has_vitals else None
         x_s = self.V_input_transformation(static_features.unsqueeze(1))
         #print('xt, xo, xv shape before:', x_t.shape, x_o.shape, x_v.shape)#(32,60,10) (32,60,10) (32,60,10)

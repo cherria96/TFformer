@@ -53,6 +53,8 @@ class DataCreate(Dataset):
             'outputs':self.Y[idx,1:, np.newaxis] # (num_samples, max_seq_length -1, dim_Y)
         }
 '''
+torch.set_default_dtype(torch.float64)
+
 # cancer_sim 
 num_patients = {'train': 1000, 'val': 1000, 'test': 100}
 datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 

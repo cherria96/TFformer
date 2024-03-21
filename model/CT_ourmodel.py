@@ -329,4 +329,11 @@ class CT(LightningModule):
 
         return [optimizer], [lr_scheduler]
 
+    @staticmethod
+    def load_from_checkpoint(checkpoint_path):
+        # Load checkpoint
+        model = CT()
+        model.load_state_dict(torch.load(checkpoint_path))
+        return model
+
 

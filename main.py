@@ -59,7 +59,7 @@ class DataCreate(Dataset):
 torch.set_default_dtype(torch.float64)
 
 # cancer_sim 
-num_patients = {'train': 10000, 'val': 10000, 'test': 1000}
+num_patients = {'train': 1000, 'val': 100, 'test': 100}
 datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
                                     max_seq_length = 60, projection_horizon = 5, 
                                     seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
@@ -77,9 +77,9 @@ dim_A = 4  # Dimension of treatments
 dim_X = 0  # Dimension of vitals
 dim_Y = 1  # Dimension of outputs
 dim_V = 1  # Dimension of static inputs
-batch_size = 512
-train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True, num_workers = 8)
-val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False, num_workers = 8)
+batch_size = 64
+train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True,)
+val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False, )
 # # Simulate data
 # A = torch.randn(num_samples, seq_length, dim_A) # 왜 얘네 (25,59,5)이지? 그래서 +1 해두긴했어
 # X = torch.randn(num_samples, seq_length, dim_X)
@@ -99,17 +99,21 @@ val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=
 
 # Example of iterating over the DataLoader
 
-for batch in train_loader:
-    # Each 'batch' is a dictionary matching the expected input structure of your model
-    for key, tensor in batch.items():
-            print(f"Key: {key}, Dtype: {tensor.dtype}")  
-    break  # Break after one iteration for demonstration
-
+# for batch in train_loader:
+#     # Each 'batch' is a dictionary matching the expected input structure of your model
+#     for key, tensor in batch.items():
+#             print(f"Key: {key}, Dtype: {tensor.dtype}")  
+#     break  # Break after one iteration for demonstration
+#%%
 trainer = pl.Trainer(accelerator = "cpu",max_epochs = 10)
 model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V)
 trainer.fit(model, train_loader)
+
 trainer.test(model,val_loader)
 
+#%%
+checkpoint_path = None
+model = CT.load_from_checkpoint(checkpoint_path)
 val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
 logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
 

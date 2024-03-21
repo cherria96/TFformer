@@ -88,7 +88,7 @@ class CT(LightningModule):
         self.X_input_transformation = nn.Linear(self.dim_X, self.seq_hidden_units)
         self.Y_input_transformation = nn.Linear(self.dim_Y, self.seq_hidden_units) 
         self.V_input_transformation = nn.Linear(self.dim_V, self.seq_hidden_units)
-        self.n_inputs = 3
+        self.n_inputs = 2
 
         # Init of positional encoding https://github.com/Valentyn1997/CausalTransformer/blob/27b253affa1a1e5190452be487fcbd45093dca00/src/models/edct.py#L78
         # Use relative positionalencoding only

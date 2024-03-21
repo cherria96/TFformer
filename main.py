@@ -70,6 +70,7 @@ dim_X = 0  # Dimension of vitals
 dim_Y = 1  # Dimension of outputs
 dim_V = 1  # Dimension of static inputs
 batch_size = 32
+epoch = 100
 train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
 # # Simulate data
@@ -95,8 +96,10 @@ for batch in train_loader:
     print(batch.keys())  # Example: access the 'prev_A' component of the batch
     break  # Break after one iteration for demonstration
 
-trainer = pl.Trainer(accelerator = "cpu",max_epochs = 10)
+trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch)
 model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V)
 trainer.fit(model, train_loader)
 trainer.test(model,val_loader)
 # %%
+trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}.pt")
+

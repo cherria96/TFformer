@@ -36,7 +36,7 @@ class BROutcomeHead:
         GY: outcome prediction network
         '''
         print('br, curr_A shape', br.shape, curr_A.shape) #br [32, 59,10] curr_A [32, 1, 5]
-        x = torch.cat((br, curr_A), dim=-1)
+        x = torch.cat((br, curr_A), dim=-1).float()
         x = self.elu3(self.linear4(x))
         outcome = self.linear5(x)
         return outcome

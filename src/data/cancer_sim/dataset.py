@@ -11,7 +11,7 @@ from src.data.dataset_collection import SyntheticDatasetCollection
 from src.data.cancer_sim.cancer_simulation import TUMOUR_DEATH_THRESHOLD
 from src.data.cancer_sim.cancer_simulation import generate_params, get_scaling_params, simulate_factual, \
     simulate_counterfactual_1_step, simulate_counterfactuals_treatment_seq
-
+import torch
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +68,8 @@ class SyntheticCancerDataset(Dataset):
         elif mode == 'counterfactual_treatment_seq':
             assert projection_horizon is not None
             self.data = simulate_counterfactuals_treatment_seq(self.params, seq_length, projection_horizon, cf_seq_mode)
+
+
         self.processed = False
         self.processed_sequential = False
         self.processed_autoregressive = False
@@ -608,17 +610,17 @@ class SyntheticCancerDatasetCollection(SyntheticDatasetCollection):
 
 
 #%%
-num_patients = {'train': 1000, 'val': 1000, 'test': 100}
-datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
-                                    max_seq_length = 60, projection_horizon = 5, 
-                                    seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
-datasetcollection.process_data_multi()
-#%%
-train_f = datasetcollection.train_f
-for batch in train_f:
-    # Each 'batch' is a dictionary matching the expected input structure of your model
-    print(batch.keys())  # Example: access the 'prev_A' component of the batch
-    break  # Break after one iteration for demonstration
+# num_patients = {'train': 1000, 'val': 1000, 'test': 100}
+# datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
+#                                     max_seq_length = 60, projection_horizon = 5, 
+#                                     seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
+# datasetcollection.process_data_multi()
+# #%%
+# train_f = datasetcollection.train_f
+# for batch in train_f:
+#     # Each 'batch' is a dictionary matching the expected input structure of your model
+#     print(batch.keys())  # Example: access the 'prev_A' component of the batch
+#     break  # Break after one iteration for demonstration
 
     
 # %%

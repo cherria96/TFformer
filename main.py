@@ -103,3 +103,64 @@ trainer.test(model,val_loader)
 # %%
 trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}.pt")
 
+
+val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
+logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
+
+encoder_results = {}
+if hasattr(datasetcollection, 'test_cf_one_step'):  # Test one_step_counterfactual rmse
+    test_rmse_orig, test_rmse_all, test_rmse_last = model.get_normalised_masked_rmse(datasetcollection.test_cf_one_step,
+                                                                                            one_step_counterfactual=True)
+    logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
+                f'Test normalised RMSE (orig): {test_rmse_orig}; '
+                f'Test normalised RMSE (only counterfactual): {test_rmse_last}')
+    encoder_results = {
+        'encoder_val_rmse_all': val_rmse_all,
+        'encoder_val_rmse_orig': val_rmse_orig,
+        'encoder_test_rmse_all': test_rmse_all,
+        'encoder_test_rmse_orig': test_rmse_orig,
+        'encoder_test_rmse_last': test_rmse_last
+    }
+elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
+    test_rmse_orig, test_rmse_all = model.get_normalised_masked_rmse(datasetcollection.test_f)
+    logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
+                f'Test normalised RMSE (orig): {test_rmse_orig}.')
+    encoder_results = {
+        'encoder_val_rmse_all': val_rmse_all,
+        'encoder_val_rmse_orig': val_rmse_orig,
+        'encoder_test_rmse_all': test_rmse_all,
+        'encoder_test_rmse_orig': test_rmse_orig
+    }
+# %%
+
+#%%
+checkpoint_path = f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}.pt"
+model = CT.load_from_checkpoint(checkpoint_path)
+val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
+logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
+
+encoder_results = {}
+if hasattr(datasetcollection, 'test_cf_one_step'):  # Test one_step_counterfactual rmse
+    test_rmse_orig, test_rmse_all, test_rmse_last = model.get_normalised_masked_rmse(datasetcollection.test_cf_one_step,
+                                                                                            one_step_counterfactual=True)
+    logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
+                f'Test normalised RMSE (orig): {test_rmse_orig}; '
+                f'Test normalised RMSE (only counterfactual): {test_rmse_last}')
+    encoder_results = {
+        'encoder_val_rmse_all': val_rmse_all,
+        'encoder_val_rmse_orig': val_rmse_orig,
+        'encoder_test_rmse_all': test_rmse_all,
+        'encoder_test_rmse_orig': test_rmse_orig,
+        'encoder_test_rmse_last': test_rmse_last
+    }
+elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
+    test_rmse_orig, test_rmse_all = model.get_normalised_masked_rmse(datasetcollection.test_f)
+    logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
+                f'Test normalised RMSE (orig): {test_rmse_orig}.')
+    encoder_results = {
+        'encoder_val_rmse_all': val_rmse_all,
+        'encoder_val_rmse_orig': val_rmse_orig,
+        'encoder_test_rmse_all': test_rmse_all,
+        'encoder_test_rmse_orig': test_rmse_orig
+    }
+# %%

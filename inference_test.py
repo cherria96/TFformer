@@ -10,10 +10,7 @@ import numpy as np
 import pandas as pd
 from src.data.cancer_sim.dataset import SyntheticCancerDatasetCollection
 import logging
-
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 '''
 class DataCreate(Dataset):
     def __init__(self, A, X, Y, V,sequence_lengths):
@@ -61,7 +58,7 @@ class DataCreate(Dataset):
 torch.set_default_dtype(torch.float64)
 
 # cancer_sim 
-num_patients = {'train': 10000, 'val': 1000, 'test': 100}
+num_patients = {'train': 1000, 'val': 1000, 'test': 100}
 datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
                                     max_seq_length = 60, projection_horizon = 5, 
                                     seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
@@ -74,26 +71,10 @@ dim_A = 4  # Dimension of treatments
 dim_X = 0  # Dimension of vitals
 dim_Y = 1  # Dimension of outputs
 dim_V = 1  # Dimension of static inputs
-batch_size = 256
-epoch = 1
+batch_size = 32
+epoch = 100
 train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
-# # Simulate data
-# A = torch.randn(num_samples, seq_length, dim_A) # 왜 얘네 (25,59,5)이지? 그래서 +1 해두긴했어
-# X = torch.randn(num_samples, seq_length, dim_X)
-# # Y = torch.randint(0, 2, (num_samples, seq_length, dim_Y)).float()  # Binary outcomes
-# Y = torch.randn(num_samples, seq_length, dim_Y)
-# V = torch.randn(num_samples, dim_V)
-# # output = torch.randn(num_samples,seq_length+1,10)
-# sequence_lengths = torch.full((num_samples,), seq_length, dtype=torch.long)  # Here, all sequences are of the same length for simplicity
-
-# # Initialize the dataset
-# train_dataset = DataCreate(A, X, Y, V, sequence_lengths)
-# test_dataset = DataCreate(A, X, Y, V,sequence_lengths)
-
-# # Create the DataLoader
-# train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-# test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 # Example of iterating over the DataLoader
 for batch in train_loader:
@@ -101,13 +82,11 @@ for batch in train_loader:
     print(batch.keys())  # Example: access the 'prev_A' component of the batch
     break  # Break after one iteration for demonstration
 
-trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch)
-model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V)
-trainer.fit(model, train_loader)
-trainer.test(model,val_loader)
-# %%
-trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}.pt")
-
+#%%
+checkpoint_path = "C:/Users/user/Documents/causaltf/TFformer/weights/10000_100_1_256.pt"
+model = CT.load_from_checkpoint(checkpoint_path)
+trainer = pl.Trainer(accelerator="cpu", max_epochs=1)
+trainer.test(model, val_loader)
 
 val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
 logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
@@ -126,7 +105,6 @@ if hasattr(datasetcollection, 'test_cf_one_step'):  # Test one_step_counterfactu
         'encoder_test_rmse_orig': test_rmse_orig,
         'encoder_test_rmse_last': test_rmse_last
     }
-    print(encoder_results)
 elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
     test_rmse_orig, test_rmse_all = model.get_normalised_masked_rmse(datasetcollection.test_f)
     logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
@@ -137,5 +115,3 @@ elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
         'encoder_test_rmse_all': test_rmse_all,
         'encoder_test_rmse_orig': test_rmse_orig
     }
-    print(encoder_results)
-# %%

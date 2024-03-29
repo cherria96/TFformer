@@ -608,17 +608,17 @@ class SyntheticCancerDatasetCollection(SyntheticDatasetCollection):
 
 
 #%%
-num_patients = {'train': 1000, 'val': 1000, 'test': 100}
-datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
-                                    max_seq_length = 60, projection_horizon = 5, 
-                                    seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
-datasetcollection.process_data_multi()
-#%%
-train_f = datasetcollection.train_f
-for batch in train_f:
-    # Each 'batch' is a dictionary matching the expected input structure of your model
-    print(batch.keys())  # Example: access the 'prev_A' component of the batch
-    break  # Break after one iteration for demonstration
+# num_patients = {'train': 1000, 'val': 1000, 'test': 100}
+# datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
+#                                     max_seq_length = 60, projection_horizon = 5, 
+#                                     seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
+# datasetcollection.process_data_multi()
+# #%%
+# train_f = datasetcollection.train_f
+# for batch in train_f:
+#     # Each 'batch' is a dictionary matching the expected input structure of your model
+#     print(batch.keys())  # Example: access the 'prev_A' component of the batch
+#     break  # Break after one iteration for demonstration
 
     
 # %%

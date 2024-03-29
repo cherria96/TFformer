@@ -7,17 +7,22 @@ from model.utils_transformer import TransformerMultiInputBlock, AbsolutePosition
 from model.utils import BROutcomeHead
 import numpy as np
 import pdb
+import logging
+from torch.utils.data import DataLoader, Dataset
 '''
 수진
 - active entries?? 무슨 용도인지 아직 모르겠음. 
 - 우선 Input 3개 (X,A,Y) 만 있다고 가정했음. (projection horizon 제외했음)
 '''
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class CT(LightningModule):
-    def __init__(self, dim_A=None, dim_X = None, dim_Y = None, dim_V = None,
-                 seq_hidden_units = 10, num_heads = 2, head_size = None, dropout_rate = 0.2, 
+    def __init__(self, dim_A, dim_X, dim_Y, dim_V,
+                 seq_hidden_units = 16, num_heads = 2, head_size = None, dropout_rate = 0.1, 
                   num_layer = 1):
         super().__init__()
+        self.save_hyperparameters()
 
         self.basic_block_cls = TransformerMultiInputBlock
 
@@ -33,9 +38,9 @@ class CT(LightningModule):
         self.head_size = seq_hidden_units // num_heads 
         self.dropout_rate = dropout_rate # range from 0.1 to 0.5
         self.num_layer = num_layer #1
-        self.br_size = 10 # relate to input size
+        self.br_size = 16 # 10 # relate to input size
         self.fc_hidden_units = 5 # relate to the size of balanced representation
-        self.alpha =0.01
+        self.alpha = 0.01
 
         # Params for poisitional encoding
         # Follow the parameter of ct config file https://github.com/Valentyn1997/CausalTransformer/blob/27b253affa1a1e5190452be487fcbd45093dca00/config/backbone/ct.yaml#L20
@@ -162,6 +167,63 @@ class CT(LightningModule):
         outcome_pred = self.br_head.build_outcome(br, current_treatments)
         return br, outcome_pred
     
+    def get_predictions(self, dataset) -> np.array:
+        logger.info(f'Predictions for {dataset.subset_name}.')
+        # Creating Dataloader
+        data_loader = DataLoader(dataset, batch_size=256, shuffle=False)
+        outcome_pred, _ = [torch.cat(arrs) for arrs in zip(*self.trainer.predict(self, data_loader))]
+        return outcome_pred.numpy()
+    
+    def get_normalised_masked_rmse(self, dataset, one_step_counterfactual=False):
+        logger.info(f'RMSE calculation for {dataset.subset_name}.')
+        outputs_scaled = self.get_predictions(dataset)
+        unscale = True #self.hparams.exp.unscale_rmse
+        percentage = True #self.hparams.exp.percentage_rmse
+
+        if unscale:
+            output_stds, output_means = dataset.scaling_params['output_stds'], dataset.scaling_params['output_means']
+            outputs_unscaled = outputs_scaled * output_stds + output_means
+
+            # Batch-wise masked-MSE calculation is tricky, thus calculating for full dataset at once
+            mse = ((outputs_unscaled - dataset.data['unscaled_outputs']) ** 2) * dataset.data['active_entries']
+        else:
+            # Batch-wise masked-MSE calculation is tricky, thus calculating for full dataset at once
+            mse = ((outputs_scaled - dataset.data['outputs']) ** 2) * dataset.data['active_entries']
+
+        # Calculation like in original paper (Masked-Averaging over datapoints (& outputs) and then non-masked time axis)
+        mse_orig = mse.sum(0).sum(-1) / dataset.data['active_entries'].sum(0).sum(-1)
+        mse_orig = mse_orig.mean()
+        rmse_normalised_orig = np.sqrt(mse_orig) / dataset.norm_const
+
+        # Masked averaging over all dimensions at once
+        mse_all = mse.sum() / dataset.data['active_entries'].sum()
+        rmse_normalised_all = np.sqrt(mse_all) / dataset.norm_const
+
+        if percentage:
+            rmse_normalised_orig *= 100.0
+            rmse_normalised_all *= 100.0
+
+        if one_step_counterfactual:
+            # Only considering last active entry with actual counterfactuals
+            num_samples, time_dim, output_dim = dataset.data['active_entries'].shape
+            last_entries = dataset.data['active_entries'] - np.concatenate([dataset.data['active_entries'][:, 1:, :],
+                                                                            np.zeros((num_samples, 1, output_dim))], axis=1)
+            if unscale:
+                mse_last = ((outputs_unscaled - dataset.data['unscaled_outputs']) ** 2) * last_entries
+            else:
+                mse_last = ((outputs_scaled - dataset.data['outputs']) ** 2) * last_entries
+
+            mse_last = mse_last.sum() / last_entries.sum()
+            rmse_normalised_last = np.sqrt(mse_last) / dataset.norm_const
+
+            if percentage:
+                rmse_normalised_last *= 100.0
+
+            return rmse_normalised_orig, rmse_normalised_all, rmse_normalised_last
+
+        return rmse_normalised_orig, rmse_normalised_all
+
+
     def build_br(self, prev_treatments, X, prev_outputs, static_features, active_entries, fixed_split):
         active_entries_Y = torch.clone(active_entries)
         active_entries_X = torch.clone(active_entries)

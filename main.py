@@ -11,7 +11,9 @@ import pandas as pd
 from src.data.cancer_sim.dataset import SyntheticCancerDatasetCollection
 import logging
 
+
 logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 '''
@@ -67,6 +69,11 @@ datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_co
                                     seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
 datasetcollection.process_data_multi()
 
+# def collate_fn_float32(batch):
+#     # Convert all tensors in the batch to float32
+#     batch_float32 = [{k: v.to(torch.float32) if torch.is_tensor(v) else v for k, v in item.items()} for item in batch]
+#     return torch.utils.data.dataloader.default_collate(batch_float32)
+
 # Example dimensions
 # num_samples = 1000  # Number of samples in the dataset
 # seq_length = 60  # Length of each sequence
@@ -79,7 +86,7 @@ epoch = 1
 train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
 # # Simulate data
-# A = torch.randn(num_samples, seq_length, dim_A) # 왜 얘네 (25,59,5)이지? 그래서 +1 해두긴했어
+# A = torch.randn(num_samples, seq_length, dim_A) 
 # X = torch.randn(num_samples, seq_length, dim_X)
 # # Y = torch.randint(0, 2, (num_samples, seq_length, dim_Y)).float()  # Binary outcomes
 # Y = torch.randn(num_samples, seq_length, dim_Y)
@@ -96,15 +103,43 @@ val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=
 # test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 # Example of iterating over the DataLoader
-for batch in train_loader:
-    # Each 'batch' is a dictionary matching the expected input structure of your model
-    print(batch.keys())  # Example: access the 'prev_A' component of the batch
-    break  # Break after one iteration for demonstration
 
 trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch)
 model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V)
 trainer.fit(model, train_loader)
+
 trainer.test(model,val_loader)
+
+#%%
+checkpoint_path = None
+model = CT.load_from_checkpoint(checkpoint_path)
+val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
+logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
+
+encoder_results = {}
+if hasattr(datasetcollection, 'test_cf_one_step'):  # Test one_step_counterfactual rmse
+    test_rmse_orig, test_rmse_all, test_rmse_last = model.get_normalised_masked_rmse(datasetcollection.test_cf_one_step,
+                                                                                            one_step_counterfactual=True)
+    logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
+                f'Test normalised RMSE (orig): {test_rmse_orig}; '
+                f'Test normalised RMSE (only counterfactual): {test_rmse_last}')
+    encoder_results = {
+        'encoder_val_rmse_all': val_rmse_all,
+        'encoder_val_rmse_orig': val_rmse_orig,
+        'encoder_test_rmse_all': test_rmse_all,
+        'encoder_test_rmse_orig': test_rmse_orig,
+        'encoder_test_rmse_last': test_rmse_last
+    }
+elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
+    test_rmse_orig, test_rmse_all = model.get_normalised_masked_rmse(datasetcollection.test_f)
+    logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
+                f'Test normalised RMSE (orig): {test_rmse_orig}.')
+    encoder_results = {
+        'encoder_val_rmse_all': val_rmse_all,
+        'encoder_val_rmse_orig': val_rmse_orig,
+        'encoder_test_rmse_all': test_rmse_all,
+        'encoder_test_rmse_orig': test_rmse_orig
+    }
 # %%
 trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}.pt")
 

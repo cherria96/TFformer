@@ -9,11 +9,6 @@ import numpy as np
 import pdb
 import logging
 from torch.utils.data import DataLoader, Dataset
-'''
-수진
-- active entries?? 무슨 용도인지 아직 모르겠음. 
-- 우선 Input 3개 (X,A,Y) 만 있다고 가정했음. (projection horizon 제외했음)
-'''
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -59,10 +54,12 @@ class CT(LightningModule):
             self.ema_treatment = ExponentialMovingAverage(self.parameters(),decay = self.beta)
 
 
-        self.__init__specific()
         self.training = True
         self.is_augmentation = False
         self.has_vitals = False
+        self.n_inputs = 3 if self.has_vitals else 2
+        self._init_specific()
+
 
         
     """
@@ -70,7 +67,7 @@ class CT(LightningModule):
     우리 한가지 case(multi)인데 init이랑 init specific이 나누어야 할까?
     sub args나 외부 argument쓰는게 헷갈리게 만드는 요인같은데 일단 가능한 거는 init함수에 써볼게!
     """
-    def __init__specific(self):
+    def _init_specific(self):
         """
         Initialization of specific sub-network (only multi)
         Args:
@@ -82,8 +79,6 @@ class CT(LightningModule):
             dim_Y : outputs
             dim_V : static inputs
         """
-        # super(CT, self).__init__specific(sub_args)
-
 
         # input transformation
         '''
@@ -108,10 +103,6 @@ class CT(LightningModule):
                                         self.positional_encoding_trainable)
 
         # transformer blocks 
-        """
-        (경민)
-        isolate_subnetwork뜻이 뭐지
-        """
         self.transformer_blocks = nn.ModuleList([self.basic_block_cls(self.seq_hidden_units, 
                                                                       self.num_heads, self.head_size, 
                                                                       self.seq_hidden_units * 4,self.dropout_rate,
@@ -131,7 +122,7 @@ class CT(LightningModule):
     def forward(self, batch):
         '''
         batch: Dict
-            batch.keys = [prev_treatments, X, prev_outputs, static_features, current_treatments, active_entries]
+            batch.keys = [prev_treatments, vitals, prev_outputs, static_features, current_treatments, active_entries]
         fixed split : tells the model up to which point in the sequence the data is considered as observed and from which point the data is to be predicted
             model can use real data up to the 'fixed_split' point and then switch to using its predictions or masked values beyond this point
         active entries: (binary tensor) indicates the active or valid entries in the sequence data fro each instance in the batch
@@ -267,7 +258,54 @@ class CT(LightningModule):
         output = self.output_dropout(x)
         br = self.br_head.build_br(output)
         return br
+    def get_normalised_masked_rmse(self, dataset, one_step_counterfactual=False):
+        logger.info(f'RMSE calculation for {dataset.subset_name}.')
+        outputs_scaled = self.get_predictions(dataset)
+        unscale = self.hparams.exp.unscale_rmse
+        percentage = self.hparams.exp.percentage_rmse
 
+        if unscale:
+            output_stds, output_means = dataset.scaling_params['output_stds'], dataset.scaling_params['output_means']
+            outputs_unscaled = outputs_scaled * output_stds + output_means
+
+            # Batch-wise masked-MSE calculation is tricky, thus calculating for full dataset at once
+            mse = ((outputs_unscaled - dataset.data['unscaled_outputs']) ** 2) * dataset.data['active_entries']
+        else:
+            # Batch-wise masked-MSE calculation is tricky, thus calculating for full dataset at once
+            mse = ((outputs_scaled - dataset.data['outputs']) ** 2) * dataset.data['active_entries']
+
+        # Calculation like in original paper (Masked-Averaging over datapoints (& outputs) and then non-masked time axis)
+        mse_orig = mse.sum(0).sum(-1) / dataset.data['active_entries'].sum(0).sum(-1)
+        mse_orig = mse_orig.mean()
+        rmse_normalised_orig = np.sqrt(mse_orig) / dataset.norm_const
+
+        # Masked averaging over all dimensions at once
+        mse_all = mse.sum() / dataset.data['active_entries'].sum()
+        rmse_normalised_all = np.sqrt(mse_all) / dataset.norm_const
+
+        if percentage:
+            rmse_normalised_orig *= 100.0
+            rmse_normalised_all *= 100.0
+
+        if one_step_counterfactual:
+            # Only considering last active entry with actual counterfactuals
+            num_samples, time_dim, output_dim = dataset.data['active_entries'].shape
+            last_entries = dataset.data['active_entries'] - np.concatenate([dataset.data['active_entries'][:, 1:, :],
+                                                                            np.zeros((num_samples, 1, output_dim))], axis=1)
+            if unscale:
+                mse_last = ((outputs_unscaled - dataset.data['unscaled_outputs']) ** 2) * last_entries
+            else:
+                mse_last = ((outputs_scaled - dataset.data['outputs']) ** 2) * last_entries
+
+            mse_last = mse_last.sum() / last_entries.sum()
+            rmse_normalised_last = np.sqrt(mse_last) / dataset.norm_const
+
+            if percentage:
+                rmse_normalised_last *= 100.0
+
+            return rmse_normalised_orig, rmse_normalised_all, rmse_normalised_last
+
+        return rmse_normalised_orig, rmse_normalised_all
 
     def training_step(self, batch, batch_idx):
         if self.ema:
@@ -311,5 +349,12 @@ class CT(LightningModule):
         lr_scheduler = optim.lr_scheduler.ExponentialLR(optimizer,gamma = 0.99)
 
         return [optimizer], [lr_scheduler]
+
+    @staticmethod
+    def load_from_checkpoint(checkpoint_path):
+        # Load checkpoint
+        model = CT()
+        model.load_state_dict(torch.load(checkpoint_path))
+        return model
 
 

@@ -11,7 +11,7 @@ from src.data.dataset_collection import SyntheticDatasetCollection
 from src.data.cancer_sim.cancer_simulation import TUMOUR_DEATH_THRESHOLD
 from src.data.cancer_sim.cancer_simulation import generate_params, get_scaling_params, simulate_factual, \
     simulate_counterfactual_1_step, simulate_counterfactuals_treatment_seq
-
+import torch
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +68,8 @@ class SyntheticCancerDataset(Dataset):
         elif mode == 'counterfactual_treatment_seq':
             assert projection_horizon is not None
             self.data = simulate_counterfactuals_treatment_seq(self.params, seq_length, projection_horizon, cf_seq_mode)
+
+
         self.processed = False
         self.processed_sequential = False
         self.processed_autoregressive = False

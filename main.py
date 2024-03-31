@@ -10,6 +10,8 @@ import numpy as np
 import pandas as pd
 from src.data.cancer_sim.dataset import SyntheticCancerDatasetCollection
 import logging
+from datetime import datetime
+
 
 
 logging.basicConfig(level=logging.INFO)
@@ -111,8 +113,8 @@ trainer.fit(model, train_loader)
 trainer.test(model,val_loader)
 
 #%%
-checkpoint_path = None
-model = CT.load_from_checkpoint(checkpoint_path)
+# checkpoint_path = None
+# model = CT.load_from_checkpoint(checkpoint_path)
 val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
 logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
 
@@ -141,7 +143,7 @@ elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
         'encoder_test_rmse_orig': test_rmse_orig
     }
 # %%
-trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}.pt")
+trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}_{datetime.now()}.pt")
 
 
 val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)

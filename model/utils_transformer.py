@@ -94,10 +94,11 @@ class Attention(nn.Module):
         super(Attention, self).__init__()
         self.positional_encoding_k = positional_encoding_k
         self.positional_encoding_v = positional_encoding_v
+        self.last_attn_weights = None
+
 
     def forward(self, query, key, value, mask=None, dropout=None, one_direction=False):
         scores = torch.matmul(query, key.transpose(-2, -1))
-
         if self.positional_encoding_k is not None:
             R_k = self.positional_encoding_k(query.size(2), key.size(2))
             scores = scores + torch.einsum('b h q d, q k d -> b h q k', query, R_k)
@@ -116,6 +117,7 @@ class Attention(nn.Module):
             scores = scores.masked_fill(direction_mask == 0, -1e9)
 
         p_attn = F.softmax(scores, dim=-1)
+        self.last_attn_weights = p_attn
 
         if dropout is not None:
             p_attn = dropout(p_attn)

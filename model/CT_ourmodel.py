@@ -261,8 +261,8 @@ class CT(LightningModule):
     def get_normalised_masked_rmse(self, dataset, one_step_counterfactual=False):
         logger.info(f'RMSE calculation for {dataset.subset_name}.')
         outputs_scaled = self.get_predictions(dataset)
-        unscale = self.hparams.exp.unscale_rmse
-        percentage = self.hparams.exp.percentage_rmse
+        unscale = True
+        percentage = True
 
         if unscale:
             output_stds, output_means = dataset.scaling_params['output_stds'], dataset.scaling_params['output_means']
@@ -350,11 +350,5 @@ class CT(LightningModule):
 
         return [optimizer], [lr_scheduler]
 
-    @staticmethod
-    def load_from_checkpoint(checkpoint_path):
-        # Load checkpoint
-        model = CT()
-        model.load_state_dict(torch.load(checkpoint_path))
-        return model
 
 

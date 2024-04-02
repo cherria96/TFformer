@@ -83,7 +83,7 @@ for batch in train_loader:
     break  # Break after one iteration for demonstration
 
 #%%
-checkpoint_path = "weights/10000_100_150_256_2024-04-02 15:25:05.534881.pt"
+checkpoint_path = "real_weight/cancersim_256_150.pt"
 model = CT.load_from_checkpoint(checkpoint_path)
 trainer = pl.Trainer(accelerator="cpu", max_epochs=1)
 trainer.test(model, val_loader)

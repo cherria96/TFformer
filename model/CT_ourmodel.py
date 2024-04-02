@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 
 class CT(LightningModule):
     def __init__(self, dim_A, dim_X, dim_Y, dim_V,
-                 seq_hidden_units = 16, num_heads = 2, head_size = None, dropout_rate = 0.1, 
-                  num_layer = 1):
+                 seq_hidden_units = 16, num_heads = 2, dropout_rate = 0.1, 
+                  num_layer = 1, fc_hidden_units = 32):
         super().__init__()
 
         self.basic_block_cls = TransformerMultiInputBlock
@@ -35,7 +35,7 @@ class CT(LightningModule):
         self.dropout_rate = dropout_rate # range from 0.1 to 0.5
         self.num_layer = num_layer #1
         self.br_size = 16 # 10 # relate to input size
-        self.fc_hidden_units = 5 # relate to the size of balanced representation
+        self.fc_hidden_units = fc_hidden_units # relate to the size of balanced representation
         self.alpha = 0.01
 
         # Params for poisitional encoding

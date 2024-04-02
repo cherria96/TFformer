@@ -104,7 +104,8 @@ datasetcollection.process_data_multi()
 config = {
     "lr" : 0.01,
     "epochs" : 150,
-    "batch_size": 256
+    "batch_size": 256,
+    "fc_hidden_units": 32
 }
 dim_A = 4  # Dimension of treatments
 dim_X = 0  # Dimension of vitals
@@ -112,11 +113,12 @@ dim_Y = 1  # Dimension of outputs
 dim_V = 1  # Dimension of static inputs
 batch_size = config['batch_size']
 epoch = config['epochs']
+fc_hidden_units = config['fc_hidden_units']
 train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
 
 wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
-wandb_logger = WandbLogger(project = 'TFFormer', name = 'CT_256_150')
+wandb_logger = WandbLogger(project = 'TFFormer', name = f'CT_cancersim_{fc_hidden_units}_{batch_size}_{epoch}')
 # run = wandb.init(
 #     name = "CT_256_10", ## Wandb creates random run names if you skip this field
 #     reinit = True, ### Allows reinitalizing runs when you re-run this cell
@@ -127,7 +129,7 @@ wandb_logger = WandbLogger(project = 'TFFormer', name = 'CT_256_150')
 # )
 
 trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch, log_every_n_steps = 40, logger = wandb_logger)
-model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V)
+model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V, fc_hidden_units=fc_hidden_units)
 trainer.fit(model, train_loader, val_loader)
 
 trainer.test(model,val_loader)

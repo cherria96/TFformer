@@ -83,14 +83,14 @@ for batch in train_loader:
     break  # Break after one iteration for demonstration
 
 #%%
-checkpoint_path = "weights/10000_100_1_256.pt"
+checkpoint_path = "real_weight/cancersim_256_150.pt"
 model = CT.load_from_checkpoint(checkpoint_path)
 trainer = pl.Trainer(accelerator="cpu", max_epochs=1)
 trainer.test(model, val_loader)
 
 val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
 logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
-
+results = {}
 encoder_results = {}
 if hasattr(datasetcollection, 'test_cf_one_step'):  # Test one_step_counterfactual rmse
     test_rmse_orig, test_rmse_all, test_rmse_last = model.get_normalised_masked_rmse(datasetcollection.test_cf_one_step,
@@ -115,3 +115,17 @@ elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
         'encoder_test_rmse_all': test_rmse_all,
         'encoder_test_rmse_orig': test_rmse_orig
     }
+results.update(encoder_results)
+test_rmses = {}
+if hasattr(datasetcollection, 'test_cf_treatment_seq'):  # Test n_step_counterfactual rmse
+    test_rmses = model.get_normalised_n_step_rmses(datasetcollection.test_cf_treatment_seq)
+elif hasattr(datasetcollection, 'test_f_multi'):  # Test n_step_factual rmse
+    test_rmses = model.get_normalised_n_step_rmses(datasetcollection.test_f_multi)
+test_rmses = {f'{k+2}-step': v for (k, v) in enumerate(test_rmses)}
+
+logger.info(f'Test normalised RMSE (n-step prediction): {test_rmses}')
+decoder_results = {
+    'decoder_val_rmse_all': val_rmse_all,
+    'decoder_val_rmse_orig': val_rmse_orig
+}
+decoder_results.update({('decoder_test_rmse_' + k): v for (k, v) in test_rmses.items()})

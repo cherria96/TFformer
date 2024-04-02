@@ -195,18 +195,17 @@ elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
         'encoder_test_rmse_orig': test_rmse_orig
     }
     print(encoder_results)
-# results.update(encoder_results)
-# test_rmses = {}
-# if hasattr(datasetcollection, 'test_cf_treatment_seq'):  # Test n_step_counterfactual rmse
-#     test_rmses = model.get_normalised_n_step_rmses(datasetcollection.test_cf_treatment_seq)
-# elif hasattr(datasetcollection, 'test_f_multi'):  # Test n_step_factual rmse
-#     test_rmses = model.get_normalised_n_step_rmses(datasetcollection.test_f_multi)
-# test_rmses = {f'{k+2}-step': v for (k, v) in enumerate(test_rmses)}
+results.update(encoder_results)
+test_rmses = {}
+if hasattr(datasetcollection, 'test_cf_treatment_seq'):  # Test n_step_counterfactual rmse
+    test_rmses = model.get_normalised_n_step_rmses(datasetcollection.test_cf_treatment_seq)
+elif hasattr(datasetcollection, 'test_f_multi'):  # Test n_step_factual rmse
+    test_rmses = model.get_normalised_n_step_rmses(datasetcollection.test_f_multi)
+test_rmses = {f'{k+2}-step': v for (k, v) in enumerate(test_rmses)}
 
-# logger.info(f'Test normalised RMSE (n-step prediction): {test_rmses}')
-# decoder_results = {
-#     'decoder_val_rmse_all': val_rmse_all,
-#     'decoder_val_rmse_orig': val_rmse_orig
-# }
-# decoder_results.update({('decoder_test_rmse_' + k): v for (k, v) in test_rmses.items()})
-# %%
+logger.info(f'Test normalised RMSE (n-step prediction): {test_rmses}')
+decoder_results = {
+    'decoder_val_rmse_all': val_rmse_all,
+    'decoder_val_rmse_orig': val_rmse_orig
+}
+decoder_results.update({('decoder_test_rmse_' + k): v for (k, v) in test_rmses.items()})

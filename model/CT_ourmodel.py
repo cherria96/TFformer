@@ -165,8 +165,8 @@ class CT(LightningModule):
         logger.info(f'Predictions for {dataset.subset_name}.')
         # Creating Dataloader
         data_loader = DataLoader(dataset, batch_size=256, shuffle=False)
-        print('outcome_pred',len(self.trainer.predict(self, data_loader)))
-        outcome_pred, _ = [torch.cat(arrs) for arrs in zip(*self.trainer.predict(self, data_loader))]
+        # print('outcome_pred',len(self.trainer.predict(self, data_loader)))
+        _, outcome_pred = [torch.cat(arrs) for arrs in zip(*self.trainer.predict(self, data_loader))]
         return outcome_pred.numpy()
     
     def get_autoregressive_predictions(self, dataset):
@@ -180,9 +180,9 @@ class CT(LightningModule):
             for i in range(len(dataset)):
                 split = int(dataset.data['future_past_split'][i])
                 if t < self.projection_horizon:
-                    print('prev_outputs:',dataset.data['prev_outputs'][i,split + t, : ].shape )
-                    print('outputs_scaled:',outputs_scaled.shape)
-                    print('outputs_scaled:',outputs_scaled[i, split - 1 + t, :] )
+                    # print('prev_outputs:',dataset.data['prev_outputs'][i,split + t, : ].shape )
+                    # print('outputs_scaled:',outputs_scaled.shape)
+                    # print('outputs_scaled:',outputs_scaled[i, split - 1 + t, :] )
 
                     dataset.data['prev_outputs'][i,split + t, : ] = outputs_scaled[i, split - 1 + t, :]
                 if t > 0:
@@ -331,9 +331,9 @@ class CT(LightningModule):
     def validation_step(self, batch, batch_idx):
         if self.ema:
             with self.ema_treatment.average_parameters():
-                outcome_pred, _ = self(batch) 
+                _, outcome_pred = self(batch) 
         else:
-            outcome_pred, _ = self(batch) 
+            _, outcome_pred = self(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         self.log(f'validation_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
     
@@ -341,9 +341,9 @@ class CT(LightningModule):
     def test_step(self, batch, batch_idx):
         if self.ema:
             with self.ema_treatment.average_parameters():
-                outcome_pred, _ = self(batch) 
+                _, outcome_pred = self(batch) 
         else:
-            outcome_pred, _ = self(batch) 
+            _, outcome_pred = self(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         self.log(f'test_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
     

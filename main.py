@@ -128,7 +128,7 @@ wandb_logger = WandbLogger(project = 'TFFormer', name = 'CT_256_150')
 
 trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch, log_every_n_steps = 40, logger = wandb_logger)
 model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V)
-trainer.fit(model, train_loader)
+trainer.fit(model, train_loader, val_loader)
 
 trainer.test(model,val_loader)
 

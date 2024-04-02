@@ -165,7 +165,9 @@ trainer.test(model,val_loader)
 #         'encoder_test_rmse_orig': test_rmse_orig
 #     }
 # %%
-trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}_{datetime.now()}.pt")
+
+now = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}_{now}.pt")
 
 
 val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)

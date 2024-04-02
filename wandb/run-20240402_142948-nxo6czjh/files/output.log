@@ -1,0 +1,100 @@
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/torch/nn/init.py:412: UserWarning: Initializing zero-element tensors is a no-op
+  warnings.warn("Initializing zero-element tensors is a no-op")
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/configuration_validator.py:108: PossibleUserWarning: You defined a `validation_step` but have no `val_dataloader`. Skipping val loop.
+  rank_zero_warn(
+  | Name                       | Type                       | Params
+--------------------------------------------------------------------------
+0 | A_input_transformation     | Linear                     | 80
+1 | X_input_transformation     | Linear                     | 16
+2 | Y_input_transformation     | Linear                     | 32
+3 | V_input_transformation     | Linear                     | 32
+4 | self_positional_encoding_k | RelativePositionalEncoding | 248
+5 | self_positional_encoding_v | RelativePositionalEncoding | 248
+6 | transformer_blocks         | ModuleList                 | 8.2 K
+7 | output_dropout             | Dropout                    | 0
+--------------------------------------------------------------------------
+8.4 K     Trainable params
+0         Non-trainable params
+8.4 K     Total params
+0.033     Total estimated model params size (MB)
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, train_dataloader, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/torch/nn/_reduction.py:42: UserWarning: size_average and reduce args will be deprecated, please use reduction='none' instead.
+  warnings.warn(warning.format(ret))
+
+
+
+Epoch 0:  92%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▋              | 37/40 [00:07<00:00,  4.84it/s, loss=0.542, v_num=czjh]
+`Trainer.fit` stopped: `max_epochs=1` reached.
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, test_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+/home/user126/TFformer/model/CT_ourmodel.py:347: UserWarning: Using a target size (torch.Size([256, 59, 1])) that is different to the input size (torch.Size([256, 59, 16])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
+/home/user126/TFformer/model/CT_ourmodel.py:347: UserWarning: Using a target size (torch.Size([232, 59, 1])) that is different to the input size (torch.Size([232, 59, 16])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
+INFO:model.CT_ourmodel:RMSE calculation for val.
+INFO:model.CT_ourmodel:Predictions for val.
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, predict_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+INFO:__main__:Val normalised RMSE (all): 19.583500674506496; Val normalised RMSE (orig): 19.48929128574234
+INFO:model.CT_ourmodel:RMSE calculation for test.
+Epoch 0: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 40/40 [00:08<00:00,  4.92it/s, loss=0.543, v_num=czjh]
+Testing DataLoader 0: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:00<00:00, 12.39it/s]
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Runningstage.testing metric      DataLoader 0
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+      test_mse_loss         1.0380428059811568
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Predicting DataLoader 0: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:00<00:00, 14.02it/s]
+outcome_pred 4
+Predicting DataLoader 0: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:00<00:00, 14.15it/s]
+
+
+Predicting DataLoader 0: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 89/89 [00:06<00:00, 14.49it/s]
+outcome_pred 89
+
+
+Predicting DataLoader 0:  76%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████                                               | 68/89 [00:04<00:01, 14.89it/s]
+INFO:__main__:Test normalised RMSE (all): 33.112901287880135; Test normalised RMSE (orig): 26.52427799537579; Test normalised RMSE (only counterfactual): 24.987192123514852
+INFO:model.CT_ourmodel:RMSE calculation for test.
+INFO:model.CT_ourmodel:Autoregressive Prediction for test.
+INFO:model.CT_ourmodel:t=1
+Predicting DataLoader 0: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 89/89 [00:05<00:00, 15.03it/s]
+{'encoder_val_rmse_all': 19.583500674506496, 'encoder_val_rmse_orig': 19.48929128574234, 'encoder_test_rmse_all': 33.112901287880135, 'encoder_test_rmse_orig': 26.52427799537579, 'encoder_test_rmse_last': 24.987192123514852}
+
+
+
+
+
+
+
+Predicting DataLoader 0: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 225/225 [00:16<00:00, 13.75it/s]
+outcome_pred 225
+
+
+
+
+
+
+
+Predicting DataLoader 0:  95%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎         | 214/225 [00:14<00:00, 15.07it/s]
+Traceback (most recent call last):
+  File "/home/user126/TFformer/main.py", line 201, in <module>
+    test_rmses = model.get_normalised_n_step_rmses(datasetcollection.test_cf_treatment_seq)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/TFformer/model/CT_ourmodel.py", line 198, in get_normalised_n_step_rmses
+    outputs_scaled = self.get_autoregressive_predictions(dataset if datasets_mc is None else datasets_mc)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/TFformer/model/CT_ourmodel.py", line 187, in get_autoregressive_predictions
+    dataset.data['prev_outputs'][i,split + t, : ] = outputs_scaled[i, split - 1 + t, :]
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^~
+Predicting DataLoader 0: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 225/225 [00:14<00:00, 15.09it/s]
+prev_outputs: (1,)
+outputs_scaled: (57389, 64, 16)
+outputs_scaled: [ 0.52800254 -0.62939921 -0.35328676  0.61837593 -0.34862833 -0.74596015
+ -0.82066447 -0.05818385  0.69844601 -0.1176068  -0.19816212 -0.67986899
+  0.16797794  1.60624233  0.83529903 -0.31013348]

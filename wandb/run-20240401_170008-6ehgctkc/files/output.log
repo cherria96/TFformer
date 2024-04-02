@@ -1,0 +1,72 @@
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/torch/nn/init.py:412: UserWarning: Initializing zero-element tensors is a no-op
+  warnings.warn("Initializing zero-element tensors is a no-op")
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/configuration_validator.py:108: PossibleUserWarning: You defined a `validation_step` but have no `val_dataloader`. Skipping val loop.
+  rank_zero_warn(
+  | Name                       | Type                       | Params
+--------------------------------------------------------------------------
+0 | A_input_transformation     | Linear                     | 80
+1 | X_input_transformation     | Linear                     | 16
+2 | Y_input_transformation     | Linear                     | 32
+3 | V_input_transformation     | Linear                     | 32
+4 | self_positional_encoding_k | RelativePositionalEncoding | 248
+5 | self_positional_encoding_v | RelativePositionalEncoding | 248
+6 | transformer_blocks         | ModuleList                 | 8.2 K
+7 | output_dropout             | Dropout                    | 0
+--------------------------------------------------------------------------
+8.4 K     Trainable params
+0         Non-trainable params
+8.4 K     Total params
+0.033     Total estimated model params size (MB)
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, train_dataloader, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/torch/nn/_reduction.py:42: UserWarning: size_average and reduce args will be deprecated, please use reduction='none' instead.
+  warnings.warn(warning.format(ret))
+
+
+
+Epoch 0:  92%|█████████████████████████████████████████████████████████████████████████████████████       | 37/40 [00:07<00:00,  4.91it/s, loss=0.542, v_num=ctkc]
+`Trainer.fit` stopped: `max_epochs=1` reached.
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, test_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+/home/user126/TFformer/model/CT_ourmodel.py:341: UserWarning: Using a target size (torch.Size([256, 59, 1])) that is different to the input size (torch.Size([256, 59, 16])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
+/home/user126/TFformer/model/CT_ourmodel.py:341: UserWarning: Using a target size (torch.Size([232, 59, 1])) that is different to the input size (torch.Size([232, 59, 16])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size.
+  mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
+INFO:model.CT_ourmodel:RMSE calculation for val.
+INFO:model.CT_ourmodel:Predictions for val.
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, predict_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+INFO:__main__:Val normalised RMSE (all): 19.583500674506496; Val normalised RMSE (orig): 19.48929128574234
+INFO:model.CT_ourmodel:RMSE calculation for test.
+Epoch 0: 100%|████████████████████████████████████████████████████████████████████████████████████████████| 40/40 [00:08<00:00,  4.88it/s, loss=0.543, v_num=ctkc]
+Testing DataLoader 0: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:00<00:00, 13.29it/s]
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Runningstage.testing metric      DataLoader 0
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+      test_mse_loss         1.0380428059811568
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:00<00:00, 12.93it/s]
+
+
+Predicting DataLoader 0:  83%|███████████████████████████████████████████████████████████████████████████████████▏                | 74/89 [00:05<00:01, 14.74it/s]
+INFO:__main__:Test normalised RMSE (all): 33.112901287880135; Test normalised RMSE (orig): 26.52427799537579; Test normalised RMSE (only counterfactual): 24.987192123514852
+INFO:model.CT_ourmodel:RMSE calculation for test.
+INFO:model.CT_ourmodel:Autoregressive Prediction for test.
+Traceback (most recent call last):
+  File "/home/user126/TFformer/main.py", line 201, in <module>
+    test_rmses = model.get_normalised_n_step_rmses(datasetcollection.test_cf_treatment_seq)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/TFformer/model/CT_ourmodel.py", line 192, in get_normalised_n_step_rmses
+    outputs_scaled = self.get_autoregressive_predictions(dataset if datasets_mc is None else datasets_mc)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/TFformer/model/CT_ourmodel.py", line 172, in get_autoregressive_predictions
+    predicted_outputs = np.zeros((len(dataset), self.projection_horizon, self.dim_Y))
+                                                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1695, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+Predicting DataLoader 0: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████| 89/89 [00:05<00:00, 14.86it/s]
+{'encoder_val_rmse_all': 19.583500674506496, 'encoder_val_rmse_orig': 19.48929128574234, 'encoder_test_rmse_all': 33.112901287880135, 'encoder_test_rmse_orig': 26.52427799537579, 'encoder_test_rmse_last': 24.987192123514852}

@@ -11,8 +11,12 @@ import pandas as pd
 from src.data.cancer_sim.dataset import SyntheticCancerDatasetCollection
 import logging
 from datetime import datetime
+import wandb
+from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.utilities.seed import seed_everything
 
-
+#%%
+seed_everything(100)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -70,7 +74,7 @@ datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_co
                                     max_seq_length = 60, projection_horizon = 5, 
                                     seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
 datasetcollection.process_data_multi()
-
+#%%
 # def collate_fn_float32(batch):
 #     # Convert all tensors in the batch to float32
 #     batch_float32 = [{k: v.to(torch.float32) if torch.is_tensor(v) else v for k, v in item.items()} for item in batch]
@@ -79,14 +83,6 @@ datasetcollection.process_data_multi()
 # Example dimensions
 # num_samples = 1000  # Number of samples in the dataset
 # seq_length = 60  # Length of each sequence
-dim_A = 4  # Dimension of treatments
-dim_X = 0  # Dimension of vitals
-dim_Y = 1  # Dimension of outputs
-dim_V = 1  # Dimension of static inputs
-batch_size = 256
-epoch = 1
-train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True)
-val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
 # # Simulate data
 # A = torch.randn(num_samples, seq_length, dim_A) 
 # X = torch.randn(num_samples, seq_length, dim_X)
@@ -105,8 +101,32 @@ val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=
 # test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 # Example of iterating over the DataLoader
+config = {
+    "lr" : 0.01,
+    "epochs" : 150,
+    "batch_size": 256
+}
+dim_A = 4  # Dimension of treatments
+dim_X = 0  # Dimension of vitals
+dim_Y = 1  # Dimension of outputs
+dim_V = 1  # Dimension of static inputs
+batch_size = config['batch_size']
+epoch = config['epochs']
+train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True)
+val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
 
-trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch)
+wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
+wandb_logger = WandbLogger(project = 'TFFormer', name = 'CT_256_150')
+# run = wandb.init(
+#     name = "CT_256_10", ## Wandb creates random run names if you skip this field
+#     reinit = True, ### Allows reinitalizing runs when you re-run this cell
+#     # run_id = ### Insert specific run id here if you want to resume a previous run
+#     # resume = "must" ### You need this to resume previous runs, but comment out reinit = True when using this
+#     project = "TFFormer", ### Project should be created in your wandb account
+#     config = config ### Wandb Config for your run
+# )
+
+trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch, log_every_n_steps = 40, logger = wandb_logger)
 model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V)
 trainer.fit(model, train_loader)
 
@@ -115,40 +135,40 @@ trainer.test(model,val_loader)
 #%%
 # checkpoint_path = None
 # model = CT.load_from_checkpoint(checkpoint_path)
-val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
-logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
+# val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
+# logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
 
-encoder_results = {}
-if hasattr(datasetcollection, 'test_cf_one_step'):  # Test one_step_counterfactual rmse
-    test_rmse_orig, test_rmse_all, test_rmse_last = model.get_normalised_masked_rmse(datasetcollection.test_cf_one_step,
-                                                                                            one_step_counterfactual=True)
-    logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
-                f'Test normalised RMSE (orig): {test_rmse_orig}; '
-                f'Test normalised RMSE (only counterfactual): {test_rmse_last}')
-    encoder_results = {
-        'encoder_val_rmse_all': val_rmse_all,
-        'encoder_val_rmse_orig': val_rmse_orig,
-        'encoder_test_rmse_all': test_rmse_all,
-        'encoder_test_rmse_orig': test_rmse_orig,
-        'encoder_test_rmse_last': test_rmse_last
-    }
-elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
-    test_rmse_orig, test_rmse_all = model.get_normalised_masked_rmse(datasetcollection.test_f)
-    logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
-                f'Test normalised RMSE (orig): {test_rmse_orig}.')
-    encoder_results = {
-        'encoder_val_rmse_all': val_rmse_all,
-        'encoder_val_rmse_orig': val_rmse_orig,
-        'encoder_test_rmse_all': test_rmse_all,
-        'encoder_test_rmse_orig': test_rmse_orig
-    }
+# encoder_results = {}
+# if hasattr(datasetcollection, 'test_cf_one_step'):  # Test one_step_counterfactual rmse
+#     test_rmse_orig, test_rmse_all, test_rmse_last = model.get_normalised_masked_rmse(datasetcollection.test_cf_one_step,
+#                                                                                             one_step_counterfactual=True)
+#     logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
+#                 f'Test normalised RMSE (orig): {test_rmse_orig}; '
+#                 f'Test normalised RMSE (only counterfactual): {test_rmse_last}')
+#     encoder_results = {
+#         'encoder_val_rmse_all': val_rmse_all,
+#         'encoder_val_rmse_orig': val_rmse_orig,
+#         'encoder_test_rmse_all': test_rmse_all,
+#         'encoder_test_rmse_orig': test_rmse_orig,
+#         'encoder_test_rmse_last': test_rmse_last
+#     }
+# elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
+#     test_rmse_orig, test_rmse_all = model.get_normalised_masked_rmse(datasetcollection.test_f)
+#     logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
+#                 f'Test normalised RMSE (orig): {test_rmse_orig}.')
+#     encoder_results = {
+#         'encoder_val_rmse_all': val_rmse_all,
+#         'encoder_val_rmse_orig': val_rmse_orig,
+#         'encoder_test_rmse_all': test_rmse_all,
+#         'encoder_test_rmse_orig': test_rmse_orig
+#     }
 # %%
 trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}_{datetime.now()}.pt")
 
 
 val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
 logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
-
+results = {}
 encoder_results = {}
 if hasattr(datasetcollection, 'test_cf_one_step'):  # Test one_step_counterfactual rmse
     test_rmse_orig, test_rmse_all, test_rmse_last = model.get_normalised_masked_rmse(datasetcollection.test_cf_one_step,
@@ -175,4 +195,18 @@ elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
         'encoder_test_rmse_orig': test_rmse_orig
     }
     print(encoder_results)
+# results.update(encoder_results)
+# test_rmses = {}
+# if hasattr(datasetcollection, 'test_cf_treatment_seq'):  # Test n_step_counterfactual rmse
+#     test_rmses = model.get_normalised_n_step_rmses(datasetcollection.test_cf_treatment_seq)
+# elif hasattr(datasetcollection, 'test_f_multi'):  # Test n_step_factual rmse
+#     test_rmses = model.get_normalised_n_step_rmses(datasetcollection.test_f_multi)
+# test_rmses = {f'{k+2}-step': v for (k, v) in enumerate(test_rmses)}
+
+# logger.info(f'Test normalised RMSE (n-step prediction): {test_rmses}')
+# decoder_results = {
+#     'decoder_val_rmse_all': val_rmse_all,
+#     'decoder_val_rmse_orig': val_rmse_orig
+# }
+# decoder_results.update({('decoder_test_rmse_' + k): v for (k, v) in test_rmses.items()})
 # %%

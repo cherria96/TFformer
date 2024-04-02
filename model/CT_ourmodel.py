@@ -9,6 +9,8 @@ import numpy as np
 import pdb
 import logging
 from torch.utils.data import DataLoader, Dataset
+import wandb 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -17,7 +19,6 @@ class CT(LightningModule):
                  seq_hidden_units = 16, num_heads = 2, head_size = None, dropout_rate = 0.1, 
                   num_layer = 1):
         super().__init__()
-        self.save_hyperparameters()
 
         self.basic_block_cls = TransformerMultiInputBlock
 
@@ -58,7 +59,9 @@ class CT(LightningModule):
         self.is_augmentation = False
         self.has_vitals = False
         self.n_inputs = 3 if self.has_vitals else 2
+        self.projection_horizon = 5
         self._init_specific()
+        self.save_hyperparameters()
 
 
         
@@ -162,58 +165,58 @@ class CT(LightningModule):
         logger.info(f'Predictions for {dataset.subset_name}.')
         # Creating Dataloader
         data_loader = DataLoader(dataset, batch_size=256, shuffle=False)
+        print('outcome_pred',len(self.trainer.predict(self, data_loader)))
         outcome_pred, _ = [torch.cat(arrs) for arrs in zip(*self.trainer.predict(self, data_loader))]
         return outcome_pred.numpy()
     
-    def get_normalised_masked_rmse(self, dataset, one_step_counterfactual=False):
+    def get_autoregressive_predictions(self, dataset):
+        logger.info(f'Autoregressive Prediction for {dataset.subset_name}.')
+        predicted_outputs = np.zeros((len(dataset), self.projection_horizon, self.dim_Y))
+
+        for t in range(self.projection_horizon +1):
+            logger.info(f't={t+1}')
+            outputs_scaled = self.get_predictions(dataset)
+
+            for i in range(len(dataset)):
+                split = int(dataset.data['future_past_split'][i])
+                if t < self.projection_horizon:
+                    print('prev_outputs:',dataset.data['prev_outputs'][i,split + t, : ].shape )
+                    print('outputs_scaled:',outputs_scaled.shape)
+                    print('outputs_scaled:',outputs_scaled[i, split - 1 + t, :] )
+
+                    dataset.data['prev_outputs'][i,split + t, : ] = outputs_scaled[i, split - 1 + t, :]
+                if t > 0:
+                    predicted_outputs[i, t - 1, : ] = outputs_scaled[i, split - 1 + t, :]
+        return predicted_outputs
+    
+    def get_normalised_n_step_rmses(self, dataset, datasets_mc= None):
         logger.info(f'RMSE calculation for {dataset.subset_name}.')
-        outputs_scaled = self.get_predictions(dataset)
-        unscale = True #self.hparams.exp.unscale_rmse
-        percentage = True #self.hparams.exp.percentage_rmse
+        assert hasattr(dataset, 'data_processed_seq')
+
+        unscale = True
+        percentage = True
+        outputs_scaled = self.get_autoregressive_predictions(dataset if datasets_mc is None else datasets_mc)
 
         if unscale:
             output_stds, output_means = dataset.scaling_params['output_stds'], dataset.scaling_params['output_means']
             outputs_unscaled = outputs_scaled * output_stds + output_means
 
-            # Batch-wise masked-MSE calculation is tricky, thus calculating for full dataset at once
-            mse = ((outputs_unscaled - dataset.data['unscaled_outputs']) ** 2) * dataset.data['active_entries']
+            mse = ((outputs_unscaled - dataset.data_processed_seq['unscaled_outputs']) ** 2) \
+                * dataset.data_processed_seq['active_entries']
         else:
-            # Batch-wise masked-MSE calculation is tricky, thus calculating for full dataset at once
-            mse = ((outputs_scaled - dataset.data['outputs']) ** 2) * dataset.data['active_entries']
+            mse = ((outputs_scaled - dataset.data_processed_seq['outputs']) ** 2) * dataset.data_processed_seq['active_entries']
+
+        nan_idx = np.unique(np.where(np.isnan(dataset.data_processed_seq['outputs']))[0])
+        not_nan = np.array([i for i in range(outputs_scaled.shape[0]) if i not in nan_idx])
 
         # Calculation like in original paper (Masked-Averaging over datapoints (& outputs) and then non-masked time axis)
-        mse_orig = mse.sum(0).sum(-1) / dataset.data['active_entries'].sum(0).sum(-1)
-        mse_orig = mse_orig.mean()
-        rmse_normalised_orig = np.sqrt(mse_orig) / dataset.norm_const
-
-        # Masked averaging over all dimensions at once
-        mse_all = mse.sum() / dataset.data['active_entries'].sum()
-        rmse_normalised_all = np.sqrt(mse_all) / dataset.norm_const
+        mse_orig = mse[not_nan].sum(0).sum(-1) / dataset.data_processed_seq['active_entries'][not_nan].sum(0).sum(-1)
+        rmses_normalised_orig = np.sqrt(mse_orig) / dataset.norm_const
 
         if percentage:
-            rmse_normalised_orig *= 100.0
-            rmse_normalised_all *= 100.0
+            rmses_normalised_orig *= 100.0
 
-        if one_step_counterfactual:
-            # Only considering last active entry with actual counterfactuals
-            num_samples, time_dim, output_dim = dataset.data['active_entries'].shape
-            last_entries = dataset.data['active_entries'] - np.concatenate([dataset.data['active_entries'][:, 1:, :],
-                                                                            np.zeros((num_samples, 1, output_dim))], axis=1)
-            if unscale:
-                mse_last = ((outputs_unscaled - dataset.data['unscaled_outputs']) ** 2) * last_entries
-            else:
-                mse_last = ((outputs_scaled - dataset.data['outputs']) ** 2) * last_entries
-
-            mse_last = mse_last.sum() / last_entries.sum()
-            rmse_normalised_last = np.sqrt(mse_last) / dataset.norm_const
-
-            if percentage:
-                rmse_normalised_last *= 100.0
-
-            return rmse_normalised_orig, rmse_normalised_all, rmse_normalised_last
-
-        return rmse_normalised_orig, rmse_normalised_all
-
+        return rmses_normalised_orig
 
     def build_br(self, prev_treatments, X, prev_outputs, static_features, active_entries, fixed_split):
         active_entries_Y = torch.clone(active_entries)
@@ -258,6 +261,7 @@ class CT(LightningModule):
         output = self.output_dropout(x)
         br = self.br_head.build_br(output)
         return br
+    
     def get_normalised_masked_rmse(self, dataset, one_step_counterfactual=False):
         logger.info(f'RMSE calculation for {dataset.subset_name}.')
         outputs_scaled = self.get_predictions(dataset)
@@ -316,10 +320,13 @@ class CT(LightningModule):
         # print('outcome shape, prediction and gt', outcome_pred.shape,batch['outputs'].shape)
         # torch.Size([32, 60, 10]) torch.Size([32, 60, 10])
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
-        self.log(f'train_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True) 
+        mse_loss = (batch['active_entries'] * mse_loss).sum() / batch['active_entries'].sum() 
+        self.log(f'train_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True) 
         # 왜 우리 prediction 결과과 (25,60, 10)이지? 기존 모델은 .mean()안해도 되는데
         # parameter 탓인가?
-        return mse_loss.mean()
+        # wandb.log({'train_mse_loss': mse_loss})
+        # return mse_loss.mean()
+        return mse_loss
 
     def validation_step(self, batch, batch_idx):
         if self.ema:
@@ -338,7 +345,7 @@ class CT(LightningModule):
         else:
             outcome_pred, _ = self(batch) 
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
-        self.log(f'validation_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
+        self.log(f'test_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
     
 
     def configure_optimizers(self):

@@ -173,13 +173,15 @@ def get_top_entries(tmp, all_high_pos):
 
 i1, i2 = np.random.randint(num_layers), np.random.randint(num_heads)
 W_V_tmp, W_O_tmp = W_V_heads[i1, i2, :], W_O_heads[i1, i2]
-tmp = (emb_inv @ (W_V_tmp @ W_O_tmp) @ emb)
+tmp = (emb_inv_A @ (W_V_tmp @ W_O_tmp) @ emb_A)
+#%%
 all_high_pos = approx_topk(tmp, th0=1, verbose=True) 
 get_top_entries(tmp, all_high_pos)
-
+#%%
 i1, i2 = np.random.randint(num_layers), np.random.randint(num_heads)
 W_Q_tmp, W_K_tmp = W_Q_heads[i1, i2, :], W_K_heads[i1, i2, :]
-tmp2 = (emb_inv @ (W_Q_tmp @ W_K_tmp.T) @ emb_inv.T)
+tmp2 = (emb_inv_A @ (W_Q_tmp @ W_K_tmp.T) @ emb_inv_A.T)
+#%%
 all_high_pos = approx_topk(tmp2, th0=1, verbose=True) 
 get_top_entries(tmp, all_high_pos)
 

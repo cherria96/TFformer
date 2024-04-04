@@ -94,7 +94,6 @@ class Attention(nn.Module):
         super(Attention, self).__init__()
         self.positional_encoding_k = positional_encoding_k
         self.positional_encoding_v = positional_encoding_v
-        self.last_attn_weights = None
 
 
     def forward(self, query, key, value, mask=None, dropout=None, one_direction=False):
@@ -225,7 +224,7 @@ class TransformerDecoderBlock(nn.Module):
 
 class TransformerMultiInputBlock(nn.Module):
     def __init__(self, hidden, attn_heads, head_size, feed_forward_hidden, dropout, attn_dropout,
-                 self_positional_encoding_k=None, self_positional_encoding_v=None, n_inputs=2, final_layer=False,
+                 self_positional_encoding_k=None, self_positional_encoding_v=None, n_inputs=2, final_layer=True,
                  disable_cross_attention=False, isolate_subnetwork='', **kwargs):
         super().__init__()
         self.n_inputs = n_inputs

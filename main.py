@@ -9,8 +9,9 @@ from torch.utils.data import DataLoader
 import numpy as np
 import pandas as pd
 from src.data.cancer_sim.dataset import SyntheticCancerDatasetCollection
+from realdata import WeatherRealDatasetCollection
 import logging
-from datetime import datetime
+import datetime
 import wandb
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.utilities.seed import seed_everything
@@ -96,7 +97,7 @@ if __name__=="__main__":
     num_patients = {'train': 10000, 'val': 10000, 'test': 1000}
     config = {
     "lr" : 0.01,
-    "epochs" : 150,
+    "epochs" : 100,
     "batch_size": 256,
     "fc_hidden_units": 32,
     "has_vital": False,

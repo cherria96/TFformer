@@ -2,4 +2,8 @@
 /weights
 /wandb
 /TFFormer
-/model/__pycache__
+/realdata/electricity
+/realdata/ETT-small
+/realdata/exchage_rate
+/realdata/traffic
+/realdata/illness

@@ -2,3 +2,8 @@
 /weights
 /wandb
 /TFFormer
+/realdata/electricity
+/realdata/ETT-small
+/realdata/exchage_rate
+/realdata/traffic
+/realdata/illness

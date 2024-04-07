@@ -9,8 +9,9 @@ from torch.utils.data import DataLoader
 import numpy as np
 import pandas as pd
 from src.data.cancer_sim.dataset import SyntheticCancerDatasetCollection
+from realdata import WeatherRealDatasetCollection
 import logging
-from datetime import datetime
+import datetime
 import wandb
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.utilities.seed import seed_everything
@@ -70,9 +71,10 @@ torch.set_default_dtype(torch.float64)
 
 # cancer_sim 
 num_patients = {'train': 10000, 'val': 1000, 'test': 100}
-datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
-                                    max_seq_length = 60, projection_horizon = 5, 
-                                    seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
+# datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
+#                                     max_seq_length = 60, projection_horizon = 5, 
+#                                     seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
+datasetcollection = WeatherRealDatasetCollection(path = 'realdata/weather/weather_.csv',max_seq_length=None)
 datasetcollection.process_data_multi()
 #%%
 # def collate_fn_float32(batch):
@@ -103,10 +105,14 @@ datasetcollection.process_data_multi()
 # Example of iterating over the DataLoader
 config = {
     "lr" : 0.01,
-    "epochs" : 150,
+    "epochs" : 100,
     "batch_size": 256,
     "fc_hidden_units": 32
 }
+# dim_A = 4  # Dimension of treatments
+# dim_X = 2  # Dimension of vitals
+# dim_Y = 3  # Dimension of outputs
+# dim_V = 1  # Dimension of static inputs
 dim_A = 4  # Dimension of treatments
 dim_X = 0  # Dimension of vitals
 dim_Y = 1  # Dimension of outputs
@@ -117,8 +123,8 @@ fc_hidden_units = config['fc_hidden_units']
 train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
 
-wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
-wandb_logger = WandbLogger(project = 'TFFormer', name = f'CT_cancersim_{fc_hidden_units}_{batch_size}_{epoch}')
+#wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
+#wandb_logger = WandbLogger(project = 'TFFormer', name = f'CT_cancersim_{fc_hidden_units}_{batch_size}_{epoch}')
 # run = wandb.init(
 #     name = "CT_256_10", ## Wandb creates random run names if you skip this field
 #     reinit = True, ### Allows reinitalizing runs when you re-run this cell
@@ -128,7 +134,7 @@ wandb_logger = WandbLogger(project = 'TFFormer', name = f'CT_cancersim_{fc_hidde
 #     config = config ### Wandb Config for your run
 # )
 
-trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch, log_every_n_steps = 40, logger = wandb_logger)
+trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch, log_every_n_steps = 40, logger = None)
 model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V, fc_hidden_units=fc_hidden_units)
 trainer.fit(model, train_loader, val_loader)
 

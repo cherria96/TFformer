@@ -14,7 +14,7 @@ from datetime import datetime
 import wandb
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.utilities.seed import seed_everything
-
+from model.utils import unroll_temporal_data
 #%%
 seed_everything(100)
 
@@ -69,7 +69,7 @@ class DataCreate(Dataset):
 torch.set_default_dtype(torch.float64)
 
 # cancer_sim 
-num_patients = {'train': 10000, 'val': 1000, 'test': 100}
+num_patients = {'train': 10000, 'val': 10000, 'test': 1000}
 datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
                                     max_seq_length = 60, projection_horizon = 5, 
                                     seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
@@ -105,12 +105,43 @@ config = {
     "lr" : 0.01,
     "epochs" : 150,
     "batch_size": 256,
-    "fc_hidden_units": 32
+    "fc_hidden_units": 32,
+    "has_vital": False
 }
-dim_A = 4  # Dimension of treatments
-dim_X = 0  # Dimension of vitals
-dim_Y = 1  # Dimension of outputs
-dim_V = 1  # Dimension of static inputs
+keys = ['prev_treatments', 'current_treatments', 'current_covariates', 'outputs', 'active_entries', 'unscaled_outputs', 'prev_outputs']
+if config["has_vital"]:
+    keys.append(['vitals', 'next_vitals'])
+for key in keys:
+    observed_nodes_list= list(range(datasetcollection.train_f.data[key].shape[-1]))
+    datasetcollection.train_f.data[key],_,_ = unroll_temporal_data(datasetcollection.train_f.data[key], observed_nodes_list, window_len = 3)
+    dim_X = 0 
+    if key == 'prev_treatments':
+        dim_A = datasetcollection.train_f.data[key].shape[-1] # Dimension of treatments
+    elif key == 'vitals':
+        dim_X = datasetcollection.train_f.data[key].shape[-1] # Dimension of vitals
+    elif key == "outputs":
+        dim_Y = datasetcollection.train_f.data[key].shape[-1] # Dimension of outputs
+    elif key == "current_covariates":
+        dim_V = datasetcollection.train_f.data[key].shape[-1] # Dimension of static inputs
+for key in keys:
+    observed_nodes_list= list(range(datasetcollection.val_f.data[key].shape[-1]))
+    datasetcollection.val_f.data[key],_,_ = unroll_temporal_data(datasetcollection.val_f.data[key], observed_nodes_list, window_len = 3)
+    dim_X = 0 
+    if key == 'prev_treatments':
+        dim_A = datasetcollection.val_f.data[key].shape[-1] # Dimension of treatments
+    elif key == 'vitals':
+        dim_X = datasetcollection.val_f.data[key].shape[-1] # Dimension of vitals
+    elif key == "outputs":
+        dim_Y = datasetcollection.val_f.data[key].shape[-1] # Dimension of outputs
+    elif key == "current_covariates":
+        dim_V = datasetcollection.val_f.data[key].shape[-1] # Dimension of static inputs
+    
+    
+# dim_A = 4  # Dimension of treatments
+# dim_X = 0  # Dimension of vitals
+# dim_Y = 1  # Dimension of outputs
+# dim_V = 1  # Dimension of static inputs
+
 batch_size = config['batch_size']
 epoch = config['epochs']
 fc_hidden_units = config['fc_hidden_units']
@@ -127,10 +158,11 @@ wandb_logger = WandbLogger(project = 'TFFormer', name = f'CT_cancersim_{fc_hidde
 #     project = "TFFormer", ### Project should be created in your wandb account
 #     config = config ### Wandb Config for your run
 # )
-
+#%%
 trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch, log_every_n_steps = 40, logger = wandb_logger)
 model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V, fc_hidden_units=fc_hidden_units)
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, train_loader,)
+# trainer.fit(model, train_loader, val_loader)
 
 trainer.test(model,val_loader)
 

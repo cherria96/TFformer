@@ -59,5 +59,12 @@ def unroll_temporal_data(data_full, observed_nodes_list, window_len, t_step = 1)
     # create unrolled_data 
     data_full_unrolled = np.zeros((n_samples, len(starts), num_nodes_unrolled))
     for i, st in enumerate(starts):
-        data_full_unrolled[:,i] = data_full.flat[st:st + num_nodes_unrolled]
+        data_full_unrolled[:,i] = data_full.reshape(n_samples, -1)[:,st:st + num_nodes_unrolled]
+    
+    # indexes of variables in the unrolled data
+    _nodes_sets_list_full = np.reshape(range(num_nodes_unrolled), (window_len, n_contemporaneous_nodes))
+    _nodes_sets_list = [_nodes_sets_list_full[i, observed_nodes_list].tolist() for i in range(window_len)]  # observed
+
+    return data_full_unrolled, _nodes_sets_list_full, _nodes_sets_list
+
 

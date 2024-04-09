@@ -1,8 +1,7 @@
 
 #%%
 import sys
-sys.path.append("/home/user126/TFformer")
-
+sys.path.append("/Users/sujinchoi/Desktop/TFformer")
 import torch
 from torch.nn import functional as F
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel
@@ -14,85 +13,102 @@ from collections import Counter
 from model.CT_ourmodel import CT
 
 # config 
-checkpoint_path = "../real_weight/cancersim_32_256_150.pt"
-model = CT.load_from_checkpoint(checkpoint_path)
+class EmbeddingSpace:
+    def __init__(self, checkpoint_path):
+        # emb = model.get_output_embeddings().weight.data.T.detach()
+        model = CT.load_from_checkpoint(checkpoint_path)
+        has_vitals = model.has_vitals
+        emb_A = model.A_input_transformation.weight.data.detach() # (16,4)
+        emb_X = model.X_input_transformation.weight.data.detach() if has_vitals else None 
+        emb_Y = model.Y_input_transformation.weight.data.detach() # (16,1)
+        emb_V = model.V_input_transformation.weight.data.detach() # (16,1)
 
-# emb = model.get_output_embeddings().weight.data.T.detach()
-has_vitals = model.has_vitals
-emb_A = model.A_input_transformation.weight.data.detach() # (16,4)
-emb_X = model.X_input_transformation.weight.data.detach() if has_vitals else None 
-emb_Y = model.Y_input_transformation.weight.data.detach() # (16,1)
-emb_V = model.V_input_transformation.weight.data.detach() # (16,1)
+        self.emb_inv_A = emb_A.T
+        self.emb_inv_X = emb_X.T if has_vitals else None
+        self.emb_inv_Y = emb_Y.T
+        self.emb_inv_V = emb_V.T
 
-emb_inv_A = emb_A.T
-emb_inv_X = emb_X.T if has_vitals else None
-emb_inv_Y = emb_Y.T
-emb_inv_V = emb_V.T
+        self.num_layers = model.num_layer
+        self.num_heads = model.num_heads # 2
+        self.hidden_dim = model.seq_hidden_units #16
+        self.head_size = self.hidden_dim // self.num_heads
 
-num_layers = model.num_layer
-num_heads = model.num_heads # 2
-hidden_dim = model.seq_hidden_units #16
-head_size = hidden_dim // num_heads
+        # Extract weights
+        # K = torch.cat([model.get_parameter(f"transformer.h.{j}.mlp.c_fc.weight").T
+        #                            for j in range(num_layers)]).detach()
+        # V = torch.cat([model.get_parameter(f"transformer.h.{j}.mlp.c_proj.weight")
+        #                            for j in range(num_layers)]).detach() # (hidden_dim, hidden_dim)
+        # W_Q, W_K, W_V = torch.cat([model.get_parameter(f"transformer.h.{j}.attn.c_attn.weight") 
+        #                            for j in range(num_layers)]).detach().chunk(3, dim=-1)
 
-# Extract weights
-# K = torch.cat([model.get_parameter(f"transformer.h.{j}.mlp.c_fc.weight").T
-#                            for j in range(num_layers)]).detach()
-# V = torch.cat([model.get_parameter(f"transformer.h.{j}.mlp.c_proj.weight")
-#                            for j in range(num_layers)]).detach() # (hidden_dim, hidden_dim)
-# W_Q, W_K, W_V = torch.cat([model.get_parameter(f"transformer.h.{j}.attn.c_attn.weight") 
-#                            for j in range(num_layers)]).detach().chunk(3, dim=-1)
+        self.final_layer = False
 
-final_layer = False
+        # cross_attention_to (AY)
+        # K = torch.cat([(model.transformer_blocks[j].self_attention_t.linear_layers[-1].weight).T
+        #                            for j in range(num_layers)]).detach()
+        self.K_t = torch.cat([model.transformer_blocks[j].feed_forwards[0].conv1.weight.squeeze()
+                                for j in range(self.num_layers)]).detach()
+        self.V_t = torch.cat([model.transformer_blocks[j].feed_forwards[0].conv2.weight.squeeze()
+                                for j in range(self.num_layers)]).detach()
+        # cross_attention_to
+        self.W_Q_t = torch.cat([model.transformer_blocks[j].cross_attention_to.linear_layers[0].weight
+                                for j in range(self.num_layers)]).detach()
+        self.W_K_t = torch.cat([model.transformer_blocks[j].cross_attention_to.linear_layers[1].weight
+                                for j in range(self.num_layers)]).detach()
+        self.W_V_t = torch.cat([model.transformer_blocks[j].cross_attention_to.linear_layers[2].weight
+                                for j in range(self.num_layers)]).detach()
+        self.W_O_t = torch.cat([model.transformer_blocks[j].cross_attention_to.final_layer.weight
+                                for j in range(self.num_layers)]).detach() if self.final_layer else None
 
-# cross_attention_to (AY)
-# K = torch.cat([(model.transformer_blocks[j].self_attention_t.linear_layers[-1].weight).T
-#                            for j in range(num_layers)]).detach()
-K_t = torch.cat([model.transformer_blocks[j].feed_forwards[0].conv1.weight.squeeze()
-                           for j in range(num_layers)]).detach()
-V_t = torch.cat([model.transformer_blocks[j].feed_forwards[0].conv2.weight.squeeze()
-                           for j in range(num_layers)]).detach()
-# cross_attention_to
-W_Q_t = torch.cat([model.transformer_blocks[j].cross_attention_to.linear_layers[0].weight
-                           for j in range(num_layers)]).detach()
-W_K_t = torch.cat([model.transformer_blocks[j].cross_attention_to.linear_layers[1].weight
-                           for j in range(num_layers)]).detach()
-W_V_t = torch.cat([model.transformer_blocks[j].cross_attention_to.linear_layers[2].weight
-                           for j in range(num_layers)]).detach()
-W_O_t = torch.cat([model.transformer_blocks[j].cross_attention_to.final_layer.weight
-                           for j in range(num_layers)]).detach() if final_layer else None
+        # cross_attention_ot (YA)
+        self.K_o = torch.cat([model.transformer_blocks[j].feed_forwards[1].conv1.weight.squeeze()
+                                for j in range(self.num_layers)]).detach()
+        self.V_o = torch.cat([model.transformer_blocks[j].feed_forwards[1].conv2.weight.squeeze()
+                                for j in range(self.num_layers)]).detach()
 
-# cross_attention_ot (YA)
-K_o = torch.cat([model.transformer_blocks[j].feed_forwards[1].conv1.weight.squeeze()
-                           for j in range(num_layers)]).detach()
-V_o = torch.cat([model.transformer_blocks[j].feed_forwards[1].conv2.weight.squeeze()
-                           for j in range(num_layers)]).detach()
+        # cross_attention_ot
+        self.W_Q_o = torch.cat([model.transformer_blocks[j].cross_attention_ot.linear_layers[0].weight
+                                for j in range(self.num_layers)]).detach()
+        self.W_K_o = torch.cat([model.transformer_blocks[j].cross_attention_ot.linear_layers[1].weight
+                                for j in range(self.num_layers)]).detach()
+        self.W_V_o = torch.cat([model.transformer_blocks[j].cross_attention_ot.linear_layers[2].weight
+                                for j in range(self.num_layers)]).detach()
+        self.W_O_o = torch.cat([model.transformer_blocks[j].cross_attention_ot.final_layer.weight
+                                for j in range(self.num_layers)]).detach() if self.final_layer else None
+    def make_heads(self, variable):
+        """
+        Parameters
+            variables: treatment / vital / output 
+        """
+        if variable == "treatment":
+            K, V, W_Q, W_K, W_V, W_O = self.K_t, self.V_t, self.W_Q_t, self.W_K_t, self.W_V_t, self.W_O_t
+        elif variable == "output":
+            K, V, W_Q, W_K, W_V, W_O = self.K_o, self.V_o, self.W_Q_o, self.W_K_o, self.W_V_o, self.W_O_o
+        def _make_heads(K, V, W_Q, W_K, W_V, W_O):
+            K_heads = K.reshape(self.num_layers, -1, self.hidden_dim)
+            V_heads = V.reshape(self.num_layers, -1, self.hidden_dim)
+            d_int = K_heads.shape[1]
 
-# cross_attention_ot
-W_Q_o = torch.cat([model.transformer_blocks[j].cross_attention_ot.linear_layers[0].weight
-                           for j in range(num_layers)]).detach()
-W_K_o = torch.cat([model.transformer_blocks[j].cross_attention_ot.linear_layers[1].weight
-                           for j in range(num_layers)]).detach()
-W_V_o = torch.cat([model.transformer_blocks[j].cross_attention_ot.linear_layers[2].weight
-                           for j in range(num_layers)]).detach()
-W_O_o = torch.cat([model.transformer_blocks[j].cross_attention_ot.final_layer.weight
-                           for j in range(num_layers)]).detach() if final_layer else None
-#%%
-def make_heads(K, V, W_Q, W_K, W_V, W_O, final_layer):
-    K_heads = K.reshape(num_layers, -1, hidden_dim)
-    V_heads = V.reshape(num_layers, -1, hidden_dim)
-    d_int = K_heads.shape[1]
+            W_Q_heads = W_Q.reshape(self.num_layers, self.hidden_dim, self.num_heads, self.head_size).permute(0, 2, 1, 3)
+            W_K_heads = W_K.reshape(self.num_layers, self.hidden_dim, self.num_heads, self.head_size).permute(0, 2, 1, 3)
+            W_V_heads = W_V.reshape(self.num_layers, self.hidden_dim, self.num_heads, self.head_size).permute(0, 2, 1, 3)
+            W_O_heads = W_O.reshape(self.num_layers, self.num_heads, self.head_size, self.hidden_dim) if self.final_layer else None
 
-    W_Q_heads = W_Q.reshape(num_layers, hidden_dim, num_heads, head_size).permute(0, 2, 1, 3)
-    W_K_heads = W_K.reshape(num_layers, hidden_dim, num_heads, head_size).permute(0, 2, 1, 3)
-    W_V_heads = W_V.reshape(num_layers, hidden_dim, num_heads, head_size).permute(0, 2, 1, 3)
-    W_O_heads = W_O.reshape(num_layers, num_heads, head_size, hidden_dim) if final_layer else None
-
-    return K_heads, V_heads, d_int, W_Q_heads, W_K_heads, W_V_heads, W_O_heads
-
-K_t_heads, V_t_heads, d_int_t, W_Q_t_heads, W_K_t_heads, W_V_t_heads, W_O_t_heads = make_heads(K_t, V_t, W_Q_t, W_K_t, W_V_t, W_O_t, final_layer)
-K_o_heads, V_o_heads, d_ino_o, W_Q_o_heads, W_K_o_heads, W_V_o_heads, W_O_o_heads = make_heads(K_o, V_o, W_Q_o, W_K_o, W_V_o, W_O_o, final_layer)
-
-#%%
+            return K_heads, V_heads, d_int, W_Q_heads, W_K_heads, W_V_heads, W_O_heads
+        return _make_heads(K, V, W_Q, W_K, W_V, W_O)
+if __name__=="__main__":
+    # W_QK interpretation
+    checkpoint_path = "../real_weight/cancersim_unroll_3_3_1.pt"
+    embedding_space = EmbeddingSpace(checkpoint_path)
+    variable = "treatment"
+    results = embedding_space.make_heads(variable = variable)
+    i1, i2 = np.random.randint(embedding_space.num_layers), np.random.randint(embedding_space.num_heads)
+    W_Q_tmp, W_K_tmp = results[3][i1, i2, :], results[4][i1, i2, :]
+    attn_score = (embedding_space.emb_inv_A @ (W_Q_tmp @ W_K_tmp.T) @ embedding_space.emb_inv_A.T)
+    print(variable)
+    print(attn_score.shape)
+    print(attn_score)
+"""
 # Attention weights interpretation
 '''
 W_vo, W_QK interpretation
@@ -183,15 +199,11 @@ tmp = (emb_inv_A @ (W_V_tmp @ W_O_tmp) @ emb_A)
 all_high_pos = approx_topk(tmp, th0=1, verbose=True) 
 get_top_entries(tmp, all_high_pos)
 #%%
-# W_QK interpretation
-i1, i2 = np.random.randint(num_layers), np.random.randint(num_heads)
-W_Q_tmp, W_K_tmp = W_Q_t_heads[i1, i2, :], W_K_t_heads[i1, i2, :]
-tmp2 = (emb_inv_A @ (W_Q_tmp @ W_K_tmp.T) @ emb_inv_A.T)
 #%%
 all_high_pos = approx_topk(tmp2, th0=1, verbose=True) 
 get_top_entries(tmp2, all_high_pos)
 
-#%%
+"""
 
 
 

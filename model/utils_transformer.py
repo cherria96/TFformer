@@ -224,7 +224,7 @@ class TransformerDecoderBlock(nn.Module):
 
 class TransformerMultiInputBlock(nn.Module):
     def __init__(self, hidden, attn_heads, head_size, feed_forward_hidden, dropout, attn_dropout,
-                 self_positional_encoding_k=None, self_positional_encoding_v=None, n_inputs=2, final_layer=True,
+                 self_positional_encoding_k=None, self_positional_encoding_v=None, n_inputs=2, final_layer=False,
                  disable_cross_attention=False, isolate_subnetwork='', **kwargs):
         super().__init__()
         self.n_inputs = n_inputs

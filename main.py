@@ -66,14 +66,6 @@ class DataCreate(Dataset):
             'outputs':self.Y[idx,1:, np.newaxis] # (num_samples, max_seq_length -1, dim_Y)
         }
 '''
-torch.set_default_dtype(torch.float64)
-
-# cancer_sim 
-num_patients = {'train': 10000, 'val': 10000, 'test': 1000}
-datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
-                                    max_seq_length = 60, projection_horizon = 5, 
-                                    seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
-datasetcollection.process_data_multi()
 #%%
 # def collate_fn_float32(batch):
 #     # Convert all tensors in the batch to float32
@@ -100,108 +92,103 @@ datasetcollection.process_data_multi()
 # train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 # test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-# Example of iterating over the DataLoader
+torch.set_default_dtype(torch.float64)
+
+# cancer_sim 
+num_patients = {'train': 10000, 'val': 10000, 'test': 1000}
+datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
+                                    max_seq_length = 60, projection_horizon = 5, 
+                                    seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
+datasetcollection.process_data_multi()
 config = {
     "lr" : 0.01,
     "epochs" : 150,
     "batch_size": 256,
     "fc_hidden_units": 32,
-    "has_vital": False
+    "has_vital": False,
+    "unroll_data": True,
+    "window_len": 3,
+    "t_step": 3
 }
+
+# def unroll_data(datasetcollection, type, keys):
+#     dim_X = 0
+#     dim_V = 1
+#     if type == "train":
+#         dataloader = datasetcollection.train_f
+#     elif type == "valid":
+#         dataloader = datasetcollection.val_f
+
+#     for key in keys:
+#         observed_nodes_list= list(range(dataloader.data[key].shape[-1]))
+#         dataloader.data[key],_,_ = unroll_temporal_data(dataloader.data[key], observed_nodes_list, window_len = config["window_len"], t_step = config["t_step"])
+#         if key == 'prev_treatments':
+#             dim_A = dataloader.data[key].shape[-1] # Dimension of treatments
+#         elif key == 'vitals':
+#             dim_X = dataloader.data[key].shape[-1] # Dimension of vitals
+#         elif key == "outputs":
+#             dim_Y = dataloader.data[key].shape[-1] # Dimension of outputs
+    
+#     return dataloader.data, dim_A, dim_X, dim_Y, dim_V
+
+# if config["unroll_data"]:
+#     keys = ['prev_treatments', 'current_treatments', 'current_covariates', 'outputs', 'active_entries', 'unscaled_outputs', 'prev_outputs']
+#     if config["has_vital"]:
+#         keys.append(['vitals', 'next_vitals'])
+#     datasetcollection.train_f.data, dim_A, dim_X, dim_Y, dim_V = unroll_data(datasetcollection, "train", keys)
+#     datasetcollection.val_f.data, dim_A, dim_X, dim_Y, dim_V = unroll_data(datasetcollection, "train", keys)
+batch_size = config['batch_size']
+epoch = config['epochs']
+fc_hidden_units = config['fc_hidden_units']
+
+window_len = config["window_len"]
+t_step = config["t_step"]
 keys = ['prev_treatments', 'current_treatments', 'current_covariates', 'outputs', 'active_entries', 'unscaled_outputs', 'prev_outputs']
 if config["has_vital"]:
     keys.append(['vitals', 'next_vitals'])
+dim_X = 0 
+dim_V = 1 
 for key in keys:
     observed_nodes_list= list(range(datasetcollection.train_f.data[key].shape[-1]))
-    datasetcollection.train_f.data[key],_,_ = unroll_temporal_data(datasetcollection.train_f.data[key], observed_nodes_list, window_len = 3)
-    dim_X = 0 
+    datasetcollection.train_f.data[key],_,_ = unroll_temporal_data(datasetcollection.train_f.data[key], 
+                                                                   observed_nodes_list, window_len = window_len,
+                                                                   t_step = t_step)
     if key == 'prev_treatments':
         dim_A = datasetcollection.train_f.data[key].shape[-1] # Dimension of treatments
     elif key == 'vitals':
         dim_X = datasetcollection.train_f.data[key].shape[-1] # Dimension of vitals
     elif key == "outputs":
         dim_Y = datasetcollection.train_f.data[key].shape[-1] # Dimension of outputs
-    elif key == "current_covariates":
-        dim_V = datasetcollection.train_f.data[key].shape[-1] # Dimension of static inputs
 for key in keys:
     observed_nodes_list= list(range(datasetcollection.val_f.data[key].shape[-1]))
-    datasetcollection.val_f.data[key],_,_ = unroll_temporal_data(datasetcollection.val_f.data[key], observed_nodes_list, window_len = 3)
-    dim_X = 0 
+    datasetcollection.val_f.data[key],_,_ = unroll_temporal_data(datasetcollection.val_f.data[key], 
+                                                                   observed_nodes_list, window_len = window_len,
+                                                                   t_step = t_step)
+
     if key == 'prev_treatments':
         dim_A = datasetcollection.val_f.data[key].shape[-1] # Dimension of treatments
     elif key == 'vitals':
         dim_X = datasetcollection.val_f.data[key].shape[-1] # Dimension of vitals
     elif key == "outputs":
         dim_Y = datasetcollection.val_f.data[key].shape[-1] # Dimension of outputs
-    elif key == "current_covariates":
-        dim_V = datasetcollection.val_f.data[key].shape[-1] # Dimension of static inputs
     
-    
-# dim_A = 4  # Dimension of treatments
-# dim_X = 0  # Dimension of vitals
-# dim_Y = 1  # Dimension of outputs
-# dim_V = 1  # Dimension of static inputs
 
-batch_size = config['batch_size']
-epoch = config['epochs']
-fc_hidden_units = config['fc_hidden_units']
 train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
 
 wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
-wandb_logger = WandbLogger(project = 'TFFormer', name = f'CT_cancersim_{fc_hidden_units}_{batch_size}_{epoch}')
-# run = wandb.init(
-#     name = "CT_256_10", ## Wandb creates random run names if you skip this field
-#     reinit = True, ### Allows reinitalizing runs when you re-run this cell
-#     # run_id = ### Insert specific run id here if you want to resume a previous run
-#     # resume = "must" ### You need this to resume previous runs, but comment out reinit = True when using this
-#     project = "TFFormer", ### Project should be created in your wandb account
-#     config = config ### Wandb Config for your run
-# )
-#%%
+wandb_logger = WandbLogger(project = 'TFFormer', name = f'CT_cancersim_unroll_{batch_size}_{epoch}_{window_len}_{t_step}')
 trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch, log_every_n_steps = 40, logger = wandb_logger)
 model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V, fc_hidden_units=fc_hidden_units)
-trainer.fit(model, train_loader,)
-# trainer.fit(model, train_loader, val_loader)
+# trainer.fit(model, train_loader,)
+trainer.fit(model, train_loader, val_loader)
 
 trainer.test(model,val_loader)
 
-#%%
-# checkpoint_path = None
-# model = CT.load_from_checkpoint(checkpoint_path)
-# val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
-# logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
-
-# encoder_results = {}
-# if hasattr(datasetcollection, 'test_cf_one_step'):  # Test one_step_counterfactual rmse
-#     test_rmse_orig, test_rmse_all, test_rmse_last = model.get_normalised_masked_rmse(datasetcollection.test_cf_one_step,
-#                                                                                             one_step_counterfactual=True)
-#     logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
-#                 f'Test normalised RMSE (orig): {test_rmse_orig}; '
-#                 f'Test normalised RMSE (only counterfactual): {test_rmse_last}')
-#     encoder_results = {
-#         'encoder_val_rmse_all': val_rmse_all,
-#         'encoder_val_rmse_orig': val_rmse_orig,
-#         'encoder_test_rmse_all': test_rmse_all,
-#         'encoder_test_rmse_orig': test_rmse_orig,
-#         'encoder_test_rmse_last': test_rmse_last
-#     }
-# elif hasattr(datasetcollection, 'test_f'):  # Test factual rmse
-#     test_rmse_orig, test_rmse_all = model.get_normalised_masked_rmse(datasetcollection.test_f)
-#     logger.info(f'Test normalised RMSE (all): {test_rmse_all}; '
-#                 f'Test normalised RMSE (orig): {test_rmse_orig}.')
-#     encoder_results = {
-#         'encoder_val_rmse_all': val_rmse_all,
-#         'encoder_val_rmse_orig': val_rmse_orig,
-#         'encoder_test_rmse_all': test_rmse_all,
-#         'encoder_test_rmse_orig': test_rmse_orig
-#     }
 # %%
-
-now = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
-trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}_{now}.pt")
-
-
+# now = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+# trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}_.pt")
+trainer.save_checkpoint(f"weights/unroll_{window_len}_{t_step}_{num_patients['train']}_{num_patients['test']}_1.pt")
 val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
 logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
 results = {}

@@ -10,6 +10,8 @@ import numpy as np
 import pandas as pd
 from src.data.cancer_sim.dataset import SyntheticCancerDatasetCollection
 import logging
+from model.utils import unroll_temporal_data
+
 logger = logging.getLogger(__name__)
 '''
 class DataCreate(Dataset):
@@ -63,27 +65,46 @@ datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_co
                                     max_seq_length = 60, projection_horizon = 5, 
                                     seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
 datasetcollection.process_data_multi()
+config = {
+    "lr" : 0.01,
+    "epochs" : 150,
+    "batch_size": 256,
+    "fc_hidden_units": 32,
+    "has_vital": False,
+    "unroll_data": True,
+    "window_len": 3,
+    "t_step": 3
+}
 
-# Example dimensions
-# num_samples = 1000  # Number of samples in the dataset
-# seq_length = 60  # Length of each sequence
-dim_A = 4  # Dimension of treatments
-dim_X = 0  # Dimension of vitals
-dim_Y = 1  # Dimension of outputs
-dim_V = 1  # Dimension of static inputs
-batch_size = 32
-epoch = 100
-train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True)
-val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
+def unroll_data(datasetcollection, type, keys):
+    dim_X = 0
+    dim_V = 1
+    if type == "train":
+        dataloader = datasetcollection.train_f
+    elif type == "valid":
+        dataloader = datasetcollection.val_f
 
-# Example of iterating over the DataLoader
-for batch in train_loader:
-    # Each 'batch' is a dictionary matching the expected input structure of your model
-    print(batch.keys())  # Example: access the 'prev_A' component of the batch
-    break  # Break after one iteration for demonstration
+    for key in keys:
+        observed_nodes_list= list(range(dataloader.data[key].shape[-1]))
+        dataloader.data[key],_,_ = unroll_temporal_data(dataloader.data[key], observed_nodes_list, window_len = config["window_len"], t_step = config["t_step"])
+        if key == 'prev_treatments':
+            dim_A = dataloader.data[key].shape[-1] # Dimension of treatments
+        elif key == 'vitals':
+            dim_X = dataloader.data[key].shape[-1] # Dimension of vitals
+        elif key == "outputs":
+            dim_Y = dataloader.data[key].shape[-1] # Dimension of outputs
+    
+    return dataloader.data, dim_A, dim_X, dim_Y, dim_V
+
+if config["unroll_data"]:
+    keys = ['prev_treatments', 'current_treatments', 'current_covariates', 'outputs', 'active_entries', 'unscaled_outputs', 'prev_outputs']
+    if config["has_vital"]:
+        keys.append(['vitals', 'next_vitals'])
+    datasetcollection.val_f.data, dim_A, dim_X, dim_Y, dim_V = unroll_data(datasetcollection, "train", keys)
+val_loader = DataLoader(datasetcollection.val_f, batch_size=config['batch_size'], shuffle=False)
 
 #%%
-checkpoint_path = "real_weight/cancersim_256_150.pt"
+checkpoint_path = "weights/unroll_3_3_10000_1000.pt"
 model = CT.load_from_checkpoint(checkpoint_path)
 trainer = pl.Trainer(accelerator="cpu", max_epochs=1)
 trainer.test(model, val_loader)

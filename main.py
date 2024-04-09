@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class Trainers:
-    def __init__(self, datasetcollection, num_patients, config):
+    def __init__(self, datasetcollection, num_patients, config, dim_vars):
 
         torch.set_default_dtype(torch.float64)
 
@@ -45,10 +45,10 @@ class Trainers:
         self.val_loader = None
         wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
         self.wandb_logger = WandbLogger(project = 'TFFormer', name = f'CT_cancersim_unroll_{self.batch_size}_{self.epoch}_{self.window_len}_{self.t_step}')
-        self.dim_A = 4
-        self.dim_X = 0
-        self.dim_V = 1
-        self.dim_Y = 1
+        self.dim_A = dim_vars["A"]
+        self.dim_X = dim_vars["X"]
+        self.dim_V = dim_vars["V"]
+        self.dim_Y = dim_vars["Y"]
 
     def _unroll_data(self):
         print("=====Start unroll data processing====")
@@ -104,10 +104,15 @@ if __name__=="__main__":
     "window_len": 3,
     "t_step": 3
     }
-
+    dim_vars = {
+        "A": 4,
+        "X": 0,
+        "V": 1,
+        "Y": 1
+    }
     datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15,        
                                                          max_seq_length = 60, projection_horizon = 5, seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
-    trainers = Trainers(datasetcollection, num_patients, config)
+    trainers = Trainers(datasetcollection, num_patients, config, dim_vars)
     trainers.training()
 
 

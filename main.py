@@ -51,6 +51,8 @@ class Trainers:
         self.dim_Y = 1
 
     def _unroll_data(self):
+        print("=====Start unroll data processing====")
+
         for key in self.keys:
             observed_nodes_list= list(range(self.datasetcollection.train_f.data[key].shape[-1]))
             self.datasetcollection.train_f.data[key],_,_ = unroll_temporal_data(self.datasetcollection.train_f.data[key], 
@@ -66,20 +68,23 @@ class Trainers:
             self.datasetcollection.val_f.data[key],_,_ = unroll_temporal_data(self.datasetcollection.val_f.data[key], 
                                                                               observed_nodes_list, window_len = self.window_len,
                                                                               t_step = self.t_step)
-    def train_loader(self):
+    def _train_loader(self):
         if self.config["unroll_data"]:
             self._unroll_data()
-        self.train_loader = DataLoader(self.datasetcollection.train_f, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(self.datasetcollection.train_f, batch_size=self.batch_size, shuffle=True)
     
-    def val_loader(self):
+    def _val_loader(self):
         if self.config["unroll_data"]:
             self._unroll_data()
-        self.val_loader = DataLoader(self.datasetcollection.val_f, batch_size=self.batch_size, shuffle=False)
+        return DataLoader(self.datasetcollection.val_f, batch_size=self.batch_size, shuffle=False)
 
     def training(self):
+        print("=====Start training====")
+        self.train_loader = self._train_loader()
+        self.val_loader = self._val_loader()
         trainer = pl.Trainer(accelerator = "cpu",max_epochs = self.epoch, log_every_n_steps = 40, logger = self.wandb_logger)
-        # trainer.fit(model, train_loader,)
-        self.model = CT(dim_A=self.dim_A, dim_X = self.dim_X, dim_Y = self.dim_Y, dim_V = self.dim_V, fc_hidden_units=self.fc_hidden_units)
+        self.model = CT(dim_A=self.dim_A, dim_X = self.dim_X, 
+                        dim_Y = self.dim_Y, dim_V = self.dim_V, fc_hidden_units=self.fc_hidden_units)
         trainer.fit(self.model, self.train_loader, self.val_loader)
         trainer.test(self.model, self.val_loader)
         now = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")   
@@ -100,7 +105,8 @@ if __name__=="__main__":
     "t_step": 3
     }
 
-    datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15,   max_seq_length = 60, projection_horizon = 5, seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
+    datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15,        
+                                                         max_seq_length = 60, projection_horizon = 5, seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
     trainers = Trainers(datasetcollection, num_patients, config)
     trainers.training()
 

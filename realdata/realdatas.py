@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 
 ROOT_PATH = './'
 from realdata.data_collection import RealDatasetCollection
-from realdata.load_data import load_weather_data_processed
+from realdata.load_data import load_weather_data_processed, load_var4_data_processed
 
 logger = logging.getLogger(__name__)
 
@@ -48,20 +48,21 @@ class RealDataset(Dataset):
         # outcomes = outcomes.unstack(fill_value=np.nan, level=0).stack(dropna=False).swaplevel(0, 1).sort_index()
         # vitals = vitals.unstack(fill_value=np.nan, level=0).stack(dropna=False).swaplevel(0, 1).sort_index()
         # outcomes_unscaled = outcomes_unscaled.unstack(fill_value=np.nan, level=0).stack(dropna=False).swaplevel(0, 1).sort_index()
-        breakpoint()
-        treatments = treatments.stack(dropna=False).swaplevel(0, 1).sort_index()
-        outcomes = outcomes.stack(dropna=False).swaplevel(0, 1).sort_index()
-        vitals = vitals.stack(dropna=False).swaplevel(0, 1).sort_index()
-        outcomes_unscaled = outcomes_unscaled.stack(dropna=False).swaplevel(0, 1).sort_index()
+        # breakpoint()
+        #treatments = treatments.stack(dropna=False).swaplevel(0, 1).sort_index()
+        # outcomes = outcomes.stack(dropna=False).swaplevel(0, 1).sort_index()
+        # vitals = vitals.stack(dropna=False).swaplevel(0, 1).sort_index()
+        # outcomes_unscaled = outcomes_unscaled.stack(dropna=False).swaplevel(0, 1).sort_index()
         #active_entries = (~treatments.isna().any()).astype(float)
         active_entries = (~np.isnan(treatments)).any().astype(float)
-        static_features = static_features.sort_index()
+        # static_features = static_features.sort_index()
         user_sizes = user_sizes.sort_index()
 
         # Conversion to np.arrays
-        if not treatments.hasnans:
+        #if not treatments.hasnans:
+        if not treatments.isnull().values.any():
             active_entries = np.ones((len(user_sizes), max(user_sizes), 1)).astype(float)
-        breakpoint()
+        # breakpoint()
         treatments = treatments.fillna(0.0).values.reshape((len(user_sizes), max(user_sizes), -1)).astype(float)
         outcomes = outcomes.fillna(0.0).values.reshape((len(user_sizes), max(user_sizes), -1))
         vitals = vitals.fillna(0.0).values.reshape((len(user_sizes), max(user_sizes), -1))
@@ -511,7 +512,119 @@ class WeatherRealDatasetCollection(RealDatasetCollection):
         super(WeatherRealDatasetCollection, self).__init__()
         self.seed = seed
         treatments, outcomes, vitals, static_features, outcomes_unscaled, scaling_params = \
-            load_weather_data_processed(path, min_seq_length=min_seq_length, max_seq_length=max_seq_length,
+            load_var4_data_processed(path, min_seq_length=min_seq_length, max_seq_length=max_seq_length,
+                                       max_number=max_number, data_seed=seed, **kwargs)
+        # Train/val/test random_split
+        static_features, static_features_test = train_test_split(static_features, test_size=split['test'], random_state=seed)
+        static_features_index = static_features.index.drop_duplicates()
+        static_features_test_index = static_features_test.index.drop_duplicates()
+        treatments, outcomes, vitals, outcomes_unscaled, treatments_test, outcomes_test, vitals_test, outcomes_unscaled_test = \
+            treatments.loc[static_features_index], \
+            outcomes.loc[static_features_index], \
+            vitals.loc[static_features_index], \
+            outcomes_unscaled.loc[static_features_index], \
+            treatments.loc[static_features_test_index], \
+            outcomes.loc[static_features_test_index], \
+            vitals.loc[static_features_test_index], \
+            outcomes_unscaled.loc[static_features_test_index]
+
+        if split['val'] > 0.0:
+            static_features_train, static_features_val = train_test_split(static_features,
+                                                                          test_size=split['val'] / (1 - split['test']),
+                                                                          random_state=2 * seed)
+            static_features_train_index = static_features_train.index.drop_duplicates()
+            static_features_val_index = static_features_val.index.drop_duplicates()
+            treatments_train, outcomes_train, vitals_train, outcomes_unscaled_train, treatments_val, outcomes_val, vitals_val, \
+                outcomes_unscaled_val = \
+                treatments.loc[static_features_train_index], \
+                outcomes.loc[static_features_train_index], \
+                vitals.loc[static_features_train_index], \
+                outcomes_unscaled.loc[static_features_train_index], \
+                treatments.loc[static_features_val_index], \
+                outcomes.loc[static_features_val_index], \
+                vitals.loc[static_features_val_index], \
+                outcomes_unscaled.loc[static_features_val_index]
+        else:
+            static_features_train = static_features
+            treatments_train, outcomes_train, vitals_train, outcomes_unscaled_train = \
+                treatments, outcomes, vitals, outcomes_unscaled
+
+        # Train/val/test random_split
+        # index_list = np.arange(len(treatments))
+        # index_list, index_list_test = train_test_split(index_list, test_size=split['test'], random_state=seed,shuffle=False)
+        
+        # treatments, outcomes, vitals,static_features, outcomes_unscaled, treatments_test, outcomes_test, vitals_test, static_features_test, outcomes_unscaled_test= \
+        #     treatments.iloc[index_list], \
+        #     outcomes.iloc[index_list], \
+        #     vitals.iloc[index_list], \
+        #     static_features.iloc[index_list],\
+        #     outcomes_unscaled.iloc[index_list], \
+        #     treatments.iloc[index_list_test], \
+        #     outcomes.iloc[index_list_test], \
+        #     vitals.iloc[index_list_test], \
+        #     static_features.iloc[index_list_test],\
+        #     outcomes_unscaled.iloc[index_list_test]
+        # if split['val'] > 0.0:
+        #     index_list_train, index_list_val = train_test_split(index_list,test_size=split['val'] / (1 - split['test']),random_state=2 * seed,shuffle=False)
+        #     treatments_train, outcomes_train, vitals_train, static_features_train,outcomes_unscaled_train, treatments_val, outcomes_val, vitals_val,static_features_val, outcomes_unscaled_val = \
+        #         treatments.iloc[index_list_train], \
+        #         outcomes.iloc[index_list_train], \
+        #         vitals.iloc[index_list_train], \
+        #         static_features.iloc[index_list_train],\
+        #         outcomes_unscaled.iloc[index_list_train], \
+        #         treatments.iloc[index_list_val], \
+        #         outcomes.iloc[index_list_val], \
+        #         vitals.iloc[index_list_val], \
+        #         static_features.iloc[index_list_val],\
+        #         outcomes_unscaled.iloc[index_list_val]
+        # else:
+        #     index_list_train = index_list
+        #     treatments_train, outcomes_train, vitals_train, outcomes_unscaled_train = \
+        #         treatments, outcomes, vitals, outcomes_unscaled
+
+        self.train_f = RealDataset(treatments_train, outcomes_train, vitals_train, static_features_train,
+                                         outcomes_unscaled_train, scaling_params, 'train')
+        if split['val'] > 0.0:
+            self.val_f = RealDataset(treatments_val, outcomes_val, vitals_val, static_features_val, outcomes_unscaled_val,
+                                           scaling_params, 'val')
+        self.test_f = RealDataset(treatments_test, outcomes_test, vitals_test, static_features_test, outcomes_unscaled_test,
+                                        scaling_params, 'test')
+
+        self.projection_horizon = projection_horizon
+        self.has_vitals = True
+        self.autoregressive = autoregressive
+        self.processed_data_encoder = True
+
+
+class VARSyntheticDatasetCollection(RealDatasetCollection):
+    """
+    Dataset collection (train_f, val_f, test_f)
+    """
+    def __init__(self,
+                 path: str,
+                 min_seq_length: int = 30,
+                 max_seq_length: int = 60,
+                 seed: int = 100,
+                 max_number: int = None,
+                 split: dict = {'val': 0.2, 'test': 0.2},
+                 projection_horizon: int = 5,
+                 autoregressive=True,
+                 **kwargs):
+        """
+        Args:
+            path: Path with MIMIC-3 dataset (HDFStore)
+            min_seq_length: Min sequence lenght in cohort
+            max_seq_length: Max sequence lenght in cohort
+            seed: Seed for random cohort patient selection
+            max_number: Maximum number of patients in cohort
+            split: Ratio of train / val / test split
+            projection_horizon: Range of tau-step-ahead prediction (tau = projection_horizon + 1)
+            autoregressive:
+        """
+        super(VARSyntheticDatasetCollection, self).__init__()
+        self.seed = seed
+        treatments, outcomes, vitals, static_features, outcomes_unscaled, scaling_params = \
+            load_var4_data_processed(path, min_seq_length=min_seq_length, max_seq_length=max_seq_length,
                                        max_number=max_number, data_seed=seed, **kwargs)
         # Train/val/test random_split
         static_features, static_features_test = train_test_split(static_features, test_size=split['test'], random_state=seed)

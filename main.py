@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 import pandas as pd
 from src.data.cancer_sim.dataset import SyntheticCancerDatasetCollection
-from realdata import WeatherRealDatasetCollection
+from realdata import WeatherRealDatasetCollection, VARSyntheticDatasetCollection
 import logging
 import datetime
 import wandb
@@ -74,7 +74,8 @@ num_patients = {'train': 10000, 'val': 1000, 'test': 100}
 # datasetcollection = SyntheticCancerDatasetCollection(chemo_coeff = 3.0, radio_coeff = 3.0, num_patients = num_patients, window_size =15, 
 #                                     max_seq_length = 60, projection_horizon = 5, 
 #                                     seed = 42, lag = 0, cf_seq_mode = 'sliding_treatment', treatment_mode = 'multiclass')
-datasetcollection = WeatherRealDatasetCollection(path = 'realdata/weather/weather_.csv',max_seq_length=None)
+# datasetcollection = WeatherRealDatasetCollection(path = 'realdata/weather/weather_.csv',max_seq_length=None)
+datasetcollection = VARSyntheticDatasetCollection(path = 'synthetic-data/data/VAR4_dataset.npy',max_seq_length=None)
 datasetcollection.process_data_multi()
 #%%
 # def collate_fn_float32(batch):
@@ -113,18 +114,18 @@ config = {
 # dim_X = 2  # Dimension of vitals
 # dim_Y = 3  # Dimension of outputs
 # dim_V = 1  # Dimension of static inputs
-dim_A = 4  # Dimension of treatments
+dim_A = 2  # Dimension of treatments
 dim_X = 0  # Dimension of vitals
 dim_Y = 1  # Dimension of outputs
-dim_V = 1  # Dimension of static inputs
+dim_V = 2  # Dimension of static inputs
 batch_size = config['batch_size']
 epoch = config['epochs']
 fc_hidden_units = config['fc_hidden_units']
 train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
 
-#wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
-#wandb_logger = WandbLogger(project = 'TFFormer', name = f'CT_cancersim_{fc_hidden_units}_{batch_size}_{epoch}')
+wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
+wandb_logger = WandbLogger(project = 'TFFormer', name = f'Realdata_Weather_{fc_hidden_units}_{batch_size}_{epoch}')
 # run = wandb.init(
 #     name = "CT_256_10", ## Wandb creates random run names if you skip this field
 #     reinit = True, ### Allows reinitalizing runs when you re-run this cell

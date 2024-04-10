@@ -161,7 +161,126 @@ def load_weather_data_processed(data_path: str,
     #print(static_features)
     return treatments, outcomes, vitals, static_features, outcomes_unscaled, scaling_params
 
+
+def load_var4_data_processed(data_path: str,
+                               min_seq_length: int = None,
+                               max_seq_length: int = None,
+                               treatment_list: List[str] = None,
+                               outcome_list: List[str] = None,
+                               vital_list: List[str] = None,
+                               static_list: List[str] = None,
+                               max_number: int = None,
+                               data_seed: int = 100,
+                               drop_first=False,
+                               **kwargs) \
+        -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict):
+    """
+    Load and pre-process var synthetic dataset
+    :param data_path: Path with weather dataset 
+    :param min_seq_length: Min sequence lenght in cohort
+    :param min_seq_length: Max sequence lenght in cohort
+    :param treatment_list: List of treaments
+    :param outcome_list: List of outcomes
+    :param vital_list: List of vitals (time-varying covariates)
+    :param static_list: List of static features
+    :param max_number: Maximum number of patients in cohort
+    :param data_seed: Seed for random cohort patient selection
+    :param drop_first: Dropping first class of one-hot-encoded features
+    :return: tuple of DataFrames and params (treatments, outcomes, vitals, static_features, outcomes_unscaled, scaling_params)
+    """
+
+    logger.info(f'Loading var synthesized dataset from {data_path}.')
+
+    # h5 = pd.HDFStore(data_path, 'r')
+    h5 = np.load(data_path)
+    n_a , n_b, n_c = h5.shape
+
+    # Add index
+    index = np.arange(n_a)
+    index = np.repeat(index,n_b)
+    index = index.reshape((n_a,n_b,1))
+
+    h5 = np.concatenate((h5,index),axis = 2)
+    h5 = np.vstack(h5)
+
+    assert h5.shape[-1] == n_c+1
+
+    h5 = pd.DataFrame(h5)
+    h5.columns = ['x0','x1','x2','x3','x4','date']
+    h5.rename(columns = {'0':'x0'})
+    
+    print(h5)
+    if treatment_list is None:
+        treatment_list = [
+                          'x0',
+                          'x4'
+            
+                          ]
+        
+    if outcome_list is None:
+        outcome_list = [
+            'x2'
+        ]
+    else:
+        outcome_list = ListConfig([outcome.replace('_', ' ') for outcome in outcome_list])
+    if vital_list is None:
+        vital_list = [
+        ]
+    if static_list is None:
+        static_list = [
+            'x1',
+            'x3'
+        ]
+
+    treatments = h5[treatment_list]
+    treatments.set_index(h5['date'],inplace = True)
+    all_vitals = h5[outcome_list + vital_list]
+    all_vitals.set_index(h5['date'],inplace = True)
+    static_features = h5[static_list]
+    static_features.set_index(h5['date'],inplace = True)
+    column_names = []
+    for column in all_vitals.columns:
+        if isinstance(column, str):
+            column_names.append(column)
+        else:
+            column_names.append(column[0])
+    all_vitals.columns = column_names
+    # Filling NA
+    all_vitals = all_vitals.fillna(method='ffill')
+    all_vitals = all_vitals.fillna(method='bfill')
+    # Filtering longer then min_seq_length and cropping to max_seq_length
+    user_sizes = all_vitals.groupby('date').size()
+    filtered_users = user_sizes.index[user_sizes >= min_seq_length] if min_seq_length is not None else user_sizes.index
+    if max_number is not None:
+        np.random.seed(data_seed)
+        filtered_users = np.random.choice(filtered_users, size=max_number, replace=False)
+    treatments = treatments.loc[filtered_users]
+    all_vitals = all_vitals.loc[filtered_users]
+    if max_seq_length is not None:
+        treatments = treatments.groupby('date').head(max_seq_length)
+        all_vitals = all_vitals.groupby('date').head(max_seq_length)
+    static_features = static_features[static_features.index.isin(filtered_users)]
+    logger.info(f'Number of patients filtered: {len(filtered_users)}.')
+    # Global scaling (same as with semi-synthetic)
+    outcomes_unscaled = all_vitals[outcome_list].copy()
+    mean = np.mean(all_vitals, axis=0)
+    std = np.std(all_vitals, axis=0)
+    all_vitals = (all_vitals - mean) / std
+
+    # Splitting outcomes and vitals
+    outcomes = all_vitals[outcome_list].copy()
+
+    vitals = all_vitals[vital_list].copy()
+    static_features = process_static_features(static_features, drop_first=False)
+    scaling_params = {
+        'output_means': mean[outcome_list].to_numpy(),
+        'output_stds': std[outcome_list].to_numpy(),
+    }
+    return treatments, outcomes, vitals, static_features, outcomes_unscaled, scaling_params
+
+
 if __name__ == "__main__":
-    data_path = 'weather/weather_.csv'
+    #data_path = 'weather/weather_.csv'
+    data_path = '../synthetic-data/data/VAR4_dataset.npy'
     treatments, outcomes, vitals, stat_features, outcomes_unscaled, scaling_params = \
-        load_weather_data_processed(data_path, min_seq_length=100, max_seq_length=None)
+        load_var4_data_processed(data_path, min_seq_length=None, max_seq_length=None)

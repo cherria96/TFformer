@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 import pandas as pd
 from src.data.cancer_sim.dataset import SyntheticCancerDatasetCollection
-from realdata import WeatherRealDatasetCollection
+from realdata import WeatherRealDatasetCollection, VARSyntheticDatasetCollection
 import logging
 import datetime
 import wandb

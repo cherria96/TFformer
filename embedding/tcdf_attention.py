@@ -9,6 +9,7 @@ import heapq
 import copy
 import os
 import sys
+from embedding_space import EmbeddingSpace
 from torch.utils.data import DataLoader
 sys.path.append("../")
 from model.CT_ourmodel import CT
@@ -74,39 +75,56 @@ train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuf
 val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
 
 
-checkpoint_path = "../real_weight/cancersim_5_256_150.pt"
-model = CT.load_from_checkpoint(checkpoint_path)
+checkpoint_path = "../real_weight/cancersim_unroll_3_3_1.pt"
+embedding_space = EmbeddingSpace(checkpoint_path)
+variable = "treatment"
+results = embedding_space.make_heads(variable = variable)
+i1, i2 = np.random.randint(embedding_space.num_layers), np.random.randint(embedding_space.num_heads)
+W_Q_tmp, W_K_tmp = results[3][i1, i2, :], results[4][i1, i2, :]
+attn_score = (embedding_space.emb_inv_A @ (W_Q_tmp @ W_K_tmp.T) @ embedding_space.emb_inv_A.T)
+# attn_score += abs(attn_score.min())  # make it above zero
+# jth row of attn_score indicates the attention to calculate jth feature (other features -> jth feature)
+num_features = 4  # need this value to calculate values to zero out
+window_size = 3  # need this value to calculate values to zero out
+tot_features = attn_score.shape[0]
 
-# scores is attention scores
-seed = 42
-num_features = 3
-window_size = 3
-tot_features = num_features*window_size
-scores = torch.normal(1, 1, size=(tot_features, tot_features))
-scores += abs(scores.min()) + 0.0001
+# jth row of attn_score indicates the attention to calculate jth feature (other features -> jth feature)
 # example order of total features: (A1, B1, C1, A2, B2, C2, A3, B3, C3)
 # causality can exist only from past to future (i.e., A1 -> A3, A2 -> C3 not from C3 -> A2 or C2)
 # remove from the attention scores where causality can never exists (skip index)
 
-def skip_index_calculation(window_size, num_features) -> list:
+def set_zero(attn_score, window_size, num_features):
+    for tdx in range(window_size):
+        attn_score[tdx*num_features:(tdx+1)*num_features,tdx*num_features:] = 0
+    return attn_score
 
-    skip_indices = []
-    # TODO
-    return skip_indices
+def index_calculation(scores) -> list:
+    avail_indices = torch.nonzero(scores)
+    return avail_indices
 
-skip_indices = skip_index_calculation(window_size=window_size, num_features=num_features)
-s = sorted(scores.view(-1).cpu().detach().numpy(), reverse=True)
-indices = np.argsort(-1 *scores.view(-1).cpu().detach().numpy())
+def convert_to_coor(idx, tot_features=12):
+    x, y = divmod(idx, tot_features)
+    return [x, y]
 
-tot_len = len(s) - len(skip_indices)
+attn_score = set_zero(attn_score=attn_score, window_size=window_size, num_features=num_features)
+avail_indices = index_calculation(attn_score)
+attn_score += abs(attn_score.min()) + 1    # make attentio score larger than one (as TCDF) and above zero
+attn_score = set_zero(attn_score=attn_score, window_size=window_size, num_features=num_features)
+
+# scores is attention scores
+seed = 42
+
+s = sorted(attn_score.view(-1).cpu().detach().numpy(), reverse=True)
+indices = np.argsort(-1 *attn_score.view(-1).cpu().detach().numpy())
+
+tot_len = len(avail_indices)
+
 
 #attention interpretation to find tau: the threshold that distinguishes potential causes from non-causal time series
-if len(s)<=5:
+if tot_len<=5:
     potentials = []
     for i in indices:
-        if i in skip_indices:
-            continue
-        if scores[i]>1.:
+        if attn_score[i]>1.:
             potentials.append(i)
 else:
     potentials = []
@@ -132,70 +150,74 @@ else:
     potentials = indices[:ind+1].tolist()
 
 print("Potential causes: ", potentials)   # this cause will be only on selected features...
-validated = copy.deepcopy(potentials)
+potential_idx = np.array(list(map(convert_to_coor, potentials)))
+print("potential causes: ", potential_idx)
+
+scramble_idx = list(set(potential_idx[:,1]))
+print("scramble:", scramble_idx)
+
+validated = copy.deepcopy(scramble_idx)
 
 #Apply PIVM (permutes the values) to check if potential cause is true cause
-for idx in potentials:
+for idx in scramble_idx:
     random.seed(seed)
+
+    firstloss = 10.0  # temporary value
+    
+    realloss = 0.0
+    testloss = 0.0
     for batch_idx, batch in enumerate(train_loader):
         
-        prev_treatments = batch["prev_treatments"]
-        print(prev_treatments.shape)
-        vitals = None # batch["vitals"]
-        prev_outputs = batch["prev_outputs"]
-        print(prev_outputs.shape)
-        static_features = batch["static_features"]
-        print(static_features.shape)
-        current_treatments = batch["current_treatments"]
-        print(current_treatments.shape)
-        active_entries = batch['active_entries']
-        print(active_entries.shape)
+        # prev_outputs = batch["prev_outputs"]
+        # print(prev_outputs.shape)    # [batch_size, 57, 3]
+        # static_features = batch["static_features"]
+        # print(static_features.shape)   # [batch_size, 1]
+        # active_entries = batch['active_entries']
+        # print(active_entries.shape)  # [batch_size, 57, 3]
+        # output = batch['outputs'] # [batch_size, 57, 3]
+        # print(output.shape)
 
-        # permute by batch columns
-        break
+        # firstloss is loss when model is trained for one epoch
+        # realloss is loss when model is fully trained
+        realloss += embedding_space.model.training_step(batch, 1, trainer=False).cpu().data.item()   # give 1 to batch_idx cause is not used in the function (no need)
+        # print(realloss)
 
-#     X_test2 = X_train.clone().cpu().numpy()
-#     random.shuffle(X_test2[:,idx,:][0])
-#     shuffled = torch.from_numpy(X_test2)
-#     if cuda:
-#         shuffled=shuffled.cuda()
-#     model.eval()
-#     output = model(shuffled)
-#     testloss = F.mse_loss(output, Y_train)
-#     testloss = testloss.cpu().data.item()
-    
-#     diff = firstloss-realloss
-#     testdiff = firstloss-testloss
+        if variable == "treatment": 
+            x_test2 = batch["prev_treatments"].clone().cpu().numpy()  # [batch_size, 57, 12]
+            perm = np.arange(x_test2[:,:,idx].shape[1])
+            np.random.shuffle(perm)
+            x_test2[:,:,idx] = x_test2[:,:,idx][:,perm]
+            shuffled_prev_treat = torch.from_numpy(x_test2)
 
-#     if testdiff>(diff*significance): 
-#         validated.remove(idx) 
+            x_test3 = batch["current_treatments"].clone().cpu().numpy()  # [batch_size, 57, 12]
+            perm = np.arange(x_test3[:,:,idx].shape[1])
+            np.random.shuffle(perm)
+            x_test3[:,:,idx] = x_test3[:,:,idx][:,perm]
+            shuffled_cur_treat = torch.from_numpy(x_test3)
 
+            batch['prev_treatments'] = shuffled_prev_treat
+            batch['current_treatments'] = shuffled_cur_treat
 
-# weights = []
+        testloss += embedding_space.model.training_step(batch, 1, trainer=False).cpu().data.item()   # give 1 to batch_idx cause is not used in the function (no need)
+        # print(testloss)
+        
+        # # permute by batch columns
+        # X_test2 = X_train.clone().cpu().numpy()
+        # random.shuffle(X_test2[:,idx,:][0])
+        # shuffled = torch.from_numpy(X_test2)
+        # if cuda:
+        #     shuffled=shuffled.cuda()
+        # model.eval()
+        # output = model(shuffled)
+        # testloss = F.mse_loss(output, Y_train)
+        # testloss = testloss.cpu().data.item()
+        
+    diff = firstloss-realloss
+    testdiff = firstloss-testloss
+    print("diff:", diff)
+    print("testdiff:", testdiff)
+    significance = 0.8  # use value from TCDF
+    if testdiff>(diff*significance): 
+        print("removed!")
+        validated.remove(idx) 
 
-# #Discover time delay between cause and effect by interpreting kernel weights
-# for layer in range(layers):
-#     weight = model.dwn.network[layer].net[0].weight.abs().view(model.dwn.network[layer].net[0].weight.size()[0], model.dwn.network[layer].net[0].weight.size()[2])
-#     weights.append(weight)
-
-# causeswithdelay = dict()    
-# for v in validated: 
-#     totaldelay=0    
-#     for k in range(len(weights)):
-#         w=weights[k]
-#         row = w[v]
-#         twolargest = heapq.nlargest(2, row)
-#         m = twolargest[0]
-#         m2 = twolargest[1]
-#         if m > m2:
-#             index_max = len(row) - 1 - max(range(len(row)), key=row.__getitem__)
-#         else:
-#             #take first filter
-#             index_max=0
-#         delay = index_max *(dilation_c**k)
-#         totaldelay+=delay
-#     if targetidx != v:
-#         causeswithdelay[(targetidx, v)]=totaldelay
-#     else:
-#         causeswithdelay[(targetidx, v)]=totaldelay+1
-# print("Validated causes: ", validated)

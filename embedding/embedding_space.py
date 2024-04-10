@@ -1,11 +1,11 @@
 
 #%%
 import sys
-sys.path.append("/Users/sujinchoi/Desktop/TFformer")
+sys.path.append("../")
 import torch
 from torch.nn import functional as F
-from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel
-from tabulate import tabulate
+# from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel
+# from tabulate import tabulate
 from tqdm import tqdm, trange
 from copy import deepcopy
 import numpy as np
@@ -17,6 +17,7 @@ class EmbeddingSpace:
     def __init__(self, checkpoint_path):
         # emb = model.get_output_embeddings().weight.data.T.detach()
         model = CT.load_from_checkpoint(checkpoint_path)
+        self.model = model
         has_vitals = model.has_vitals
         emb_A = model.A_input_transformation.weight.data.detach() # (16,4)
         emb_X = model.X_input_transformation.weight.data.detach() if has_vitals else None 
@@ -108,6 +109,15 @@ if __name__=="__main__":
     print(variable)
     print(attn_score.shape)
     print(attn_score)
+
+    temp = torch.randn((4,4))
+    print("=====================")
+    print(temp)
+    print("=====================")
+    print(temp.view(-1))
+
+
+
 """
 # Attention weights interpretation
 '''

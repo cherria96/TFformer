@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import h5py
+import json
 
 # Parameters
 num_samples = 1
@@ -131,17 +131,16 @@ def VAR4():
     plt.ylabel('Value')
     plt.legend()
     plt.show()
-    
-    data = dict()
-    data['treatments'] = treatments
-    data['covariates'] = covariates
-    data['outcomes'] = outcomes
-    data['static_features'] = static_features
+
     # np.save("./data/VAR4_dataset.npy", data.transpose(2,1,0))
     # Create a new HDF5 file
-    with h5py.File('data.h5', 'w') as hdf:
-        for key, value in data.items():
-            hdf.create_dataset(key, data=value)
+    data = {'treatments': treatments.tolist(), 
+            'covariates': covariates.tolist(), 
+            'outcomes': outcomes.tolist(), 
+            'static_features': static_features.tolist()}
+    
+    with open('VAR4.json', 'w') as json_file:
+        json.dump(data, json_file)
 
 
 

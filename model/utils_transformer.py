@@ -94,7 +94,6 @@ class Attention(nn.Module):
         super(Attention, self).__init__()
         self.positional_encoding_k = positional_encoding_k
         self.positional_encoding_v = positional_encoding_v
-        self.last_attn_weights = None
 
 
     def forward(self, query, key, value, mask=None, dropout=None, one_direction=False):

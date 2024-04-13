@@ -307,7 +307,9 @@ class CT(LightningModule):
             if percentage:
                 rmse_normalised_last *= 100.0
 
+            # self.log(f'validation_normalized_rmse_loss', rmse_normalised_orig, on_epoch=True, on_step=False, sync_dist=True)
             return rmse_normalised_orig, rmse_normalised_all, rmse_normalised_last
+        # self.log(f'validation_normalized_rmse_loss', rmse_normalised_orig, on_epoch=True, on_step=False, sync_dist=True)
 
         return rmse_normalised_orig, rmse_normalised_all
 

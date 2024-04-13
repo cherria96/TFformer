@@ -162,7 +162,7 @@ validated = copy.deepcopy(scramble_idx)
 for idx in scramble_idx:
     random.seed(seed)
 
-    firstloss = 10.0  # temporary value
+    firstloss = 50.0  # temporary value
     
     realloss = 0.0
     testloss = 0.0
@@ -212,7 +212,7 @@ for idx in scramble_idx:
         # testloss = F.mse_loss(output, Y_train)
         # testloss = testloss.cpu().data.item()
         
-    diff = firstloss-realloss
+    diff = firstloss-realloss  # loss gap after training (larger less trained)
     testdiff = firstloss-testloss
     print("diff:", diff)
     print("testdiff:", testdiff)

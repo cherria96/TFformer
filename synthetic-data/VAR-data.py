@@ -96,8 +96,15 @@ def VAR4():
 
     # Apply the VAR(4) model relationships
     # Coefficients are as per the system's description
-    for t in range(4, num_time_points):
+    covariates[:,:,0] = np.random.normal(0,1,(num_covariates,num_time_points))
+    treatments[:,:,0] = np.random.normal(0,1,(num_treatments,num_time_points))
+    outcomes[:,:,0] = np.random.normal(0,1,(num_outcomes,num_time_points))
+    for t in range(num_time_points):
         for sample in range(num_samples):
+            if t < 4:
+                covariates[:, t, sample] = np.random.normal(0, 1, num_covariates)
+                treatments[:, t, sample] = np.random.normal(0, 1, num_treatments)
+                outcomes[:, t, sample] = np.random.normal(0, 1, num_outcomes)
             # C1, t
             covariates[0, t, sample] = 0.4 * covariates[0, t-1, sample] - 0.5 * covariates[0, t-2, sample] + 0.4 * covariates[4, t-1, sample] + epsilon_covariates[0, t, sample]
             # C2, t
@@ -136,7 +143,7 @@ def VAR4():
     # np.save("./data/VAR4_dataset.npy", data.transpose(2,1,0))
     # Create a new HDF5 file
     # File path for the HDF5 file
-    file_path = './synthetic-data/data/VAR4.h5'
+    file_path = '../synthetic-data/data/VAR4_2.h5'
 
     # Storing each DataFrame in the HDF5 file
     create_multi_dataframe(treatments, 'T').to_hdf(file_path, key='treatments', mode='w')

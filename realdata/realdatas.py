@@ -1,3 +1,5 @@
+import sys
+sys.path.append('/Users/sujinchoi/Desktop/TFformer')
 import pandas as pd
 from pandas.core.algorithms import isin
 import numpy as np
@@ -41,21 +43,9 @@ class RealDataset(Dataset):
         assert outcomes.shape[0] == vitals.shape[0]
 
         self.subset_name = subset_name
-        user_sizes = vitals.groupby('date').size()
+        user_sizes = vitals.groupby('Sample').size()
 
-        # Padding with nans
-        # treatments = treatments.unstack(fill_value=np.nan, level=0).stack(dropna=False).swaplevel(0, 1).sort_index()
-        # outcomes = outcomes.unstack(fill_value=np.nan, level=0).stack(dropna=False).swaplevel(0, 1).sort_index()
-        # vitals = vitals.unstack(fill_value=np.nan, level=0).stack(dropna=False).swaplevel(0, 1).sort_index()
-        # outcomes_unscaled = outcomes_unscaled.unstack(fill_value=np.nan, level=0).stack(dropna=False).swaplevel(0, 1).sort_index()
-        # breakpoint()
-        #treatments = treatments.stack(dropna=False).swaplevel(0, 1).sort_index()
-        # outcomes = outcomes.stack(dropna=False).swaplevel(0, 1).sort_index()
-        # vitals = vitals.stack(dropna=False).swaplevel(0, 1).sort_index()
-        # outcomes_unscaled = outcomes_unscaled.stack(dropna=False).swaplevel(0, 1).sort_index()
-        #active_entries = (~treatments.isna().any()).astype(float)
         active_entries = (~np.isnan(treatments)).any().astype(float)
-        # static_features = static_features.sort_index()
         user_sizes = user_sizes.sort_index()
 
         # Conversion to np.arrays
@@ -404,63 +394,6 @@ class RealDataset(Dataset):
 
         return self.data
 
-    def process_autoregressive_test(self, encoder_r, encoder_outputs, projection_horizon, save_encoder_r=False):
-        """
-        Pre-process test dataset for multiple-step-ahead prediction: axillary dataset placeholder for autoregressive prediction
-        Args:
-            projection_horizon: Projection horizon
-            encoder_r: Representations of encoder
-            save_encoder_r: Save all encoder representations (for cross-attention of EDCT)
-        """
-
-        assert self.processed_sequential
-
-        if not self.processed_autoregressive:
-            logger.info(f'Processing {self.subset_name} dataset before testing (autoregressive)')
-
-            current_treatments = self.data_original['current_treatments']
-            prev_treatments = self.data_original['prev_treatments']
-
-            sequence_lengths = self.data_original['sequence_lengths']
-            num_patient_points = current_treatments.shape[0]
-
-            current_dataset = dict()  # Same as original, but only with last n-steps
-            current_dataset['prev_treatments'] = np.zeros((num_patient_points, projection_horizon,
-                                                           self.data_original['prev_treatments'].shape[-1]))
-            current_dataset['current_treatments'] = np.zeros((num_patient_points, projection_horizon,
-                                                              self.data_original['current_treatments'].shape[-1]))
-            current_dataset['prev_outputs'] = np.zeros((num_patient_points, projection_horizon,
-                                                        self.data_original['outputs'].shape[-1]))
-            current_dataset['init_state'] = np.zeros((num_patient_points, encoder_r.shape[-1]))
-            current_dataset['active_encoder_r'] = np.zeros((num_patient_points, int(sequence_lengths.max() - projection_horizon)))
-            current_dataset['active_entries'] = np.ones((num_patient_points, projection_horizon, 1))
-
-            for i in range(num_patient_points):
-                fact_length = int(sequence_lengths[i]) - projection_horizon
-                current_dataset['init_state'][i] = encoder_r[i, fact_length - 1]
-                current_dataset['prev_outputs'][i, 0, :] = encoder_outputs[i, fact_length - 1]
-                current_dataset['active_encoder_r'][i, :fact_length] = 1.0
-
-                current_dataset['prev_treatments'][i] = \
-                    prev_treatments[i, fact_length - 1:fact_length + projection_horizon - 1, :]
-                current_dataset['current_treatments'][i] = current_treatments[i, fact_length:fact_length + projection_horizon, :]
-
-            current_dataset['static_features'] = self.data_original['static_features']
-
-            self.data_processed_seq = deepcopy(self.data)
-            self.data = current_dataset
-            data_shapes = {k: v.shape for k, v in self.data.items()}
-            logger.info(f'Shape of processed {self.subset_name} data: {data_shapes}')
-
-            if save_encoder_r:
-                self.encoder_r = encoder_r[:, :int(max(sequence_lengths) - projection_horizon), :]
-
-            self.processed_autoregressive = True
-
-        else:
-            logger.info(f'{self.subset_name} Dataset already processed (autoregressive)')
-
-        return self.data
 
     def process_sequential_multi(self, projection_horizon):
         """
@@ -602,6 +535,10 @@ class VARSyntheticDatasetCollection(RealDatasetCollection):
     """
     def __init__(self,
                  path: str,
+                 dim_treatment: int, 
+                 dim_covariates:int,
+                 dim_outcome: int,
+                 dim_static: int,
                  min_seq_length: int = 30,
                  max_seq_length: int = 60,
                  seed: int = 100,
@@ -623,9 +560,8 @@ class VARSyntheticDatasetCollection(RealDatasetCollection):
         """
         super(VARSyntheticDatasetCollection, self).__init__()
         self.seed = seed
-        treatments, outcomes, vitals, static_features, outcomes_unscaled, scaling_params = \
-            load_var4_data_processed(path, min_seq_length=min_seq_length, max_seq_length=max_seq_length,
-                                       max_number=max_number, data_seed=seed, **kwargs)
+        treatments, outcomes, vitals, static_features, outcomes_unscaled, scaling_params = load_var4_data_processed(path, min_seq_length = min_seq_length, max_seq_length=max_seq_length, 
+                                                                                                                    dim_treatment = dim_treatment,dim_covariates = dim_covariates, dim_outcome = dim_outcome, dim_static = dim_static)
         # Train/val/test random_split
         static_features, static_features_test = train_test_split(static_features, test_size=split['test'], random_state=seed)
         static_features_index = static_features.index.drop_duplicates()
@@ -661,39 +597,6 @@ class VARSyntheticDatasetCollection(RealDatasetCollection):
             treatments_train, outcomes_train, vitals_train, outcomes_unscaled_train = \
                 treatments, outcomes, vitals, outcomes_unscaled
 
-        # Train/val/test random_split
-        # index_list = np.arange(len(treatments))
-        # index_list, index_list_test = train_test_split(index_list, test_size=split['test'], random_state=seed,shuffle=False)
-        
-        # treatments, outcomes, vitals,static_features, outcomes_unscaled, treatments_test, outcomes_test, vitals_test, static_features_test, outcomes_unscaled_test= \
-        #     treatments.iloc[index_list], \
-        #     outcomes.iloc[index_list], \
-        #     vitals.iloc[index_list], \
-        #     static_features.iloc[index_list],\
-        #     outcomes_unscaled.iloc[index_list], \
-        #     treatments.iloc[index_list_test], \
-        #     outcomes.iloc[index_list_test], \
-        #     vitals.iloc[index_list_test], \
-        #     static_features.iloc[index_list_test],\
-        #     outcomes_unscaled.iloc[index_list_test]
-        # if split['val'] > 0.0:
-        #     index_list_train, index_list_val = train_test_split(index_list,test_size=split['val'] / (1 - split['test']),random_state=2 * seed,shuffle=False)
-        #     treatments_train, outcomes_train, vitals_train, static_features_train,outcomes_unscaled_train, treatments_val, outcomes_val, vitals_val,static_features_val, outcomes_unscaled_val = \
-        #         treatments.iloc[index_list_train], \
-        #         outcomes.iloc[index_list_train], \
-        #         vitals.iloc[index_list_train], \
-        #         static_features.iloc[index_list_train],\
-        #         outcomes_unscaled.iloc[index_list_train], \
-        #         treatments.iloc[index_list_val], \
-        #         outcomes.iloc[index_list_val], \
-        #         vitals.iloc[index_list_val], \
-        #         static_features.iloc[index_list_val],\
-        #         outcomes_unscaled.iloc[index_list_val]
-        # else:
-        #     index_list_train = index_list
-        #     treatments_train, outcomes_train, vitals_train, outcomes_unscaled_train = \
-        #         treatments, outcomes, vitals, outcomes_unscaled
-
         self.train_f = RealDataset(treatments_train, outcomes_train, vitals_train, static_features_train,
                                          outcomes_unscaled_train, scaling_params, 'train')
         if split['val'] > 0.0:
@@ -706,3 +609,12 @@ class VARSyntheticDatasetCollection(RealDatasetCollection):
         self.has_vitals = True
         self.autoregressive = autoregressive
         self.processed_data_encoder = True
+#%%
+if __name__ == "__main__":
+    file_path = "synthetic-data/data/VAR4_2.h5"
+    datasetcollection = VARSyntheticDatasetCollection(file_path,dim_treatment = 2, dim_covariates= 5, dim_outcome=1, dim_static=2 )
+    datasetcollection.train_f.explode_trajectories(projection_horizon=5)
+    datasetcollection.train_f.process_sequential_test(projection_horizon = 5)
+
+
+# %%

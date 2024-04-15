@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import json
+import h5py
 
 # Parameters
 num_samples = 1
@@ -134,16 +135,32 @@ def VAR4():
 
     # np.save("./data/VAR4_dataset.npy", data.transpose(2,1,0))
     # Create a new HDF5 file
-    data = {'treatments': treatments.tolist(), 
-            'covariates': covariates.tolist(), 
-            'outcomes': outcomes.tolist(), 
-            'static_features': static_features.tolist()}
+    # File path for the HDF5 file
+    file_path = './synthetic-data/data/VAR4.h5'
+
+    # Storing each DataFrame in the HDF5 file
+    create_multi_dataframe(treatments, 'T').to_hdf(file_path, key='treatments', mode='w')
+    c = create_multi_dataframe(covariates, 'C')
+    o = create_multi_dataframe(outcomes, 'O')
+    pd.concat([c,o], axis = 1).to_hdf(file_path, key='covariates', mode='a')
+    static_df = pd.DataFrame(static_features.T, columns= [f'S{i}' for i in range(num_static_features)])
+    static_df.to_hdf(file_path, key = 'static_features', mode = 'a')
+    # data = {'treatments': treatments, 
+    #         'covariates': covariates, 
+    #         'outcomes': outcomes, 
+    #         'static_features': static_features}
     
-    with open('VAR4.json', 'w') as json_file:
-        json.dump(data, json_file)
+    # with open('VAR4.json', 'w') as json_file:
+    #     json.dump(data, json_file)
 
 
-
+def create_multi_dataframe(arr, feature_head):
+    num_features, num_time_points,  num_samples = arr.shape
+    multi_index = pd.MultiIndex.from_product([range(num_samples), range(num_time_points)],
+                                         names=['Sample', 'Time_Point'])
+    array_2d = arr.reshape(num_samples * num_time_points, num_features)
+    df = pd.DataFrame(array_2d, index=multi_index, columns=[f'{feature_head}{i}' for i in range(num_features)])
+    return df
 # %%
 if __name__ == "__main__":
     # VAR1()

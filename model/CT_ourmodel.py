@@ -313,7 +313,7 @@ class CT(LightningModule):
 
         return rmse_normalised_orig, rmse_normalised_all
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx, trainer=True):
         if self.ema:
             with self.ema_treatment.average_parameters():
                 _, outcome_pred= self(batch) 
@@ -323,7 +323,8 @@ class CT(LightningModule):
         # torch.Size([32, 60, 10]) torch.Size([32, 60, 10])
         mse_loss = nn.functional.mse_loss(outcome_pred, batch['outputs'], reduce=False)
         mse_loss = (batch['active_entries'] * mse_loss).sum() / batch['active_entries'].sum() 
-        self.log(f'train_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True) 
+        if trainer:
+            self.log(f'train_mse_loss', mse_loss, on_epoch=True, on_step=False, sync_dist=True) 
         # 왜 우리 prediction 결과과 (25,60, 10)이지? 기존 모델은 .mean()안해도 되는데
         # parameter 탓인가?
         # wandb.log({'train_mse_loss': mse_loss})

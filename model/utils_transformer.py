@@ -106,9 +106,9 @@ class Attention(nn.Module):
     
         #print('score shae:',scores.shape) #torch.Size([32, 2, 60, 60])
         #print('mask is',mask.shape) #torch.Size([1, 1, 32, 3600])
-        mask = torch.ones([1,1,59,59],device= scores.device)
-        # if mask is not None:
-        #     scores = scores.masked_fill(mask == 0, -1e9)
+        # mask = torch.ones([1,1,59,59],device= scores.device)
+        if mask is not None:
+            scores = scores.masked_fill(mask == 0, -1e9)
 
         if one_direction:  # Required for self-attention, but not for cross-attention
             direction_mask = torch.ones_like(scores)
@@ -130,7 +130,7 @@ class Attention(nn.Module):
         return output, p_attn
 
 
-class MultiHeadedAttention(nn.Module):
+class _MultiHeadedAttention(nn.Module):
     def __init__(self, num_heads, d_model, head_size=None, dropout=0.0, positional_encoding_k=None, positional_encoding_v=None,
                  final_layer=False):
         super().__init__()
@@ -141,7 +141,7 @@ class MultiHeadedAttention(nn.Module):
             self.head_size = head_size
         else:
             self.head_size = d_model // num_heads
-
+        
         self.linear_layers = nn.ModuleList([nn.Linear(d_model, self.num_heads * self.head_size) for _ in range(3)])
         self.attention = Attention(positional_encoding_k, positional_encoding_v)
         self.dropout = nn.Dropout(p=dropout)
@@ -166,7 +166,97 @@ class MultiHeadedAttention(nn.Module):
 
         return self.layer_norm(x + query)
 
+class ScaledDotProductAttention(nn.Module):
+    def __init__(self, 
+                 positional_encoding_k: RelativePositionalEncoding = None,
+                 positional_encoding_v: RelativePositionalEncoding = None,
+                 attn_dropout=0.0):
+        super().__init__()
+        self.dropout = nn.Dropout(attn_dropout)
+        self.softmax = nn.Softmax(dim=-1)
+        self.positional_encoding_k = positional_encoding_k
+        self.positional_encoding_v = positional_encoding_v
 
+    def forward(self, q, k, v, mask=None, dropout = None, one_direction = None):
+        d_k = k.size(-1) # Assume q, k, v have same last dimension size
+        scores = torch.matmul(q, k.transpose(-2, -1)) 
+        if self.positional_encoding_k is not None:
+            R_k = self.positional_encoding_k(q.size(-2), k.size(-2))
+            scores = scores + torch.einsum('b q d, q k d -> b q k', q, R_k)
+
+        scores = scores / d_k ** 0.5
+
+
+        if mask is not None:
+            scores = scores.masked_fill(mask == 0, -1e9)
+        
+        if one_direction:
+            direction_mask = torch.ones_like(scores)
+            direction_mask = torch.trill(direction_mask)
+            scores = scores.masked_fill(direction_mask == 0, -1e9)
+
+        attn = self.softmax(scores)
+        if dropout is not None:
+            attn = self.dropout(attn)
+        output = torch.matmul(attn, v)
+
+        if self.positional_encoding_v is not None:
+            R_v = self.positional_encoding_v(q.size(-2), v.size(-2))
+            output = output + torch.einsum('b q v, q v d -> b q d', attn, R_v)
+
+        return output, attn
+    
+class MultiHeadedAttention(nn.Module):
+    def __init__(self, num_heads, d_model, head_size=None, dropout=0.0, positional_encoding_k=None, positional_encoding_v=None,
+                 final_layer=False):
+        super().__init__()
+        assert d_model % num_heads == 0
+
+        self.num_heads = num_heads
+        if head_size is not None:
+            self.head_size = head_size
+        else:
+            self.head_size = d_model // num_heads
+        self.q_layers = []
+        self.k_layers = []
+        self.v_layers = []
+        v_layer = nn.Linear(d_model, self.head_size)
+        for _ in range(self.num_heads):
+            self.q_layers.append(nn.Linear(d_model, self.head_size))
+            self.k_layers.append(nn.Linear(d_model, self.head_size))
+            self.v_layers.append(v_layer)
+        
+
+        # self.linear_layers = nn.ModuleList([nn.Linear(d_model, self.num_heads * self.head_size) for _ in range(2)])
+        self.attention = ScaledDotProductAttention(positional_encoding_k, positional_encoding_v)
+        self.dropout = nn.Dropout(p=dropout)
+        if final_layer:
+            self.final_layer = nn.Linear(self.num_heads * self.head_size, d_model)
+        self.layer_norm = LayerNorm(d_model)
+
+    def forward(self, query, key, value, mask=None, one_direction=True):
+        batch_size = query.size(0)
+        heads = []
+        attns = []
+        for i in range(self.num_heads):
+            query_ = self.q_layers[i](query).view(batch_size, -1, self.head_size)
+            key_ = self.k_layers[i](key).view(batch_size, -1, self.head_size)
+            value_ = self.v_layers[i](value).view(batch_size, -1, self.head_size)
+            head, attn = self.attention(query_, key_, value_, 
+                                        mask = mask, dropout = self.dropout, 
+                                        one_direction = one_direction) 
+            heads.append(head) 
+            attns.append(attn)
+        head = torch.stack(heads) if self.num_heads > 1 else heads[0] # (num_heads, batch_size, -1, head_size)
+        attn = torch.stack(attns)
+
+        outputs = torch.mean(head, axis = 0) if self.num_heads > 1 else head
+        outputs = outputs.transpose(0,1).contiguous().view(batch_size, -1, self.num_heads * self.head_size)
+        if self.final_layer:
+            outputs = self.final_layer(outputs)
+        return self.layer_norm(outputs + query)
+
+    
 class PositionwiseFeedForward(nn.Module):
     def __init__(self, d_model, d_ff, dropout=0.1):
         super().__init__()

@@ -211,7 +211,7 @@ class MultiHeadedAttention(nn.Module):
                  final_layer=False):
         super().__init__()
         assert d_model % num_heads == 0
-
+        self.attn = None
         self.num_heads = num_heads
         if head_size is not None:
             self.head_size = head_size
@@ -248,7 +248,7 @@ class MultiHeadedAttention(nn.Module):
             heads.append(head) 
             attns.append(attn)
         head = torch.stack(heads) if self.num_heads > 1 else heads[0] # (num_heads, batch_size, -1, head_size)
-        attn = torch.stack(attns)
+        self.attn = torch.stack(attns) # (num_heads, batch_size, seq_len, seq_len)
 
         outputs = torch.mean(head, axis = 0) if self.num_heads > 1 else head
         outputs = outputs.transpose(0,1).contiguous().view(batch_size, -1, self.num_heads * self.head_size)

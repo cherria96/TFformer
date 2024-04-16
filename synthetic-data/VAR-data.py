@@ -105,22 +105,23 @@ def VAR4():
                 covariates[:, t, sample] = np.random.normal(0, 1, num_covariates)
                 treatments[:, t, sample] = np.random.normal(0, 1, num_treatments)
                 outcomes[:, t, sample] = np.random.normal(0, 1, num_outcomes)
-            # C1, t
-            covariates[0, t, sample] = 0.4 * covariates[0, t-1, sample] - 0.5 * covariates[0, t-2, sample] + 0.4 * covariates[4, t-1, sample] + epsilon_covariates[0, t, sample]
-            # C2, t
-            covariates[1, t, sample] = 0.4 * covariates[1, t-1, sample] - 0.3 * covariates[0, t-4, sample] + 0.4 * covariates[4, t-2, sample] + epsilon_covariates[1, t, sample]
-            # C3, t
-            covariates[2, t, sample] = 0.5 * covariates[2, t-1, sample] - 0.7 * covariates[2, t-2, sample] - 0.3 * covariates[4, t-3, sample] + epsilon_covariates[2, t, sample]
-            # C4, t
-            covariates[3, t, sample] = 0.8 * covariates[3, t-3, sample] + 0.4 * covariates[0, t-2, sample] + 0.3 * covariates[1, t-3, sample] + epsilon_covariates[3, t, sample]
-            # C5, t
-            covariates[4, t, sample] = 0.7 * covariates[4, t-1, sample] - 0.5 * covariates[4, t-2, sample] - 0.4 * covariates[3, t-1, sample] + epsilon_covariates[4, t, sample]
-            # T1, t
-            treatments[0, t, sample] = 0.6 * covariates[2, t-1, sample] - 0.3 * covariates[1, t-2, sample] + epsilon_treatments[0, t, sample]
-            # T2, t
-            treatments[1, t, sample] =  0.8 * covariates[3, t-1, sample] + 0.4 * covariates[4, t-1, sample] - 0.6 * covariates[1, t-2, sample] + epsilon_treatments[1, t, sample]
-            # O1, t
-            outcomes[0, t, sample] = 0.7 * treatments[0, t-1, sample] + 0.4 * treatments[1, t-2, sample]- 0.5 * covariates[3, t-1, sample] + 0.3 * static_features[1, sample] + epsilon_outcomes[0, t, sample]
+            else:
+                # C1, t
+                covariates[0, t, sample] = 0.4 * covariates[0, t-1, sample] - 0.5 * covariates[0, t-2, sample] + 0.4 * covariates[4, t-1, sample] + 0.5 * epsilon_covariates[0, t, sample]
+                # C2, t
+                covariates[1, t, sample] = 0.4 * covariates[1, t-1, sample] - 0.3 * covariates[0, t-4, sample] + 0.4 * covariates[4, t-2, sample] + 0.5 * epsilon_covariates[1, t, sample]
+                # C3, t
+                covariates[2, t, sample] = 0.5 * covariates[2, t-1, sample] - 0.7 * covariates[2, t-2, sample] - 0.3 * covariates[4, t-3, sample] + 0.5 * epsilon_covariates[2, t, sample]
+                # C4, t
+                covariates[3, t, sample] = 0.8 * covariates[3, t-3, sample] + 0.4 * covariates[0, t-2, sample] + 0.3 * covariates[1, t-3, sample] + 0.5 * epsilon_covariates[3, t, sample]
+                # C5, t
+                covariates[4, t, sample] = 0.7 * covariates[4, t-1, sample] - 0.5 * covariates[4, t-2, sample] - 0.4 * covariates[3, t-1, sample] + 0.5 * epsilon_covariates[4, t, sample]
+                # T1, t
+                treatments[0, t, sample] = 0.6 * covariates[2, t-1, sample] - 0.3 * covariates[1, t-2, sample] + epsilon_treatments[0, t, sample]
+                # T2, t
+                treatments[1, t, sample] =  0.8 * covariates[3, t-1, sample] + 0.4 * covariates[4, t-1, sample] - 0.6 * covariates[1, t-2, sample] + 0.5 * epsilon_treatments[1, t, sample]
+                # O1, t
+                outcomes[0, t, sample] = 0.7 * treatments[0, t-1, sample] + 0.4 * treatments[1, t-2, sample]- 0.5 * covariates[3, t-1, sample] + 0.3 * static_features[1, sample] + 0.5 * epsilon_outcomes[0, t, sample]
     # The generated data is a 3D array with dimensions corresponding to variables, timepoints, and samples
     # To proceed with analysis, you might want to consider one sample at a time or average across samples
     # Visualize the time series for the first sample
@@ -140,7 +141,7 @@ def VAR4():
     plt.legend()
     plt.show()
 
-    # np.save("./data/VAR4_dataset.npy", data.transpose(2,1,0))
+    np.save("../synthetic-data/data/VAR4_dataset.npy", data.transpose(2,1,0))
     # Create a new HDF5 file
     # File path for the HDF5 file
     file_path = '../synthetic-data/data/VAR4_2.h5'

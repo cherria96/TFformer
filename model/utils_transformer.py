@@ -103,12 +103,17 @@ class Attention(nn.Module):
             scores = scores + torch.einsum('b h q d, q k d -> b h q k', query, R_k)
 
         scores = scores / math.sqrt(query.size(-1))
-    
+        print('query', query.shape) 
+        print('R_k', R_k.shape) 
+        
         #print('score shae:',scores.shape) #torch.Size([32, 2, 60, 60])
         #print('mask is',mask.shape) #torch.Size([1, 1, 32, 3600])
         # mask = torch.ones([1,1,59,59],device= scores.device)
-        if mask is not None:
-            scores = scores.masked_fill(mask == 0, -1e9)
+        # if mask is not None:
+        #     print('mask', mask.shape) 
+        #     print('scores', scores.shape)
+
+        #     scores = scores.masked_fill(mask == 0, -1e9)
 
         if one_direction:  # Required for self-attention, but not for cross-attention
             direction_mask = torch.ones_like(scores)
@@ -130,7 +135,7 @@ class Attention(nn.Module):
         return output, p_attn
 
 
-class _MultiHeadedAttention(nn.Module):
+class MultiHeadedAttention(nn.Module):
     def __init__(self, num_heads, d_model, head_size=None, dropout=0.0, positional_encoding_k=None, positional_encoding_v=None,
                  final_layer=False):
         super().__init__()
@@ -186,13 +191,15 @@ class ScaledDotProductAttention(nn.Module):
 
         scores = scores / d_k ** 0.5
 
-
-        if mask is not None:
-            scores = scores.masked_fill(mask == 0, -1e9)
+        
+        # if mask is not None:
+        #     print('mask', mask.shape) #(256, 1, 6, 54)
+        #     print('scores', scores.shape) #(256,6,6)
+        #     scores = scores.masked_fill(mask == 0, -1e9)
         
         if one_direction:
             direction_mask = torch.ones_like(scores)
-            direction_mask = torch.trill(direction_mask)
+            direction_mask = torch.tril(direction_mask)
             scores = scores.masked_fill(direction_mask == 0, -1e9)
 
         attn = self.softmax(scores)
@@ -206,7 +213,7 @@ class ScaledDotProductAttention(nn.Module):
 
         return output, attn
     
-class MultiHeadedAttention(nn.Module):
+class _MultiHeadedAttention(nn.Module):
     def __init__(self, num_heads, d_model, head_size=None, dropout=0.0, positional_encoding_k=None, positional_encoding_v=None,
                  final_layer=False):
         super().__init__()
@@ -251,8 +258,10 @@ class MultiHeadedAttention(nn.Module):
         self.attn = torch.stack(attns) # (num_heads, batch_size, seq_len, seq_len)
 
         outputs = torch.mean(head, axis = 0) if self.num_heads > 1 else head
+        outputs = torch.stack([outputs]*self.num_heads)
+        # outputs = nn.Linear(outputs.shape[-1], self.head_size * self.num_heads)(outputs)
         outputs = outputs.transpose(0,1).contiguous().view(batch_size, -1, self.num_heads * self.head_size)
-        if self.final_layer:
+        if hasattr(self, 'final_layer'):
             outputs = self.final_layer(outputs)
         return self.layer_norm(outputs + query)
 
@@ -375,7 +384,7 @@ class TransformerMultiInputBlock(nn.Module):
             x_t, x_o = x_tov
         else:
             x_t, x_o, x_v = x_tov
-
+        print("active_entries_treat_outcome", active_entries_treat_outcomes.shape)
         self_att_mask_ot = active_entries_treat_outcomes.repeat(1, 1, x_t.size(1)).unsqueeze(1)
         cross_att_mask_ot = cross_att_mask_to = self_att_mask_ot
 

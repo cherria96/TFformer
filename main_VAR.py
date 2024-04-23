@@ -95,7 +95,7 @@ class Trainers:
 if __name__=="__main__":
     config = {
     "lr" : 0.01,
-    "epochs" : 100,
+    "epochs" : 150,
     "batch_size": 64,
     "fc_hidden_units": 32,
     "has_vital": True,

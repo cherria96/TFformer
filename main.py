@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 import pandas as pd
 from src.data.cancer_sim.dataset import SyntheticCancerDatasetCollection
-from realdata import WeatherRealDatasetCollection, VARSyntheticDatasetCollection
+# from realdata import WeatherRealDatasetCollection, VARSyntheticDatasetCollection
 import logging
 import datetime
 import wandb
@@ -45,7 +45,7 @@ class Trainers:
         self.train_loader = None
         self.val_loader = None
         wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
-        self.wandb_logger = WandbLogger(project = 'TFFormer', name = f'CT_cancersim_unroll_{self.batch_size}_{self.epoch}_{self.window_len}_{self.t_step}')
+        self.wandb_logger = WandbLogger(project = 'TFFormer', name = f'CT_cancersim_unroll_AE_IA_{self.batch_size}_{self.epoch}_{self.window_len}_{self.t_step}')
         self.dim_A = dim_vars["A"]
         self.dim_X = dim_vars["X"]
         self.dim_V = dim_vars["V"]
@@ -97,7 +97,7 @@ if __name__=="__main__":
     num_patients = {'train': 10000, 'val': 10000, 'test': 1000}
     config = {
     "lr" : 0.01,
-    "epochs" : 100,
+    "epochs" : 150,
     "batch_size": 256,
     "fc_hidden_units": 32,
     "has_vital": False,

@@ -102,10 +102,7 @@ class Attention(nn.Module):
             R_k = self.positional_encoding_k(query.size(2), key.size(2))
             scores = scores + torch.einsum('b h q d, q k d -> b h q k', query, R_k)
 
-        scores = scores / math.sqrt(query.size(-1))
-        print('query', query.shape) 
-        print('R_k', R_k.shape) 
-        
+        scores = scores / math.sqrt(query.size(-1))        
         #print('score shae:',scores.shape) #torch.Size([32, 2, 60, 60])
         #print('mask is',mask.shape) #torch.Size([1, 1, 32, 3600])
         # mask = torch.ones([1,1,59,59],device= scores.device)
@@ -384,7 +381,6 @@ class TransformerMultiInputBlock(nn.Module):
             x_t, x_o = x_tov
         else:
             x_t, x_o, x_v = x_tov
-        print("active_entries_treat_outcome", active_entries_treat_outcomes.shape)
         self_att_mask_ot = active_entries_treat_outcomes.repeat(1, 1, x_t.size(1)).unsqueeze(1)
         cross_att_mask_ot = cross_att_mask_to = self_att_mask_ot
 

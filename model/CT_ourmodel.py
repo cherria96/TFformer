@@ -98,11 +98,17 @@ class CT(LightningModule):
 
         self.self_positional_encoding = self.self_positional_encoding_k = self.self_positional_encoding_v = None
         
+        # self.self_positional_encoding_k = \
+        #     RelativePositionalEncoding(self.pe_max_relative_position, self.head_size,
+        #                                 self.positional_encoding_trainable)
+        # self.self_positional_encoding_v = \
+        #     RelativePositionalEncoding(self.pe_max_relative_position, self.head_size,
+        #                                 self.positional_encoding_trainable)
         self.self_positional_encoding_k = \
-            RelativePositionalEncoding(self.pe_max_relative_position, self.head_size,
+            AbsolutePositionalEncoding(self.max_seq_length, self.seq_hidden_units,
                                         self.positional_encoding_trainable)
         self.self_positional_encoding_v = \
-            RelativePositionalEncoding(self.pe_max_relative_position, self.head_size,
+            AbsolutePositionalEncoding(self.max_seq_length, self.seq_hidden_units,
                                         self.positional_encoding_trainable)
 
         # transformer blocks 
@@ -161,6 +167,50 @@ class CT(LightningModule):
         outcome_pred = self.br_head.build_outcome(br, current_treatments)
         return br, outcome_pred
     
+    def build_br(self, prev_treatments, X, prev_outputs, static_features, active_entries, fixed_split):
+        active_entries_Y = torch.clone(active_entries)
+        active_entries_X = torch.clone(active_entries)
+
+        if fixed_split is not None and self.has_vitals:
+            for i in range(len(active_entries)):
+                #Masking X in range [fixed_split: ]
+                active_entries_X[i, int(fixed_split[i]):, : ] = 0.0
+                X[i, int(fixed_split[i]):] = 0.0
+
+        x_t = self.A_input_transformation(prev_treatments)
+        x_o = self.Y_input_transformation(prev_outputs)
+        x_v = self.X_input_transformation(X) if self.has_vitals else None
+        x_s = self.V_input_transformation(static_features.unsqueeze(1))
+        #print('xt, xo, xv shape before:', x_t.shape, x_o.shape, x_v.shape)#(32,60,10) (32,60,10) (32,60,10)
+
+        for block in self.transformer_blocks:
+            if self.self_positional_encoding is not None:
+                x_t = x_t + self.self_positional_encoding(x_t)
+                x_o = x_o + self.self_positional_encoding(x_o)
+                x_v = x_v + self.self_positional_encoding(x_v) if self.has_vitals else None
+            # print('xt, xo, xv shape:', x_t.shape, x_o.shape, x_v.shape) #(32,60,10) (32,60,10) (32,60,10)
+            if self.has_vitals:
+                x_t, x_o, x_v = block((x_t, x_o, x_v), x_s, active_entries_Y, active_entries_X)
+            else:
+                x_t, x_o = block((x_t, x_o), x_s, active_entries_Y)
+        if not self.has_vitals:
+            x = (x_o + x_t) / 2
+        else:
+            if fixed_split is not None: # Test seq data
+                x = torch.empty_like(x_o)
+                for i in range(len(active_entries)):
+                    # Masking X in range [fixed_split:]
+                    m = int(fixed_split[i])
+                    x[i, :m] = (x_o[i, :m] + x_t[i, :m] + x_v[i, :m]) / 3
+                    x[i, m:] = (x_o[i, :m] + x_t[i, :m]) / 2
+            else: # Train data has always X
+                print("shape x_o, x_t, x_v", x_o.shape, x_t.shape, x_v.shape)
+                x = (x_o + x_t + x_v) / 3   
+        
+        output = self.output_dropout(x)
+        br = self.br_head.build_br(output)
+        return br
+    
     def get_predictions(self, dataset) -> np.array:
         logger.info(f'Predictions for {dataset.subset_name}.')
         # Creating Dataloader
@@ -218,49 +268,6 @@ class CT(LightningModule):
 
         return rmses_normalised_orig
 
-    def build_br(self, prev_treatments, X, prev_outputs, static_features, active_entries, fixed_split):
-        active_entries_Y = torch.clone(active_entries)
-        active_entries_X = torch.clone(active_entries)
-
-        if fixed_split is not None and self.has_vitals:
-            for i in range(len(active_entries)):
-                #Masking X in range [fixed_split: ]
-                active_entries_X[i, int(fixed_split[i]):, : ] = 0.0
-                X[i, int(fixed_split[i]):] = 0.0
-
-        x_t = self.A_input_transformation(prev_treatments)
-        x_o = self.Y_input_transformation(prev_outputs)
-        x_v = self.X_input_transformation(X) if self.has_vitals else None
-        x_s = self.V_input_transformation(static_features.unsqueeze(1))
-        #print('xt, xo, xv shape before:', x_t.shape, x_o.shape, x_v.shape)#(32,60,10) (32,60,10) (32,60,10)
-
-        for block in self.transformer_blocks:
-            if self.self_positional_encoding is not None:
-                x_t = x_t + self.self_positional_encoding(x_t)
-                x_o = x_o + self.self_positional_encoding(x_o)
-                x_v = x_v + self.self_positional_encoding(x_v) if self.has_vitals else None
-            # print('xt, xo, xv shape:', x_t.shape, x_o.shape, x_v.shape) #(32,60,10) (32,60,10) (32,60,10)
-            if self.has_vitals:
-                x_t, x_o, x_v = block((x_t, x_o, x_v), x_s, active_entries_Y, active_entries_X)
-            else:
-                x_t, x_o = block((x_t, x_o), x_s, active_entries_Y)
-        if not self.has_vitals:
-            x = (x_o + x_t) / 2
-        else:
-            if fixed_split is not None: # Test seq data
-                x = torch.empty_like(x_o)
-                for i in range(len(active_entries)):
-                    # Masking X in range [fixed_split:]
-                    m = int(fixed_split[i])
-                    x[i, :m] = (x_o[i, :m] + x_t[i, :m] + x_v[i, :m]) / 3
-                    x[i, m:] = (x_o[i, :m] + x_t[i, :m]) / 2
-            else: # Train data has always X
-                print("shape x_o, x_t, x_v", x_o.shape, x_t.shape, x_v.shape)
-                x = (x_o + x_t + x_v) / 3   
-        
-        output = self.output_dropout(x)
-        br = self.br_head.build_br(output)
-        return br
     
     def get_normalised_masked_rmse(self, dataset, one_step_counterfactual=False):
         logger.info(f'RMSE calculation for {dataset.subset_name}.')

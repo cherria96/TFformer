@@ -1,0 +1,37 @@
+{
+    "os": "macOS-14.1.1-arm64-arm-64bit",
+    "python": "3.12.2",
+    "heartbeatAt": "2024-04-29T16:58:57.995880",
+    "startedAt": "2024-04-29T16:58:57.065164",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/Users/sujinchoi/Desktop/TFformer/model/TFformer.py",
+    "codePathLocal": "TFformer.py",
+    "codePath": "model/TFformer.py",
+    "git": {
+        "remote": "https://github.com/cherria96/TFformer.git",
+        "commit": "c8160dc018b885bdc9e634dab1886102917de4a3"
+    },
+    "email": "sujineeda@postech.ac.kr",
+    "root": "/Users/sujinchoi/Desktop/TFformer",
+    "host": "sujins-MacBook-Air.local",
+    "username": "sujinchoi",
+    "executable": "/Users/sujinchoi/anaconda3/envs/TFformer/bin/python",
+    "cpu_count": 8,
+    "cpu_count_logical": 8,
+    "disk": {
+        "/": {
+            "total": 460.4317207336426,
+            "used": 157.22057342529297
+        }
+    },
+    "gpuapple": {
+        "type": "arm",
+        "vendor": "Apple"
+    },
+    "memory": {
+        "total": 16.0
+    }
+}

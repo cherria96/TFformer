@@ -4,7 +4,7 @@ sys.path.append('/Users/sujinchoi/Desktop/TFformer')
 
 from pytorch_lightning import LightningModule
 import torch
-# torch.set_default_dtype(torch.float64)
+torch.set_default_dtype(torch.float64)
 from torch import nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
@@ -179,22 +179,22 @@ class TFformer(LightningModule):
             self.ema_treatment = ExponentialMovingAverage(self.parameters(), decay = self.beta)
 
         # transformer blocks 
-        # encoder_layer = nn.TransformerEncoderLayer(d_model=self.seq_hidden_units, 
-        #                                                       nhead=self.num_heads, dropout = self.dropout_rate)
+        encoder_layer = nn.TransformerEncoderLayer(d_model=self.seq_hidden_units, 
+                                                              nhead=self.num_heads, dropout = self.dropout_rate, batch_first = True)
         
-        # self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers =self.num_layer)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers =self.num_layer)
         self.positional_encoding = PositionalEncoding(d_model = self.seq_hidden_units*self.total)
-        self.transformer_encoder = nn.ModuleList([self.basic_block_cls(
-            hidden = self.seq_hidden_units, attn_heads = self.num_heads, head_size = self.head_size,
-            feed_forward_hidden = self.seq_hidden_units, dropout = self.dropout_rate,
-            self_positional_encoding_k=None, self_positional_encoding_v=None
-            ) for _ in range(self.num_layer)])
+        # self.transformer_encoder = nn.ModuleList([self.basic_block_cls(
+        #     hidden = self.seq_hidden_units, attn_heads = self.num_heads, head_size = self.head_size,
+        #     feed_forward_hidden = self.seq_hidden_units, dropout = self.dropout_rate,
+        #     self_positional_encoding_k=None, self_positional_encoding_v=None
+        #     ) for _ in range(self.num_layer)])
         
 
         self.predict_outcomes = nn.Sequential(
             nn.Linear(self.seq_hidden_units, self.seq_hidden_units),
             nn.ReLU(),
-            nn.Linear(self.seq_hidden_units, 1)
+            nn.Linear(self.seq_hidden_units, self.dim_O)
         )
 
         # dropout
@@ -227,18 +227,18 @@ class TFformer(LightningModule):
         # embedded = embedded.permute(1,0,2) 
         torch.save(embedded, 'embedded.pt') # (batch_size, seq_len, seq_hidden_units)
 
-        # hidden = self.transformer_encoder(embedded, self.causal_mask)
-        for block in self.transformer_encoder:
-            hidden = block(embedded, self.causal_mask) # (batch_size, seq_len, seq_hidden_units)
-        
+        hidden = self.transformer_encoder(embedded, self.causal_mask)
+        # for block in self.transformer_encoder:
+        #     hidden = block(embedded, self.causal_mask) # (batch_size, seq_len, seq_hidden_units)
+        hidden = hidden.reshape(batch_size, timesteps, feature_size, -1).permute(0,2,1,3)
         # feed only outcome
         output_dim = outcomes.size(-1)
         indices = [list(range(i * feature_size - output_dim, i * feature_size)) for i in range(1, timesteps + 1)]
         indices = [idx for sublist in indices for idx in sublist]  # Flatten the list of lists
-        outcome_hidden = hidden[:, indices, :]
+        outcome_hidden = hidden[:,-1]
         
         pred = self.predict_outcomes(outcome_hidden)
-        pred = pred.view(hidden.shape[0], self.timestep, -1)
+        # pred = pred.view(hidden.shape[0], self.timestep, -1)
         return pred
     
     def _generate_causal_mask(self, timestep, dim_total):
@@ -262,7 +262,7 @@ class TFformer(LightningModule):
         return actual
 
     def configure_optimizers(self):
-        lr = 0.01 
+        lr = 0.05 
         optimizer = optim.Adam(self.parameters(), lr = lr)
         lr_scheduler = optim.lr_scheduler.ExponentialLR(optimizer,gamma = 0.99)
 
@@ -316,7 +316,8 @@ if __name__ == "__main__":
     batch_size = 64
     # def to_float32(batch):
     #     return {k: v.to(torch.float32) for k, v in batch.items()}
-
+    import gc
+    gc.collect()
     train_dataset= LinearDataset(num_points, num_series, window, stride)
     train_loader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
     val_dataset= LinearDataset(num_points//4, num_series, window, stride)

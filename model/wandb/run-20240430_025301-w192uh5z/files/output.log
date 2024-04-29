@@ -1,0 +1,443 @@
+
+Sanity Checking DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]
+GPU available: True (mps), used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/setup.py:200: UserWarning: MPS available but not used. Set `accelerator` and `devices` using `Trainer(accelerator='mps', devices=1)`.
+  rank_zero_warn(
+  | Name                | Type               | Params
+-----------------------------------------------------------
+0 | embedding_layer     | Linear             | 20
+1 | positional_encoding | PositionalEncoding | 0
+2 | transformer_encoder | ModuleList         | 1.1 K
+3 | predict_outcomes    | Sequential         | 154
+4 | output_dropout      | Dropout            | 0
+5 | loss_fn             | MSELoss            | 0
+-----------------------------------------------------------
+1.3 K     Trainable params
+0         Non-trainable params
+1.3 K     Total params
+0.005     Total estimated model params size (MB)
+/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, val_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 8 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+
+Epoch 0:   0%|          | 0/4 [00:00<?, ?it/s]
+/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, train_dataloader, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 8 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py:1595: PossibleUserWarning: The number of training batches (3) is smaller than the logging interval Trainer(log_every_n_steps=40). Set a lower value for log_every_n_steps if you want to see logs for the training epoch.
+
+Epoch 0:   0%|          | 0/4 [00:00<?, ?it/s] mse_loss tensor(1.0727, grad_fn=<MseLossBackward0>)
+
+Epoch 0:  25%|██▌       | 1/4 [00:27<01:23, 27.91s/it, loss=1.07, v_num=uh5z]mse_loss tensor(1.0435, grad_fn=<MseLossBackward0>)
+Epoch 0:  50%|█████     | 2/4 [01:25<01:25, 42.69s/it, loss=1.06, v_num=uh5z]
+python(51736) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 0:  50%|█████     | 2/4 [01:25<01:25, 42.69s/it, loss=1.06, v_num=uh5z]mse_loss tensor(1.0097, grad_fn=<MseLossBackward0>)
+python(51744) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 0:  75%|███████▌  | 3/4 [02:09<00:43, 43.12s/it, loss=1.04, v_num=uh5z]
+Validation DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]
+python(51750) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51756) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51760) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51771) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+
+Epoch 1:   0%|          | 0/4 [00:00<?, ?it/s, loss=1.04, v_num=uh5z]
+python(51782) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51789) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51795) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51800) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51817) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51827) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51835) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51844) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51850) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51858) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51864) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 1:   0%|          | 0/4 [00:00<?, ?it/s, loss=1.04, v_num=uh5z]mse_loss tensor(1.0059, grad_fn=<MseLossBackward0>)
+python(51875) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 1:  25%|██▌       | 1/4 [00:42<02:07, 42.56s/it, loss=1.03, v_num=uh5z]
+python(51884) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51890) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51892) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51900) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51904) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51916) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51926) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51931) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51943) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51950) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51960) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51970) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(51998) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52006) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52008) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+
+Epoch 1:  25%|██▌       | 1/4 [00:42<02:07, 42.56s/it, loss=1.03, v_num=uh5z]mse_loss tensor(1.0089, grad_fn=<MseLossBackward0>)
+python(52036) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52050) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 1:  50%|█████     | 2/4 [01:38<01:38, 49.22s/it, loss=1.03, v_num=uh5z]
+python(52059) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52070) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52076) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52082) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52090) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52095) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52104) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52108) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52116) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 1:  50%|█████     | 2/4 [01:38<01:38, 49.22s/it, loss=1.03, v_num=uh5z]mse_loss tensor(1.0114, grad_fn=<MseLossBackward0>)
+python(52123) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52136) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 1:  75%|███████▌  | 3/4 [02:16<00:45, 45.56s/it, loss=1.03, v_num=uh5z]
+Validation DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]
+python(52144) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52152) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52161) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52171) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+python(52181) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52191) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52196) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52202) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52207) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52214) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52220) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52229) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52235) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52239) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52244) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52250) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52253) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 2:   0%|          | 0/4 [00:00<?, ?it/s, loss=1.03, v_num=uh5z]mse_loss tensor(1.0004, grad_fn=<MseLossBackward0>)
+python(52265) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52272) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 2:  25%|██▌       | 1/4 [00:47<02:22, 47.61s/it, loss=1.02, v_num=uh5z]
+python(52280) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52290) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52298) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52302) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52312) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52320) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52330) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52339) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52344) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52355) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52359) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52367) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52372) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52378) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 2:  25%|██▌       | 1/4 [00:47<02:22, 47.61s/it, loss=1.02, v_num=uh5z]mse_loss tensor(1.0081, grad_fn=<MseLossBackward0>)
+python(52400) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 2:  50%|█████     | 2/4 [01:39<01:39, 49.86s/it, loss=1.02, v_num=uh5z]
+python(52408) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52416) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52425) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52439) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52449) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52460) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52466) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52480) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52492) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52495) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52502) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 2:  50%|█████     | 2/4 [01:39<01:39, 49.86s/it, loss=1.02, v_num=uh5z]mse_loss tensor(1.0076, grad_fn=<MseLossBackward0>)
+python(52520) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 2:  75%|███████▌  | 3/4 [02:22<00:47, 47.60s/it, loss=1.02, v_num=uh5z]
+python(52530) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Validation DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]
+python(52545) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52552) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52562) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+python(52569) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52576) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52590) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52593) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52599) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52607) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52616) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52626) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52630) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52638) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 3:   0%|          | 0/4 [00:00<?, ?it/s, loss=1.02, v_num=uh5z]mse_loss tensor(1.0122, grad_fn=<MseLossBackward0>)
+python(52648) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52655) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 3:  25%|██▌       | 1/4 [00:47<02:22, 47.37s/it, loss=1.02, v_num=uh5z]
+python(52664) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52670) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52674) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52679) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52688) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52693) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52702) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52710) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52726) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52733) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52738) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52743) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52748) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52755) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52765) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 3:  25%|██▌       | 1/4 [00:47<02:22, 47.37s/it, loss=1.02, v_num=uh5z]mse_loss tensor(1.0005, grad_fn=<MseLossBackward0>)
+python(52780) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52788) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 3:  50%|█████     | 2/4 [01:41<01:41, 50.60s/it, loss=1.02, v_num=uh5z]
+python(52793) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52801) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52806) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52811) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52818) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52822) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52828) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52836) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52844) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 3:  50%|█████     | 2/4 [01:41<01:41, 50.60s/it, loss=1.02, v_num=uh5z]mse_loss tensor(0.9977, grad_fn=<MseLossBackward0>)
+python(52852) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52859) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 3:  75%|███████▌  | 3/4 [02:17<00:45, 45.99s/it, loss=1.01, v_num=uh5z]
+Validation DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]
+python(52868) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52875) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52879) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+python(52889) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52894) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52904) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52914) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52920) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52928) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52935) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52940) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52950) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52957) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52974) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52982) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52986) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(52995) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 4:   0%|          | 0/4 [00:00<?, ?it/s, loss=1.01, v_num=uh5z]mse_loss tensor(1.0063, grad_fn=<MseLossBackward0>)
+python(53006) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 4:  25%|██▌       | 1/4 [00:51<02:34, 51.64s/it, loss=1.01, v_num=uh5z]
+python(53012) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53022) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53029) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53043) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53048) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53056) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53063) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53071) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53076) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53087) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53101) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53106) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53109) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53116) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53119) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 4:  25%|██▌       | 1/4 [00:51<02:34, 51.64s/it, loss=1.01, v_num=uh5z]mse_loss tensor(0.9950, grad_fn=<MseLossBackward0>)
+python(53130) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 4:  50%|█████     | 2/4 [01:43<01:43, 51.91s/it, loss=1.01, v_num=uh5z]
+python(53134) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53143) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53150) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53153) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53160) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53172) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53179) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53184) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53193) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53200) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53208) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53219) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53227) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 4:  50%|█████     | 2/4 [01:43<01:43, 51.91s/it, loss=1.01, v_num=uh5z]mse_loss tensor(1.0028, grad_fn=<MseLossBackward0>)
+python(53239) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 4:  75%|███████▌  | 3/4 [02:30<00:50, 50.04s/it, loss=1.01, v_num=uh5z]
+Validation DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]
+python(53245) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53254) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53260) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+python(53269) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53276) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53283) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53290) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53296) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53308) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53311) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53326) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53336) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53348) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53353) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53361) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53365) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53374) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 5:   0%|          | 0/4 [00:00<?, ?it/s, loss=1.01, v_num=uh5z]mse_loss tensor(0.9883, grad_fn=<MseLossBackward0>)
+python(53388) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 5:  25%|██▌       | 1/4 [00:51<02:35, 51.84s/it, loss=1.01, v_num=uh5z]
+python(53398) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53408) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53417) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53423) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53431) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53433) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53440) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53446) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53457) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53490) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53497) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53504) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53509) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53517) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53528) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53537) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 5:  25%|██▌       | 1/4 [00:51<02:35, 51.84s/it, loss=1.01, v_num=uh5z]mse_loss tensor(1.0016, grad_fn=<MseLossBackward0>)
+python(53549) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53556) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 5:  50%|█████     | 2/4 [01:52<01:52, 56.03s/it, loss=1.01, v_num=uh5z]
+python(53563) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53573) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53578) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53587) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53594) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53598) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53606) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53609) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53615) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 5:  50%|█████     | 2/4 [01:52<01:52, 56.03s/it, loss=1.01, v_num=uh5z]mse_loss tensor(1.0128, grad_fn=<MseLossBackward0>)
+python(53631) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 5:  75%|███████▌  | 3/4 [02:25<00:48, 48.57s/it, loss=1.01, v_num=uh5z]
+Validation DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]
+python(53634) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53641) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53646) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+python(53650) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53655) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53660) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53668) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53673) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53682) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53686) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53691) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53698) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53702) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53706) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53711) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 6:   0%|          | 0/4 [00:00<?, ?it/s, loss=1.01, v_num=uh5z]mse_loss tensor(1.0013, grad_fn=<MseLossBackward0>)
+python(53720) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 6:  25%|██▌       | 1/4 [00:42<02:08, 43.00s/it, loss=1.01, v_num=uh5z]
+python(53730) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53738) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53745) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53753) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53758) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53763) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53766) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53776) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53784) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53791) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53803) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53807) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53814) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53821) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53825) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53837) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53844) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53853) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53856) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 6:  25%|██▌       | 1/4 [00:42<02:08, 43.00s/it, loss=1.01, v_num=uh5z]mse_loss tensor(0.9921, grad_fn=<MseLossBackward0>)
+python(53866) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53873) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53883) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53888) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 6:  50%|█████     | 2/4 [01:50<01:50, 55.18s/it, loss=1.01, v_num=uh5z]
+python(53895) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53902) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53908) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53915) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53921) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53929) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53939) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53945) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53948) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53958) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53964) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53970) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 6:  50%|█████     | 2/4 [01:50<01:50, 55.18s/it, loss=1.01, v_num=uh5z]mse_loss tensor(1.0035, grad_fn=<MseLossBackward0>)
+python(53983) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 6:  75%|███████▌  | 3/4 [02:32<00:50, 50.78s/it, loss=1.01, v_num=uh5z]
+Validation DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]
+
+python(53994) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(53998) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54002) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54007) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54011) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54020) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54029) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 7:   0%|          | 0/4 [00:00<?, ?it/s, loss=1.01, v_num=uh5z]mse_loss tensor(1.0043, grad_fn=<MseLossBackward0>)
+Epoch 7:  25%|██▌       | 1/4 [00:19<00:59, 19.70s/it, loss=1, v_num=uh5z]
+python(54036) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54042) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54053) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54056) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54075) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54085) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54100) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 7:  25%|██▌       | 1/4 [00:19<00:59, 19.70s/it, loss=1, v_num=uh5z]   mse_loss tensor(1.0015, grad_fn=<MseLossBackward0>)
+python(54129) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 7:  50%|█████     | 2/4 [00:44<00:44, 22.39s/it, loss=1, v_num=uh5z]
+python(54135) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54145) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54151) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54159) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 7:  50%|█████     | 2/4 [00:44<00:44, 22.39s/it, loss=1, v_num=uh5z]mse_loss tensor(0.9889, grad_fn=<MseLossBackward0>)
+python(54164) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 7:  75%|███████▌  | 3/4 [01:02<00:20, 20.92s/it, loss=1, v_num=uh5z]
+Validation DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]
+
+Validation DataLoader 0: 100%|██████████| 1/1 [00:04<00:00,  4.73s/it]
+
+python(54180) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54182) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54184) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54190) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54191) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 8:   0%|          | 0/4 [00:00<?, ?it/s, loss=1, v_num=uh5z]mse_loss tensor(0.9887, grad_fn=<MseLossBackward0>)
+python(54196) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 8:  25%|██▌       | 1/4 [00:18<00:56, 18.70s/it, loss=1, v_num=uh5z]
+python(54206) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54211) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54216) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54221) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54227) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54232) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+Epoch 8:  25%|██▌       | 1/4 [00:18<00:56, 18.70s/it, loss=1, v_num=uh5z]mse_loss tensor(1.0068, grad_fn=<MseLossBackward0>)
+python(54245) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Epoch 8:  50%|█████     | 2/4 [00:42<00:42, 21.34s/it, loss=1, v_num=uh5z]
+python(54249) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54256) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+python(54261) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.

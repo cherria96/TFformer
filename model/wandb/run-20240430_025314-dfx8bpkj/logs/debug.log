@@ -1,0 +1,31 @@
+2024-04-30 02:53:14,219 INFO    MainThread:51537 [wandb_setup.py:_flush():76] Current SDK version is 0.16.6
+2024-04-30 02:53:14,219 INFO    MainThread:51537 [wandb_setup.py:_flush():76] Configure stats pid to 51537
+2024-04-30 02:53:14,219 INFO    MainThread:51537 [wandb_setup.py:_flush():76] Loading settings from /Users/sujinchoi/.config/wandb/settings
+2024-04-30 02:53:14,219 INFO    MainThread:51537 [wandb_setup.py:_flush():76] Loading settings from /Users/sujinchoi/Desktop/TFformer/model/wandb/settings
+2024-04-30 02:53:14,219 INFO    MainThread:51537 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-04-30 02:53:14,219 INFO    MainThread:51537 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'model/TFformer.py', 'program_abspath': '/Users/sujinchoi/Desktop/TFformer/model/TFformer.py', 'program': '/Users/sujinchoi/Desktop/TFformer/model/TFformer.py'}
+2024-04-30 02:53:14,219 INFO    MainThread:51537 [wandb_setup.py:_flush():76] Applying login settings: {'api_key': '***REDACTED***'}
+2024-04-30 02:53:14,219 INFO    MainThread:51537 [wandb_setup.py:_flush():76] Applying login settings: {'api_key': '***REDACTED***'}
+2024-04-30 02:53:14,220 INFO    MainThread:51537 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-04-30 02:53:14,220 INFO    MainThread:51537 [wandb_init.py:_log_setup():521] Logging user logs to ./wandb/run-20240430_025314-dfx8bpkj/logs/debug.log
+2024-04-30 02:53:14,220 INFO    MainThread:51537 [wandb_init.py:_log_setup():522] Logging internal logs to ./wandb/run-20240430_025314-dfx8bpkj/logs/debug-internal.log
+2024-04-30 02:53:14,220 INFO    MainThread:51537 [wandb_init.py:init():561] calling init triggers
+2024-04-30 02:53:14,220 INFO    MainThread:51537 [wandb_init.py:init():568] wandb.init called with sweep_config: {}
+config: {}
+2024-04-30 02:53:14,220 INFO    MainThread:51537 [wandb_init.py:init():611] starting backend
+2024-04-30 02:53:14,220 INFO    MainThread:51537 [wandb_init.py:init():615] setting up manager
+2024-04-30 02:53:14,220 INFO    MainThread:51537 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=spawn,fork,forkserver, using: spawn
+2024-04-30 02:53:14,221 INFO    MainThread:51537 [wandb_init.py:init():623] backend started and connected
+2024-04-30 02:53:14,224 INFO    MainThread:51537 [wandb_init.py:init():715] updated telemetry
+2024-04-30 02:53:14,262 INFO    MainThread:51537 [wandb_init.py:init():748] communicating run to backend with 90.0 second timeout
+2024-04-30 02:53:15,303 INFO    MainThread:51537 [wandb_run.py:_on_init():2357] communicating current version
+2024-04-30 02:53:15,575 INFO    MainThread:51537 [wandb_run.py:_on_init():2366] got version response 
+2024-04-30 02:53:15,580 INFO    MainThread:51537 [wandb_init.py:init():799] starting run threads in backend
+2024-04-30 02:53:25,257 INFO    MainThread:51537 [wandb_run.py:_console_start():2335] atexit reg
+2024-04-30 02:53:25,258 INFO    MainThread:51537 [wandb_run.py:_redirect():2190] redirect: wrap_raw
+2024-04-30 02:53:25,261 INFO    MainThread:51537 [wandb_run.py:_redirect():2255] Wrapping output streams.
+2024-04-30 02:53:25,262 INFO    MainThread:51537 [wandb_run.py:_redirect():2280] Redirects installed.
+2024-04-30 02:53:25,273 INFO    MainThread:51537 [wandb_init.py:init():842] run started, returning control to user process
+2024-04-30 02:53:26,088 INFO    MainThread:51537 [wandb_run.py:_config_callback():1347] config_cb None None {'dim_treatments': 2, 'dim_covariates': 7, 'dim_outcomes': 4, 'dim_statics': None, 'seq_hidden_units': 10, 'num_heads': 2, 'dropout_rate': 0.2, 'num_layer': 3, 'timestep': 99}
+2024-04-30 03:10:44,835 INFO    MainThread:51537 [wandb_run.py:_config_callback():1347] config_cb None None {'dim_treatments': 2, 'dim_covariates': 7, 'dim_outcomes': 4, 'dim_statics': None, 'seq_hidden_units': 10, 'num_heads': 2, 'dropout_rate': 0.2, 'num_layer': 3, 'timestep': 99}
+2024-04-30 03:11:16,858 WARNING MsgRouterThr:51537 [router.py:message_loop():77] message_loop has been closed

@@ -1,0 +1,35 @@
+GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+Traceback (most recent call last):
+  File "/Users/sujinchoi/Desktop/TFformer/model/TFformer.py", line 330, in <module>
+    trainer.fit(model, train_loader, val_loader)
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 603, in fit
+    call._call_and_handle_interrupt(
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/call.py", line 38, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 645, in _fit_impl
+    self._run(model, ckpt_path=self.ckpt_path)
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 1079, in _run
+    self.strategy.setup(self)
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/strategies/single_device.py", line 73, in setup
+    self.model_to_device()
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/strategies/single_device.py", line 70, in model_to_device
+    self.model.to(self.root_device)
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/lightning_lite/utilities/device_dtype_mixin.py", line 54, in to
+    return super().to(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1152, in to
+    return self._apply(convert)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/torch/nn/modules/module.py", line 802, in _apply
+    module._apply(fn)
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/torch/nn/modules/module.py", line 825, in _apply
+    param_applied = fn(param)
+                    ^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1150, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Cannot convert a MPS Tensor to float64 dtype as the MPS framework doesn't support float64. Please use float32 instead.

@@ -4,7 +4,7 @@ sys.path.append('/Users/sujinchoi/Desktop/TFformer')
 
 from pytorch_lightning import LightningModule
 import torch
-torch.set_default_dtype(torch.float64)
+# torch.set_default_dtype(torch.float64)
 from torch import nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
@@ -15,9 +15,13 @@ import numpy as np
 import pdb
 import logging
 from torch.utils.data import DataLoader, Dataset
-from model.utils_transformer import TransformerMultiInputBlock
+from model.TFformer_transformer import TransformerEncoderBlock
 
 import wandb 
+from pytorch_lightning.loggers import WandbLogger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 class GatedLinearUnit(nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -55,7 +59,10 @@ class GatedResidualNetwork(nn.Module):
             inputs = self.project(inputs)
         x = inputs + self.gated_linear_unit(x)
         x = self.layer_norm(x)
+        if torch.isnan(x).any():
+            print(f"NaN detected in GRN output")
         return x
+
 class VariableSelection(nn.Module):
     def __init__(self, feature, num_variable, output_unit, dropout_rate = 0.2, context_size = 0):
         super().__init__()
@@ -70,7 +77,6 @@ class VariableSelection(nn.Module):
         Params:
             feature: treatments/covariates/outcomes
         '''
-        batch = batch[self.feature]
         batch_size, timesteps, num_features = batch.shape
         inputs = [] 
         for i in range(num_features):
@@ -78,17 +84,14 @@ class VariableSelection(nn.Module):
         v = torch.cat(inputs, dim=-1) # (32, 99, 35)
         v = self.grn_concat(v) # (32, 99, 7)
         v = self.softmax(v)
-        print(v.shape)
         sparse_weights = v.unsqueeze(-2) # (32, 99, 7, 1)
-        print(sparse_weights.shape)
         # v shape (batch, seq_len, num_feat, 1)
         x = torch.stack([grn(input_tensor) for grn, input_tensor in zip(self.grns, inputs)], dim=-1) # (32, 99, 5, 7)
-        print(x.shape) # (batch, num_feat, seq_len, units)
 
         combined = sparse_weights * x
         temporal_ctx = torch.sum(combined, dim = -1) # (32, 99, 5)
         return temporal_ctx, sparse_weights # (batch_size, seq_length, output_unit)
-    
+
 '''
 class VariableSelectionNetwork(nn.Module):
     def __init__(self, dim_T, dim_C, dim_O):
@@ -124,12 +127,17 @@ class PositionalEncoding(nn.Module):
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
         div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
         pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0).transpose(0, 1)
+        if d_model % 2 == 0:
+            pe[:, 1::2] = torch.cos(position * div_term)
+        else:
+            pe[:, 1::2] = torch.cos(position * div_term[:-1]) if div_term.size(0) > 1 \
+                else torch.cos(position * torch.exp(torch.tensor(-math.log(10000.0) / d_model)))
+        pe = pe.unsqueeze(0) # (1, max_len, d_model)
         self.register_buffer('pe', pe)
 
     def forward(self, x):
-        x = x + self.pe[:x.size(0), :]
+        seq_len = x.size(1)
+        x = x + self.pe[:,:seq_len, :]
         return self.dropout(x)
     
 class TFformer(LightningModule):
@@ -147,7 +155,7 @@ class TFformer(LightningModule):
         self.dim_S = dim_statics
         self.timestep = timestep
 
-        self.variable_selection = True
+        self.variable_selection = False
         if self.variable_selection:
             self.treatment_selection_layer = VariableSelection(feature = 'treatments', num_variable=self.dim_T, output_unit=2)
             self.covariates_selection_layer = VariableSelection(feature = 'covariates', num_variable=self.dim_C, output_unit=5)
@@ -156,7 +164,7 @@ class TFformer(LightningModule):
         self.total = self.dim_T + self.dim_C + self.dim_O
 
         self.embedding_layer = nn.Linear(1, seq_hidden_units)
-        self.basic_block_cls = TransformerMultiInputBlock
+        self.basic_block_cls = TransformerEncoderBlock
 
         # params for basic block cls
         self.seq_hidden_units = seq_hidden_units
@@ -171,13 +179,22 @@ class TFformer(LightningModule):
             self.ema_treatment = ExponentialMovingAverage(self.parameters(), decay = self.beta)
 
         # transformer blocks 
-        encoder_layer = nn.TransformerEncoderLayer(d_model=self.seq_hidden_units, 
-                                                              nhead=self.num_heads, dropout = self.dropout_rate)
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers =self.num_layer)
+        # encoder_layer = nn.TransformerEncoderLayer(d_model=self.seq_hidden_units, 
+        #                                                       nhead=self.num_heads, dropout = self.dropout_rate)
+        
+        # self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers =self.num_layer)
+        self.positional_encoding = PositionalEncoding(d_model = self.seq_hidden_units*self.total)
+        self.transformer_encoder = nn.ModuleList([self.basic_block_cls(
+            hidden = self.seq_hidden_units, attn_heads = self.num_heads, head_size = self.head_size,
+            feed_forward_hidden = self.seq_hidden_units, dropout = self.dropout_rate,
+            self_positional_encoding_k=None, self_positional_encoding_v=None
+            ) for _ in range(self.num_layer)])
+        
+
         self.predict_outcomes = nn.Sequential(
             nn.Linear(self.seq_hidden_units, self.seq_hidden_units),
             nn.ReLU(),
-            nn.Linear(self.seq_hidden_units, self.total)
+            nn.Linear(self.seq_hidden_units, 1)
         )
 
         # dropout
@@ -190,32 +207,58 @@ class TFformer(LightningModule):
 
     def forward(self,batch):
         # x (batch_size, timesteps, feature_size)
+        treatment = batch['prev_treatments']
+        covariates = batch['prev_covariates']
+        outcomes = batch['prev_outcomes']
         if self.variable_selection:
-            treatment, w_T = self.treatment_selection_layer(batch)            
-            covariates, w_C = self.covariates_selection_layer(batch)
-            batch = torch.cat([treatment, covariates, batch['prev_outcomes']], dim = -1)
+            treatment, w_T = self.treatment_selection_layer(batch[self.treatment_selection_layer.feature])            
+            covariates, w_C = self.covariates_selection_layer(batch[self.covariates_selection_layer.feature])
+        batch = torch.cat([treatment, covariates, outcomes], dim = -1)
+        batch_size, timesteps, feature_size = batch.shape
                         
         flattened = torch.flatten(batch, 1).unsqueeze(-1) # (batch_size, timesteps * feature_size, 1)
         embedded = self.embedding_layer(flattened) # (batch_size, timesteps * feature_size, seq_hidden_units)
-        embedded = embedded.permute(1,0,2) # (seq_len, batch_size, seq_hidden_units)
-        print("causal_mask", self.causal_mask.shape)
+        if self.positional_encoding is not None:
+            embedded = embedded.view(batch_size, timesteps, -1)
+            embedded = self.positional_encoding(embedded)
+            embedded = embedded.view(batch_size, timesteps * feature_size, -1)
 
-        hidden = self.transformer_encoder(embedded, self.causal_mask)
-        # hidden = hidden.reshape(-1, self.selected.shape[-1], batch_size, self.seq_hidden_units)
-        # treatments: hidden[:,:selected_dim_T], covariates: hidden[:,:selected_dim_C], outcomes: hidden[:,:selected_dim_O]
-        hidden = hidden.permute(1,0,2)
-        pred = self.predict_outcomes(hidden)        
+
+        # embedded = embedded.permute(1,0,2) 
+        torch.save(embedded, 'embedded.pt') # (batch_size, seq_len, seq_hidden_units)
+
+        # hidden = self.transformer_encoder(embedded, self.causal_mask)
+        for block in self.transformer_encoder:
+            hidden = block(embedded, self.causal_mask) # (batch_size, seq_len, seq_hidden_units)
+        
+        # feed only outcome
+        output_dim = outcomes.size(-1)
+        indices = [list(range(i * feature_size - output_dim, i * feature_size)) for i in range(1, timesteps + 1)]
+        indices = [idx for sublist in indices for idx in sublist]  # Flatten the list of lists
+        outcome_hidden = hidden[:, indices, :]
+        
+        pred = self.predict_outcomes(outcome_hidden)
+        pred = pred.view(hidden.shape[0], self.timestep, -1)
         return pred
     
     def _generate_causal_mask(self, timestep, dim_total):
-        causal_mask = torch.tril(torch.ones(timestep, timestep), diagonal=1) * float('-inf')
-        causal_mask = causal_mask.repeat_interleave(dim_total, dim=0).repeat_interleave(dim_total, dim=1)
+        causal_mask = torch.tril(torch.ones(timestep, timestep))
+        causal_mask = causal_mask.repeat_interleave(dim_total, dim=1)
+        _remainder_mask = torch.ones(timestep * (dim_total - 1), timestep * dim_total)
+        causal_mask = torch.cat((causal_mask, _remainder_mask))
         return causal_mask
 
     def _get_actual_output(self, batch):
-        curr_treatment, _ = self.treatment_selection_layer(batch['curr_treatments'])
-        curr_covariates, _ = self.covariates_selection_layer(batch['curr_covariates'])
-        actual = torch.cat([curr_treatment, curr_covariates, batch['curr_outcomes']], dim = -1)
+        # if self.variable_selection:
+        #     curr_treatment, _ = self.treatment_selection_layer(batch['curr_treatments'])
+        # else:
+        #     curr_treatment = batch['curr_treatments']
+        # if self.variable_selection:
+        #     curr_covariates, _ = self.covariates_selection_layer(batch['curr_covariates'])
+        # else:
+        #     curr_covariates = batch['curr_covariates']
+        # actual = torch.cat([curr_treatment, curr_covariates, batch['curr_outcomes']], dim = -1)
+        actual = batch['curr_outcomes']
         return actual
 
     def configure_optimizers(self):
@@ -231,7 +274,9 @@ class TFformer(LightningModule):
         if self.ema:
             with self.ema_treatment.average_parameters():
                 pred = self(batch)
+        
         mse_loss = self.loss_fn(pred, actual)
+        print("mse_loss", mse_loss)
         # mse_loss = (batch['active_entries'] * mse_loss).sum() / batch['active_entries'].sum()
         if trainer:
             self.log(f'train_mse_loss', mse_loss, on_epoch = True, on_step = False, sync_dist = True)
@@ -240,10 +285,10 @@ class TFformer(LightningModule):
     def validation_step(self, batch, batch_idx):
         pred = self(batch)
         actual = self._get_actual_output(batch)
-
         if self.ema:
             with self.ema_treatment.average_parameters():
                 pred = self(batch)
+
         mse_loss = self.loss_fn(pred, actual)
         self.log(f'validation_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
     
@@ -260,25 +305,32 @@ class TFformer(LightningModule):
 
 if __name__ == "__main__":
     from synthetic_data.linear_causal import LinearDataset
-    num_points = 4000  # Number of time points
+    num_points = 1000  # Number of time points
     num_series = 13    # Number of series
     window = 100
     stride = 5
     dim_T = 2
     dim_C = 7
     dim_O = 4
+    epochs = 10
+    batch_size = 64
+    # def to_float32(batch):
+    #     return {k: v.to(torch.float32) for k, v in batch.items()}
+
     train_dataset= LinearDataset(num_points, num_series, window, stride)
-    train_loader = DataLoader(train_dataset, batch_size = 32)
+    train_loader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
     val_dataset= LinearDataset(num_points//4, num_series, window, stride)
-    val_loader = DataLoader(val_dataset, batch_size = 32)
-    
-    trainer = pl.Trainer(accelerator = "cpu",max_epochs = 20, log_every_n_steps = 40, logger = None)
+    val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
+    test_dataset= LinearDataset(num_points//4, num_series, window, stride)
+    test_loader = DataLoader(test_dataset, batch_size = batch_size, shuffle = False)
+    wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
+    wandb_logger = WandbLogger(project = 'TFFormer', name = f'TFformer_linear_{epochs}')
+
+    trainer = pl.Trainer(accelerator = "cpu",max_epochs = 20, log_every_n_steps = 40, logger = wandb_logger)
     model = TFformer(dim_treatments=dim_T, dim_covariates=dim_C, dim_outcomes = dim_O, dim_statics=None,
                      seq_hidden_units=10, num_heads = 2, dropout_rate=0.2, num_layer = 3, timestep= window -1)
     trainer.fit(model, train_loader, val_loader)
-    trainer.test(model, val_loader)
-
-
+    trainer.test(model, test_loader)
 
 
 

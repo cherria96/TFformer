@@ -1,25 +1,14 @@
 #%%
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
+import torch
 # Parameters
 class LinearDataset(Dataset):
     def __init__(self, num_points, num_series, window, stride):
 
         # Initialize the arrays for storing time series
-        A = np.random.normal(size=num_points)
-        B = np.zeros(num_points)
-        C = np.zeros(num_points)
-        O = np.zeros(num_points)
-        P = np.zeros(num_points)
-        D = np.zeros(num_points)
-        E = np.zeros(num_points)
-        F = np.zeros(num_points)
-        G = np.zeros(num_points)
-        I = np.zeros(num_points)
-        H = np.zeros(num_points)
-        M = np.zeros(num_points)
-        N = np.zeros(num_points)
-
+        A = np.random.normal(size=num_points).astype(np.float32)
+        B, C, D, E, F, G, H, I, M, N, O, P = [np.zeros(num_points, dtype=np.float32) for _ in range(12)]
         # Generate the series according to the relationships
         for k in range(3, num_points):
             B[k] = 0.7 * A[k-3] + 0.2 * C[k-1] + np.random.normal()
@@ -42,6 +31,12 @@ class LinearDataset(Dataset):
         # Now you have 13 series (A to N) each with 4000 points.
         # You can stack them in a 2D array where each row represents a time point and each column a series
         data = np.stack((A, B, C, D, E, F, G, H, I, M, N, O, P), axis=-1)
+
+        # Standardize the dataset
+        mean = data.mean(axis = 0)
+        std = data.std(axis = 0)
+        data = (data - mean) / std 
+
         num_samples = (num_points - window) // stride + 1
         self.data = np.zeros([num_samples, window,num_series])
         for i in np.arange(num_samples):
@@ -73,6 +68,8 @@ class LinearDataset(Dataset):
             "curr_outcomes": self.outcomes[idx,1:],
         }
         return batch 
+def to_float32(batch):
+    return {k: v.to(torch.float32) for k, v in batch.items()}
 if __name__ == "__main__":
     num_points = 4000  # Number of time points
     num_series = 13    # Number of series

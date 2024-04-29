@@ -1,0 +1,70 @@
+GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+  | Name                | Type               | Params
+-----------------------------------------------------------
+0 | embedding_layer     | Linear             | 20
+1 | positional_encoding | PositionalEncoding | 0
+2 | transformer_encoder | ModuleList         | 1.1 K
+3 | predict_outcomes    | Sequential         | 121
+4 | output_dropout      | Dropout            | 0
+5 | loss_fn             | MSELoss            | 0
+-----------------------------------------------------------
+1.3 K     Trainable params
+0         Non-trainable params
+1.3 K     Total params
+0.005     Total estimated model params size (MB)
+/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, val_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 8 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+Traceback (most recent call last):
+  File "/Users/sujinchoi/Desktop/TFformer/model/TFformer.py", line 332, in <module>
+    trainer.fit(model, train_loader, val_loader)
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 603, in fit
+    call._call_and_handle_interrupt(
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/call.py", line 38, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 645, in _fit_impl
+    self._run(model, ckpt_path=self.ckpt_path)
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 1098, in _run
+    results = self._run_stage()
+              ^^^^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 1177, in _run_stage
+    self._run_train()
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 1190, in _run_train
+    self._run_sanity_check()
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/trainer/trainer.py", line 1262, in _run_sanity_check
+    val_loop.run()
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/loops/loop.py", line 199, in run
+    self.advance(*args, **kwargs)
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/loops/dataloader/evaluation_loop.py", line 152, in advance
+    dl_outputs = self.epoch_loop.run(self._data_fetcher, dl_max_batches, kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/loops/loop.py", line 199, in run
+    self.advance(*args, **kwargs)
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/loops/epoch/evaluation_epoch_loop.py", line 121, in advance
+    batch = next(data_fetcher)
+            ^^^^^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/utilities/fetching.py", line 184, in __next__
+    return self.fetching_function()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/utilities/fetching.py", line 265, in fetching_function
+    self._fetch_next_batch(self.dataloader_iter)
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/pytorch_lightning/utilities/fetching.py", line 280, in _fetch_next_batch
+    batch = next(iterator)
+            ^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 631, in __next__
+    data = self._next_data()
+           ^^^^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 675, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/anaconda3/envs/TFformer/lib/python3.12/site-packages/torch/utils/data/_utils/fetch.py", line 54, in fetch
+    return self.collate_fn(data)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sujinchoi/Desktop/TFformer/model/TFformer.py", line 318, in to_float32
+    return {k: v.to(torch.float32) for k, v in batch.items()}
+                                               ^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'items'
+Sanity Checking: 0it [00:00, ?it/s]

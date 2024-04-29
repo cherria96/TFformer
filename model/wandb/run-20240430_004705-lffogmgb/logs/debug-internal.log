@@ -1,0 +1,463 @@
+2024-04-30 00:47:05,177 INFO    StreamThr :44511 [internal.py:wandb_internal():86] W&B internal server running at pid: 44511, started at: 2024-04-30 00:47:05.177023
+2024-04-30 00:47:05,178 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status
+2024-04-30 00:47:05,180 INFO    WriterThread:44511 [datastore.py:open_for_write():87] open: ./wandb/run-20240430_004705-lffogmgb/run-lffogmgb.wandb
+2024-04-30 00:47:05,180 DEBUG   SenderThread:44511 [sender.py:send():379] send: header
+2024-04-30 00:47:05,205 DEBUG   SenderThread:44511 [sender.py:send():379] send: run
+2024-04-30 00:47:05,206 INFO    SenderThread:44511 [sender.py:_setup_resume():749] checking resume status for None/TFFormer/lffogmgb
+2024-04-30 00:47:05,984 INFO    SenderThread:44511 [dir_watcher.py:__init__():211] watching files in: ./wandb/run-20240430_004705-lffogmgb/files
+2024-04-30 00:47:05,984 INFO    SenderThread:44511 [sender.py:_start_run_threads():1124] run started: lffogmgb with start time 1714405625.177466
+2024-04-30 00:47:05,989 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: check_version
+2024-04-30 00:47:05,989 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: check_version
+2024-04-30 00:47:06,082 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: run_start
+2024-04-30 00:47:06,088 DEBUG   HandlerThread:44511 [system_info.py:__init__():26] System info init
+2024-04-30 00:47:06,088 DEBUG   HandlerThread:44511 [system_info.py:__init__():41] System info init done
+2024-04-30 00:47:06,088 INFO    HandlerThread:44511 [system_monitor.py:start():194] Starting system monitor
+2024-04-30 00:47:06,088 INFO    SystemMonitor:44511 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-04-30 00:47:06,088 INFO    HandlerThread:44511 [system_monitor.py:probe():214] Collecting system info
+2024-04-30 00:47:06,088 DEBUG   HandlerThread:44511 [system_info.py:probe():150] Probing system
+2024-04-30 00:47:06,089 INFO    SystemMonitor:44511 [interfaces.py:start():190] Started cpu monitoring
+2024-04-30 00:47:06,089 INFO    SystemMonitor:44511 [interfaces.py:start():190] Started disk monitoring
+2024-04-30 00:47:06,091 INFO    SystemMonitor:44511 [interfaces.py:start():190] Started gpuapple monitoring
+2024-04-30 00:47:06,093 INFO    SystemMonitor:44511 [interfaces.py:start():190] Started memory monitoring
+2024-04-30 00:47:06,093 INFO    SystemMonitor:44511 [interfaces.py:start():190] Started network monitoring
+2024-04-30 00:47:06,097 DEBUG   HandlerThread:44511 [system_info.py:_probe_git():135] Probing git
+2024-04-30 00:47:06,131 DEBUG   HandlerThread:44511 [system_info.py:_probe_git():143] Probing git done
+2024-04-30 00:47:06,131 DEBUG   HandlerThread:44511 [system_info.py:probe():198] Probing system done
+2024-04-30 00:47:06,131 DEBUG   HandlerThread:44511 [system_monitor.py:probe():223] {'os': 'macOS-14.1.1-arm64-arm-64bit', 'python': '3.12.2', 'heartbeatAt': '2024-04-29T15:47:06.089046', 'startedAt': '2024-04-29T15:47:05.172493', 'docker': None, 'cuda': None, 'args': (), 'state': 'running', 'program': '/Users/sujinchoi/Desktop/TFformer/model/TFformer.py', 'codePathLocal': 'TFformer.py', 'codePath': 'model/TFformer.py', 'git': {'remote': 'https://github.com/cherria96/TFformer.git', 'commit': '12d32d6101c80f8d8529d29d13284ea5813d4db3'}, 'email': 'sujineeda@postech.ac.kr', 'root': '/Users/sujinchoi/Desktop/TFformer', 'host': 'sujins-MacBook-Air.local', 'username': 'sujinchoi', 'executable': '/Users/sujinchoi/anaconda3/envs/TFformer/bin/python', 'cpu_count': 8, 'cpu_count_logical': 8, 'disk': {'/': {'total': 460.4317207336426, 'used': 159.1356544494629}}, 'gpuapple': {'type': 'arm', 'vendor': 'Apple'}, 'memory': {'total': 16.0}}
+2024-04-30 00:47:06,131 INFO    HandlerThread:44511 [system_monitor.py:probe():224] Finished collecting system info
+2024-04-30 00:47:06,131 INFO    HandlerThread:44511 [system_monitor.py:probe():227] Publishing system info
+2024-04-30 00:47:06,132 DEBUG   HandlerThread:44511 [system_info.py:_save_conda():207] Saving list of conda packages installed into the current environment
+2024-04-30 00:47:06,989 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_created():271] file/dir created: ./wandb/run-20240430_004705-lffogmgb/files/conda-environment.yaml
+2024-04-30 00:47:15,474 DEBUG   HandlerThread:44511 [system_info.py:_save_conda():222] Saving conda packages done
+2024-04-30 00:47:15,475 INFO    HandlerThread:44511 [system_monitor.py:probe():229] Finished publishing system info
+2024-04-30 00:47:15,478 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:47:15,478 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: keepalive
+2024-04-30 00:47:15,480 DEBUG   SenderThread:44511 [sender.py:send():379] send: files
+2024-04-30 00:47:15,480 INFO    SenderThread:44511 [sender.py:_save_file():1390] saving file wandb-metadata.json with policy now
+2024-04-30 00:47:15,755 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: python_packages
+2024-04-30 00:47:15,755 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:47:15,756 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: python_packages
+2024-04-30 00:47:15,757 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:47:15,757 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:47:16,037 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/conda-environment.yaml
+2024-04-30 00:47:16,037 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_created():271] file/dir created: ./wandb/run-20240430_004705-lffogmgb/files/wandb-metadata.json
+2024-04-30 00:47:16,038 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_created():271] file/dir created: ./wandb/run-20240430_004705-lffogmgb/files/requirements.txt
+2024-04-30 00:47:16,107 DEBUG   SenderThread:44511 [sender.py:send():379] send: telemetry
+2024-04-30 00:47:16,110 DEBUG   SenderThread:44511 [sender.py:send():379] send: metric
+2024-04-30 00:47:16,107 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:47:16,110 DEBUG   SenderThread:44511 [sender.py:send():379] send: telemetry
+2024-04-30 00:47:16,114 DEBUG   SenderThread:44511 [sender.py:send():379] send: metric
+2024-04-30 00:47:16,114 WARNING SenderThread:44511 [sender.py:send_metric():1341] Seen metric with glob (shouldn't happen)
+2024-04-30 00:47:16,116 DEBUG   SenderThread:44511 [sender.py:send():379] send: config
+2024-04-30 00:47:16,362 INFO    wandb-upload_0:44511 [upload_job.py:push():131] Uploaded file /var/folders/9b/mmn9g4fj5638lj5trns8d07r0000gn/T/tmpv3s8lyb1wandb/f5ogsnyf-wandb-metadata.json
+2024-04-30 00:47:17,037 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_created():271] file/dir created: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:47:19,050 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:47:21,176 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:47:26,224 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:47:30,793 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:47:30,799 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:47:30,802 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:47:31,233 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:47:33,132 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:47:36,254 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:47:37,149 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/config.yaml
+2024-04-30 00:47:41,516 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:47:45,199 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:47:45,766 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:47:45,767 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:47:45,801 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:47:47,027 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:47:52,052 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:47:57,246 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:47:57,265 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:48:00,773 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:48:00,774 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:48:00,803 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:48:03,028 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:48:04,315 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:48:06,098 DEBUG   SystemMonitor:44511 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-04-30 00:48:06,105 DEBUG   SenderThread:44511 [sender.py:send():379] send: telemetry
+2024-04-30 00:48:06,105 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:48:08,125 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:48:09,341 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/config.yaml
+2024-04-30 00:48:12,351 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:48:14,192 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:48:15,777 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:48:15,783 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:48:15,812 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:48:20,025 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:48:24,401 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:48:25,774 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:48:30,775 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:48:30,777 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:48:30,820 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:48:30,962 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:48:36,112 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:48:36,112 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:48:36,467 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:48:41,141 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:48:45,776 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:48:45,776 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:48:45,826 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:48:46,513 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:48:46,996 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:48:52,026 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:48:54,564 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:48:57,870 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:00,782 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:49:00,785 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:49:00,832 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:49:03,829 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:04,645 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:49:06,121 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:49:09,130 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:12,687 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:49:14,792 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:15,834 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:49:15,835 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:49:15,837 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:49:20,069 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:22,747 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:49:25,796 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:28,778 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:49:30,822 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:49:30,843 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:49:30,862 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:49:31,070 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:36,123 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:49:36,127 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:36,861 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:49:41,142 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:42,877 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:49:45,814 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:49:45,826 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:49:45,874 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:49:47,115 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:50,910 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:49:52,566 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:58,121 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:49:58,953 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:50:00,820 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:50:00,820 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:50:00,868 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:50:04,112 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:50:06,125 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:50:06,982 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:50:09,141 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:50:14,178 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:50:15,850 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:50:15,883 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:50:15,924 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:50:17,042 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:50:19,214 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:50:24,250 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:50:27,091 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:50:29,781 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:50:30,837 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:50:30,838 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:50:30,885 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:50:35,135 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:50:35,190 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:50:36,174 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:50:40,206 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:50:43,219 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:50:45,579 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:50:45,858 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:50:45,868 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:50:45,890 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:50:51,046 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:50:51,266 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:50:56,069 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:50:59,305 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:51:00,855 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:51:00,855 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:51:00,895 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:51:01,120 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:51:06,143 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:51:06,145 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:51:09,346 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:51:11,521 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:51:15,371 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:51:15,859 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:51:15,860 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:51:15,896 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:51:17,149 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:51:19,391 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:51:22,271 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:51:25,423 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:51:27,888 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:51:30,862 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:51:30,862 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:51:30,902 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:51:31,474 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:51:33,178 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:51:36,149 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:51:37,496 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:51:38,680 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:51:44,054 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:51:45,539 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:51:45,867 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:51:45,868 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:51:45,906 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:51:49,073 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:51:51,559 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:51:53,334 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: partial_history
+2024-04-30 00:51:53,335 DEBUG   SenderThread:44511 [sender.py:send():379] send: metric
+2024-04-30 00:51:53,336 DEBUG   SenderThread:44511 [sender.py:send():379] send: metric
+2024-04-30 00:51:53,336 DEBUG   SenderThread:44511 [sender.py:send():379] send: history
+2024-04-30 00:51:53,336 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: summary_record
+2024-04-30 00:51:53,337 INFO    SenderThread:44511 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-04-30 00:51:53,365 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: partial_history
+2024-04-30 00:51:53,366 DEBUG   SenderThread:44511 [sender.py:send():379] send: metric
+2024-04-30 00:51:53,366 DEBUG   SenderThread:44511 [sender.py:send():379] send: history
+2024-04-30 00:51:53,366 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: summary_record
+2024-04-30 00:51:53,366 INFO    SenderThread:44511 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-04-30 00:51:53,567 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_created():271] file/dir created: ./wandb/run-20240430_004705-lffogmgb/files/wandb-summary.json
+2024-04-30 00:51:54,378 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:51:55,572 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/config.yaml
+2024-04-30 00:51:55,573 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:51:59,600 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:52:00,879 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:52:00,882 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:52:00,911 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:52:05,065 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:52:06,156 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:52:07,626 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:52:10,170 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:52:15,893 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:52:15,895 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:52:15,913 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:52:16,095 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:52:17,671 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:52:21,120 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:52:25,707 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:52:26,513 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:52:30,890 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:52:30,890 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:52:30,915 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:52:31,685 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:52:33,741 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:52:36,165 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:52:37,175 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:52:41,780 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:52:43,149 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:52:45,895 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:52:45,897 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:52:45,918 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:52:48,458 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:52:49,828 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:52:53,483 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:52:57,869 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:52:58,692 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:53:00,906 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:53:00,910 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:53:00,923 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:53:03,968 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:53:05,896 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:53:06,169 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:53:09,181 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:53:13,956 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:53:14,956 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:53:15,904 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:53:15,905 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:53:15,928 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:53:20,189 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:53:21,988 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:53:25,333 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:53:30,033 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:53:30,403 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:53:30,907 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:53:30,908 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:53:30,933 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:53:36,178 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:53:36,179 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:53:38,064 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:53:41,451 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:53:45,910 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:53:45,911 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:53:45,938 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:53:46,106 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:53:47,170 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:53:53,147 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:53:54,138 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:53:58,175 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:54:00,915 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:54:00,917 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:54:00,940 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:54:02,179 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:54:03,205 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:54:06,182 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:54:09,103 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:54:10,212 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:54:14,149 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:54:15,922 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:54:15,923 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:54:15,942 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:54:18,266 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:54:19,679 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:54:24,956 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:54:26,316 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:54:29,977 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:54:30,926 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:54:30,930 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:54:30,948 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:54:34,377 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:54:35,575 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:54:36,186 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:54:41,337 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:54:42,413 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:54:45,933 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:54:45,936 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:54:45,961 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:54:47,225 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:54:50,446 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:54:52,377 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:54:57,473 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:54:58,271 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:55:00,935 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:55:00,936 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:55:00,966 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:55:03,282 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:55:05,527 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:55:06,193 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:55:09,214 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:55:13,561 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:55:14,435 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:55:15,571 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:55:15,936 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:55:15,937 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:55:15,963 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:55:20,214 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:55:21,610 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:55:26,006 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:55:27,639 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:55:30,945 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:55:30,947 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:55:30,967 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:55:31,186 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:55:33,692 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:55:36,199 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:55:36,200 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:55:41,586 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:55:41,751 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:55:45,946 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:55:45,947 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:55:45,970 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:55:47,205 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:55:47,788 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:55:50,625 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: partial_history
+2024-04-30 00:55:50,626 DEBUG   SenderThread:44511 [sender.py:send():379] send: history
+2024-04-30 00:55:50,626 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: summary_record
+2024-04-30 00:55:50,627 INFO    SenderThread:44511 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-04-30 00:55:50,670 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: partial_history
+2024-04-30 00:55:50,671 DEBUG   SenderThread:44511 [sender.py:send():379] send: history
+2024-04-30 00:55:50,671 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: summary_record
+2024-04-30 00:55:50,672 INFO    SenderThread:44511 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-04-30 00:55:50,794 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/wandb-summary.json
+2024-04-30 00:55:51,799 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:55:52,684 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:55:57,705 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:56:00,949 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:56:00,949 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:56:00,973 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:56:03,382 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:56:03,862 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:56:06,213 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:56:09,225 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:56:13,923 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:56:14,493 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:56:15,951 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:56:15,952 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:56:15,975 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:56:19,957 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:56:20,127 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:56:25,150 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:56:30,002 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:56:30,554 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:56:30,957 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:56:30,957 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:56:30,981 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:56:35,798 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:56:36,035 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:56:36,234 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:56:41,256 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:56:44,104 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:56:45,962 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:56:45,962 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:56:45,982 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:56:47,192 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:56:52,182 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:56:52,596 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:56:57,623 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:00,245 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:57:00,972 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:57:00,974 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:57:00,989 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:57:03,200 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:06,237 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:57:08,296 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:57:08,661 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:13,687 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:15,999 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:57:16,012 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:57:16,020 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:57:16,356 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:57:19,311 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:24,413 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:57:24,918 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:29,950 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:30,997 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:57:30,999 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:57:31,002 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:57:32,456 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:57:35,226 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:36,249 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:57:40,522 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:57:40,900 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:45,935 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:45,995 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:57:45,996 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:57:46,008 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:57:48,581 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:57:51,254 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:56,925 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:57:58,660 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:58:00,994 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:58:00,995 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:58:01,003 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:58:02,221 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:58:06,240 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:58:06,733 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:58:07,251 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:58:12,286 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:58:14,799 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:58:16,020 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:58:16,033 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:58:16,048 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:58:18,311 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:58:22,854 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:58:23,568 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:58:28,603 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:58:30,918 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:58:31,017 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:58:31,018 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:58:31,020 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:58:34,304 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:58:36,251 DEBUG   SenderThread:44511 [sender.py:send():379] send: stats
+2024-04-30 00:58:39,350 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:58:40,962 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:58:44,380 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:58:46,028 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:58:46,028 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:58:46,029 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:58:50,287 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:58:51,007 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:58:54,626 DEBUG   SenderThread:44511 [sender.py:send():379] send: config
+2024-04-30 00:58:55,643 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:58:56,042 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/config.yaml
+2024-04-30 00:58:57,042 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log
+2024-04-30 00:59:00,882 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: status_report
+2024-04-30 00:59:01,028 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: stop_status
+2024-04-30 00:59:01,028 DEBUG   HandlerThread:44511 [handler.py:handle_request():146] handle_request: internal_messages
+2024-04-30 00:59:01,029 DEBUG   SenderThread:44511 [sender.py:send_request():406] send_request: stop_status
+2024-04-30 00:59:03,086 INFO    Thread-12 :44511 [dir_watcher.py:_on_file_modified():288] file/dir modified: ./wandb/run-20240430_004705-lffogmgb/files/output.log

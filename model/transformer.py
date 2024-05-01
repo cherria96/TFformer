@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
+import math
 # Define a custom dataset class
 class TimeSeriesDataset(Dataset):
     def __init__(self, data, input_window_size, output_window_size, stride=1):
@@ -38,57 +39,86 @@ class TimeSeriesDataset(Dataset):
 
 # Transformer model for time series prediction
 class TimeSeriesTransformer(nn.Module):
-    def __init__(self, num_series, d_model=128, nhead=8, num_encoder_layers=4, num_decoder_layers=4, dim_feedforward=256):
+    def __init__(self,iw, ow, d_model, nhead, nlayers, dropout=0.5):
         super(TimeSeriesTransformer, self).__init__()
+        self.encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead, dropout=dropout)
+        self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=nlayers) 
+        self.pos_encoder = PositionalEncoding(d_model, dropout)
 
-        # Embedding layer for input series
-        self.embedding = nn.Linear(num_series, d_model)
+        self.encoder = nn.Sequential(
+            nn.Linear(13, d_model//2),
+            nn.ReLU(),
+            nn.Linear(d_model//2, d_model)
+        )
+        
+        self.linear =  nn.Sequential(
+            nn.Linear(d_model, d_model//2),
+            nn.ReLU(),
+            nn.Linear(d_model//2, 13)
+        )
 
-        # Transformer layers
-        self.encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead, dim_feedforward=dim_feedforward)
-        self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=num_encoder_layers)
+        self.linear2 = nn.Sequential(
+            nn.Linear(iw, (iw+ow)//2),
+            nn.ReLU(),
+            nn.Linear((iw+ow)//2, ow)
+        ) 
 
-        # self.decoder_layer = nn.TransformerDecoderLayer(d_model=d_model, nhead=nhead, dim_feedforward=dim_feedforward)
-        # self.decoder = nn.TransformerDecoder(self.decoder_layer, num_layers=num_decoder_layers)
+    def generate_square_subsequent_mask(self, sz):
+        mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+        return mask
 
-        # Output layer to predict next time step
-        self.fc_out = nn.Linear(d_model, num_series)
+    def forward(self, src, srcmask):
+        src = self.encoder(src)
+        src = self.pos_encoder(src)
+        output = self.transformer_encoder(src.transpose(0,1), srcmask).transpose(0,1)
+        output = self.linear(output)
+        output = self.linear2(output.permute(0,2,1)).permute(0,2,1)
+        return output
 
-    def forward(self, src, tgt):
-        # Embed input
-        src_embedded = self.embedding(src)
-        tgt_embedded = self.embedding(tgt)
+class PositionalEncoding(nn.Module):
+    def __init__(self, d_model, dropout=0.1, max_len=5000):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(p=dropout)
 
-        # Encode and decode
-        memory = self.encoder(src_embedded)
-        print(memory.shape)
-        print(tgt_embedded.shape)
-        # output = self.decoder(tgt_embedded, memory)
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0).transpose(0, 1)
+        self.register_buffer('pe', pe)
 
-        # Output layer
-        return self.fc_out(output)
+    def forward(self, x):
+        x = x + self.pe[:x.size(0), :]
+        return self.dropout(x)
+
+def gen_attention_mask(x):
+    mask = torch.eq(x, 0)
+    return mask
+
 import numpy as np
 num_points = 4000
 A = np.random.normal(size=num_points).astype(np.float32)
 B, C, D, E, F, G, H, I, M, N, O, P = [np.zeros(num_points, dtype=np.float32) for _ in range(12)]
 # Generate the series according to the relationships
 for k in range(3, num_points):
-    B[k] = 0.7 * A[k-3] + 0.2 * C[k-1] + np.random.normal()
-    C[k] = 0.8 * A[k] + 0.5 * C[k] + np.random.normal()
-    O[k] = 0.3 * C[k-5] + np.random.normal()
-    P[k] = 0.4 * C[k-1] + 0.1 * P[k] + np.random.normal()
-    D[k] = 0.3 * B[k-4] + np.random.normal()
+    B[k] = 0.7 * A[k-3] + 0.2 * C[k-1] + 0.05 * np.random.normal()
+    C[k] = 0.8 * A[k] + 0.5 * C[k] + 0.05 * np.random.normal()
+    O[k] = 0.3 * C[k-5] + 0.05 * np.random.normal()
+    P[k] = 0.4 * C[k-1] + 0.1 * P[k] + 0.05 * np.random.normal()
+    D[k] = 0.3 * B[k-4] + 0.05 * np.random.normal()
 
 for k in range(2, num_points):
-    E[k] = 0.5 * D[k-2] + 0.4 * E[k-2] + np.random.normal()
-    F[k] = 0.7 * D[k-2] + np.random.normal()
-    M[k] = 0.9 * H[k] + np.random.normal()
+    E[k] = 0.5 * D[k-2] + 0.4 * E[k-2] + 0.05 * np.random.normal()
+    F[k] = 0.7 * D[k-2] + 0.05 * np.random.normal()
+    M[k] = 0.9 * H[k] + 0.05 * np.random.normal()
 
 for k in range(num_points):
-    G[k] = 0.8 * D[k] + np.random.normal()
-    I[k] = 0.2 * F[k] + 0.8 * G[k-1] + np.random.normal()
-    H[k] = 0.3 * E[k] + np.random.normal()
-    N[k] = 0.7 * H[k-1] + np.random.normal()
+    G[k] = 0.8 * D[k] + 0.05 * np.random.normal()
+    I[k] = 0.2 * F[k] + 0.8 * G[k-1] + 0.05 * np.random.normal()
+    H[k] = 0.3 * E[k] + 0.05 * np.random.normal()
+    N[k] = 0.7 * H[k-1] + 0.05 * np.random.normal()
 
 
 # Sample dataset
@@ -100,17 +130,21 @@ std = data.std(axis=0)
 data = (data - mean) / std
 
 # Dataset parameters
-iw = 24*14
-ow = 24*7
+iw = 3*7
+ow = 1*7
 stride = 1
 
 # Create the dataset and dataloader
-time_series_dataset = TimeSeriesDataset(data, iw, ow, stride)
-time_series_dataloader = DataLoader(time_series_dataset, batch_size=32, shuffle=True)
+train_data = TimeSeriesDataset(data[:int(len(data) * 0.5)], iw, ow, stride)
+train_dataloader = DataLoader(train_data, batch_size=32, shuffle=True)
+val_data = TimeSeriesDataset(data[int(len(data) * 0.5):int(len(data) * 0.7)], iw, ow, stride)
+val_dataloader = DataLoader(val_data, batch_size=32, shuffle=True)
+test_data = TimeSeriesDataset(data[int(len(data) * 0.7):], iw, ow, stride)
+test_dataloader = DataLoader(test_data, batch_size=32, shuffle=True)
 #%%
 # Initialize the model
 num_series = data.shape[-1]
-model = TimeSeriesTransformer(num_series)
+model = TimeSeriesTransformer(iw = iw, ow = ow, d_model = 10, nhead = 2, nlayers = 2, dropout = 0.2)
 
 # Training loop and additional steps
 # You may add the training loop with loss function and optimizer here.
@@ -123,20 +157,15 @@ num_epochs = 20  # Define the number of epochs
 
 for epoch in range(num_epochs):
     total_loss = 0
-    for X, y in time_series_dataloader:
+    for X, y in train_dataloader:
         # Prepare target for decoder
-        tgt = y.unsqueeze(1)  # Reshape to be compatible with model output
-        print(X.shape)
-        print(tgt.shape)
-
-        # Zero the gradients
         optimizer.zero_grad()
-
+        src_mask = model.generate_square_subsequent_mask(X.shape[1])
         # Forward pass
-        output = model(X, tgt)
+        output = model(X, src_mask) # (32, 7)
 
         # Compute loss
-        loss = criterion(output.squeeze(), y)
+        loss = criterion(output, y)
 
         # Backpropagation
         loss.backward()
@@ -147,5 +176,24 @@ for epoch in range(num_epochs):
         # Accumulate loss
         total_loss += loss.item()
 
-    print(f'Epoch {epoch + 1}/{num_epochs}, Loss: {total_loss / len(time_series_dataloader)}')
+    print(f'Epoch {epoch + 1}/{num_epochs}, Loss: {total_loss / len(train_dataloader)}')
+
+
+model.eval()
+for X, y in val_dataloader:
+    src_mask = model.generate_square_subsequent_mask(X.shape[1])
+    output = model(X, src_mask)
+    loss = criterion(output, y)
+    print(loss)
+    break
+output = output.detach().numpy()
+result = output * std + mean
+real = y * std + mean
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(20,5))
+plt.plot(range(400,744),real, label="real")
+plt.plot(range(744-24*7,744),result, label="predict")
+plt.legend()
+plt.show()
 # %%

@@ -1,0 +1,1 @@
+{"validation_mse_loss": NaN, "epoch": 14, "trainer/global_step": 42, "_timestamp": 1714415747.1569502, "_runtime": 768.0621993541718, "_step": 28, "train_mse_loss": 1.0032883221991364, "test_mse_loss": NaN, "_wandb": {"runtime": 767}}

@@ -1,0 +1,31 @@
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_setup.py:_flush():76] Current SDK version is 0.16.1
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_setup.py:_flush():76] Configure stats pid to 1000003
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_setup.py:_flush():76] Loading settings from /home/user126/.config/wandb/settings
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_setup.py:_flush():76] Loading settings from /home/user126/TFformer/model/wandb/settings
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'model/TFformer.py', 'program_abspath': '/home/user126/TFformer/model/TFformer.py', 'program': '/home/user126/TFformer/model/TFformer.py'}
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_setup.py:_flush():76] Applying login settings: {'api_key': '***REDACTED***'}
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_setup.py:_flush():76] Applying login settings: {'api_key': '***REDACTED***'}
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_init.py:_log_setup():524] Logging user logs to ./wandb/run-20240430_032259-ufkkgnxy/logs/debug.log
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_init.py:_log_setup():525] Logging internal logs to ./wandb/run-20240430_032259-ufkkgnxy/logs/debug-internal.log
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_init.py:init():564] calling init triggers
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_init.py:init():571] wandb.init called with sweep_config: {}
+config: {}
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_init.py:init():614] starting backend
+2024-04-30 03:22:59,092 INFO    MainThread:1000003 [wandb_init.py:init():618] setting up manager
+2024-04-30 03:22:59,093 INFO    MainThread:1000003 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2024-04-30 03:22:59,094 INFO    MainThread:1000003 [wandb_init.py:init():624] backend started and connected
+2024-04-30 03:22:59,096 INFO    MainThread:1000003 [wandb_init.py:init():716] updated telemetry
+2024-04-30 03:22:59,101 INFO    MainThread:1000003 [wandb_init.py:init():749] communicating run to backend with 90.0 second timeout
+2024-04-30 03:22:59,876 INFO    MainThread:1000003 [wandb_run.py:_on_init():2254] communicating current version
+2024-04-30 03:22:59,971 INFO    MainThread:1000003 [wandb_run.py:_on_init():2263] got version response upgrade_message: "wandb version 0.16.6 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2024-04-30 03:22:59,971 INFO    MainThread:1000003 [wandb_init.py:init():800] starting run threads in backend
+2024-04-30 03:23:02,527 INFO    MainThread:1000003 [wandb_run.py:_console_start():2233] atexit reg
+2024-04-30 03:23:02,527 INFO    MainThread:1000003 [wandb_run.py:_redirect():2088] redirect: wrap_raw
+2024-04-30 03:23:02,527 INFO    MainThread:1000003 [wandb_run.py:_redirect():2153] Wrapping output streams.
+2024-04-30 03:23:02,527 INFO    MainThread:1000003 [wandb_run.py:_redirect():2178] Redirects installed.
+2024-04-30 03:23:02,528 INFO    MainThread:1000003 [wandb_init.py:init():841] run started, returning control to user process
+2024-04-30 03:23:02,606 INFO    MainThread:1000003 [wandb_run.py:_config_callback():1342] config_cb None None {'dim_treatments': 2, 'dim_covariates': 7, 'dim_outcomes': 4, 'dim_statics': None, 'seq_hidden_units': 32, 'num_heads': 2, 'dropout_rate': 0.2, 'num_layer': 3, 'timestep': 99}
+2024-04-30 03:35:45,421 INFO    MainThread:1000003 [wandb_run.py:_config_callback():1342] config_cb None None {'dim_treatments': 2, 'dim_covariates': 7, 'dim_outcomes': 4, 'dim_statics': None, 'seq_hidden_units': 32, 'num_heads': 2, 'dropout_rate': 0.2, 'num_layer': 3, 'timestep': 99}
+2024-04-30 03:35:53,340 WARNING MsgRouterThr:1000003 [router.py:message_loop():77] message_loop has been closed

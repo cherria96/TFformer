@@ -3,42 +3,44 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import torch
 # Parameters
+def create_dataset(num_points, num_feature):
+    A = np.random.normal(size=num_points).astype(np.float32)
+    B, C, D, E, F, G, H, I, M, N, O, P = [np.zeros(num_points, dtype=np.float32) for _ in range(num_feature -1)]
+    # Generate the series according to the relationships
+    for k in range(3, num_points):
+        B[k] = 0.7 * A[k-3] + 0.2 * C[k-1] + np.random.normal()
+        C[k] = 0.8 * A[k] + 0.5 * C[k] + np.random.normal()
+        O[k] = 0.3 * C[k-5] + np.random.normal()
+        P[k] = 0.4 * C[k-1] + 0.1 * P[k] + np.random.normal()
+        D[k] = 0.3 * B[k-4] + np.random.normal()
+
+    for k in range(2, num_points):
+        E[k] = 0.5 * D[k-2] + 0.4 * E[k-2] + np.random.normal()
+        F[k] = 0.7 * D[k-2] + np.random.normal()
+        M[k] = 0.9 * H[k] + np.random.normal()
+
+    for k in range(num_points):
+        G[k] = 0.8 * D[k] + np.random.normal()
+        I[k] = 0.2 * F[k] + 0.8 * G[k-1] + np.random.normal()
+        H[k] = 0.3 * E[k] + np.random.normal()
+        N[k] = 0.7 * H[k-1] + np.random.normal()
+
+    # Now you have 13 series (A to N) each with 4000 points.
+    # You can stack them in a 2D array where each row represents a time point and each column a series
+    data = np.stack((A, B, C, D, E, F, G, H, I, M, N, O, P), axis=-1)
+
+    # Standardize the dataset
+    mean = data.mean(axis = 0)
+    std = data.std(axis = 0)
+    data = (data - mean) / std 
+    return data
+
 class LinearDataset(Dataset):
-    def __init__(self, num_points, num_series, window, stride):
+    def __init__(self, data, num_feature, window, stride):
 
         # Initialize the arrays for storing time series
-        A = np.random.normal(size=num_points).astype(np.float32)
-        B, C, D, E, F, G, H, I, M, N, O, P = [np.zeros(num_points, dtype=np.float32) for _ in range(12)]
-        # Generate the series according to the relationships
-        for k in range(3, num_points):
-            B[k] = 0.7 * A[k-3] + 0.2 * C[k-1] + np.random.normal()
-            C[k] = 0.8 * A[k] + 0.5 * C[k] + np.random.normal()
-            O[k] = 0.3 * C[k-5] + np.random.normal()
-            P[k] = 0.4 * C[k-1] + 0.1 * P[k] + np.random.normal()
-            D[k] = 0.3 * B[k-4] + np.random.normal()
-
-        for k in range(2, num_points):
-            E[k] = 0.5 * D[k-2] + 0.4 * E[k-2] + np.random.normal()
-            F[k] = 0.7 * D[k-2] + np.random.normal()
-            M[k] = 0.9 * H[k] + np.random.normal()
-
-        for k in range(num_points):
-            G[k] = 0.8 * D[k] + np.random.normal()
-            I[k] = 0.2 * F[k] + 0.8 * G[k-1] + np.random.normal()
-            H[k] = 0.3 * E[k] + np.random.normal()
-            N[k] = 0.7 * H[k-1] + np.random.normal()
-
-        # Now you have 13 series (A to N) each with 4000 points.
-        # You can stack them in a 2D array where each row represents a time point and each column a series
-        data = np.stack((A, B, C, D, E, F, G, H, I, M, N, O, P), axis=-1)
-
-        # Standardize the dataset
-        mean = data.mean(axis = 0)
-        std = data.std(axis = 0)
-        data = (data - mean) / std 
-
-        num_samples = (num_points - window) // stride + 1
-        self.data = np.zeros([num_samples, window,num_series])
+        num_samples = (len(data) - window) // stride + 1
+        self.data = np.zeros([num_samples, window, num_feature])
         for i in np.arange(num_samples):
             start_x = stride * i
             end_x = start_x + window

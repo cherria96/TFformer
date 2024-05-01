@@ -1,6 +1,6 @@
 #%%
 import sys
-sys.path.append('/Users/sujinchoi/Desktop/TFformer')
+sys.path.append('/home/user126/TFformer')
 
 from pytorch_lightning import LightningModule
 import torch
@@ -179,22 +179,22 @@ class TFformer(LightningModule):
             self.ema_treatment = ExponentialMovingAverage(self.parameters(), decay = self.beta)
 
         # transformer blocks 
-        encoder_layer = nn.TransformerEncoderLayer(d_model=self.seq_hidden_units, 
-                                                              nhead=self.num_heads, dropout = self.dropout_rate, batch_first = True)
+        # encoder_layer = nn.TransformerEncoderLayer(d_model=self.seq_hidden_units, 
+        #                                                       nhead=self.num_heads, dropout = self.dropout_rate, batch_first = True)
         
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers =self.num_layer)
-        self.positional_encoding = PositionalEncoding(d_model = self.seq_hidden_units*self.total)
-        # self.transformer_encoder = nn.ModuleList([self.basic_block_cls(
-        #     hidden = self.seq_hidden_units, attn_heads = self.num_heads, head_size = self.head_size,
-        #     feed_forward_hidden = self.seq_hidden_units, dropout = self.dropout_rate,
-        #     self_positional_encoding_k=None, self_positional_encoding_v=None
-        #     ) for _ in range(self.num_layer)])
+        # self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers =self.num_layer)
+        self.positional_encoding = PositionalEncoding(d_model = self.seq_hidden_units*self.total, max_len=self.timestep)
+        self.transformer_encoder = nn.ModuleList([self.basic_block_cls(
+            hidden = self.seq_hidden_units, attn_heads = self.num_heads, head_size = self.head_size,
+            feed_forward_hidden = self.seq_hidden_units, dropout = self.dropout_rate,
+            self_positional_encoding_k=None, self_positional_encoding_v=None
+            ) for _ in range(self.num_layer)])
         
-
+        output_unit = 1
         self.predict_outcomes = nn.Sequential(
             nn.Linear(self.seq_hidden_units, self.seq_hidden_units),
             nn.ReLU(),
-            nn.Linear(self.seq_hidden_units, self.dim_O)
+            nn.Linear(self.seq_hidden_units, output_unit)
         )
 
         # dropout
@@ -225,19 +225,20 @@ class TFformer(LightningModule):
 
 
         # embedded = embedded.permute(1,0,2) 
-        torch.save(embedded, 'embedded.pt') # (batch_size, seq_len, seq_hidden_units)
 
-        hidden = self.transformer_encoder(embedded, self.causal_mask)
-        # for block in self.transformer_encoder:
-        #     hidden = block(embedded, self.causal_mask) # (batch_size, seq_len, seq_hidden_units)
-        hidden = hidden.reshape(batch_size, timesteps, feature_size, -1).permute(0,2,1,3)
-        # feed only outcome
-        output_dim = outcomes.size(-1)
-        indices = [list(range(i * feature_size - output_dim, i * feature_size)) for i in range(1, timesteps + 1)]
-        indices = [idx for sublist in indices for idx in sublist]  # Flatten the list of lists
-        outcome_hidden = hidden[:,-1]
+        # hidden = self.transformer_encoder(embedded, self.causal_mask)
+        for block in self.transformer_encoder:
+            hidden = block(embedded, self.causal_mask) # (batch_size, seq_len, seq_hidden_units)
+        # hidden = hidden.reshape(batch_size, timesteps, feature_size, -1).permute(0,2,1,3)
         
-        pred = self.predict_outcomes(outcome_hidden)
+        # feed only outcome
+
+        output_dim = outcomes.size(-1)
+        # hidden = hidden[:, feature_size - output_dim: ]
+        # hidden = hidden[:,-1]
+        
+        pred = self.predict_outcomes(hidden)
+        pred = pred.reshape(batch_size, timesteps, -1)
         # pred = pred.view(hidden.shape[0], self.timestep, -1)
         return pred
     
@@ -249,6 +250,9 @@ class TFformer(LightningModule):
         return causal_mask
 
     def _get_actual_output(self, batch):
+        curr_treatment = batch['curr_treatments']
+        curr_covariates = batch['curr_covariates']
+        curr_outcomes = batch['curr_outcomes']
         # if self.variable_selection:
         #     curr_treatment, _ = self.treatment_selection_layer(batch['curr_treatments'])
         # else:
@@ -257,8 +261,8 @@ class TFformer(LightningModule):
         #     curr_covariates, _ = self.covariates_selection_layer(batch['curr_covariates'])
         # else:
         #     curr_covariates = batch['curr_covariates']
-        # actual = torch.cat([curr_treatment, curr_covariates, batch['curr_outcomes']], dim = -1)
-        actual = batch['curr_outcomes']
+        actual = torch.cat([curr_treatment, curr_covariates, curr_outcomes], dim = -1)
+        # actual = batch['curr_outcomes']
         return actual
 
     def configure_optimizers(self):
@@ -307,7 +311,7 @@ if __name__ == "__main__":
     from synthetic_data.linear_causal import LinearDataset
     num_points = 1000  # Number of time points
     num_series = 13    # Number of series
-    window = 100
+    window = 131
     stride = 5
     dim_T = 2
     dim_C = 7
@@ -329,7 +333,7 @@ if __name__ == "__main__":
 
     trainer = pl.Trainer(accelerator = "cpu",max_epochs = 20, log_every_n_steps = 40, logger = wandb_logger)
     model = TFformer(dim_treatments=dim_T, dim_covariates=dim_C, dim_outcomes = dim_O, dim_statics=None,
-                     seq_hidden_units=10, num_heads = 2, dropout_rate=0.2, num_layer = 3, timestep= window -1)
+                     seq_hidden_units=32, num_heads = 2, dropout_rate=0.2, num_layer = 3, timestep= window -1)
     trainer.fit(model, train_loader, val_loader)
     trainer.test(model, test_loader)
 

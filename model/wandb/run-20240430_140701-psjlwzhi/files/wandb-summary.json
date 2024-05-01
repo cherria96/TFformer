@@ -1,0 +1,1 @@
+{"validation_mse_loss": 1.0005863377585817, "epoch": 20, "trainer/global_step": 60, "_timestamp": 1714454535.1521673, "_runtime": 913.1532323360443, "_step": 40, "train_mse_loss": 0.9904570122970748, "test_mse_loss": 1.0088529394372474, "_wandb": {"runtime": 912}}

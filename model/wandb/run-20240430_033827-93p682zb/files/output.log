@@ -1,0 +1,124 @@
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+  | Name                | Type               | Params
+-----------------------------------------------------------
+0 | embedding_layer     | Linear             | 64
+1 | positional_encoding | PositionalEncoding | 0
+2 | transformer_encoder | ModuleList         | 9.9 K
+3 | predict_outcomes    | Sequential         | 1.2 K
+4 | output_dropout      | Dropout            | 0
+5 | loss_fn             | MSELoss            | 0
+-----------------------------------------------------------
+11.1 K    Trainable params
+0         Non-trainable params
+11.1 K    Total params
+0.045     Total estimated model params size (MB)
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, val_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+Sanity Checking DataLoader 0:   0%|                                                      | 0/1 [00:00<?, ?it/s]
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, train_dataloader, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py:1595: PossibleUserWarning: The number of training batches (3) is smaller than the logging interval Trainer(log_every_n_steps=40). Set a lower value for log_every_n_steps if you want to see logs for the training epoch.
+
+
+Epoch 0:   0%|                                                                           | 0/4 [00:00<?, ?it/s]mse_loss tensor(1.1188, grad_fn=<MseLossBackward0>)
+
+Epoch 0:  25%|███████████                                 | 1/4 [00:08<00:25,  8.58s/it, loss=1.12, v_num=82zb]mse_loss tensor(2.0635, grad_fn=<MseLossBackward0>)
+
+Epoch 0:  50%|██████████████████████                      | 2/4 [00:17<00:17,  8.52s/it, loss=1.59, v_num=82zb]mse_loss tensor(1.0421, grad_fn=<MseLossBackward0>)
+Epoch 0:  75%|█████████████████████████████████           | 3/4 [00:24<00:08,  8.11s/it, loss=1.41, v_num=82zb]
+
+Epoch 1:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.41, v_num=82zb]mse_loss tensor(1.0044, grad_fn=<MseLossBackward0>)
+
+Epoch 1:  25%|███████████                                 | 1/4 [00:08<00:25,  8.48s/it, loss=1.31, v_num=82zb]mse_loss tensor(1.0116, grad_fn=<MseLossBackward0>)
+Epoch 1:  50%|██████████████████████                      | 2/4 [00:17<00:17,  8.56s/it, loss=1.25, v_num=82zb]mse_loss tensor(1.0244, grad_fn=<MseLossBackward0>)
+Epoch 1:  75%|█████████████████████████████████           | 3/4 [00:24<00:08,  8.10s/it, loss=1.21, v_num=82zb]
+
+Epoch 2:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.21, v_num=82zb]mse_loss tensor(1.0119, grad_fn=<MseLossBackward0>)
+
+Epoch 2:  25%|███████████                                 | 1/4 [00:08<00:25,  8.51s/it, loss=1.18, v_num=82zb]mse_loss tensor(1.0018, grad_fn=<MseLossBackward0>)
+Epoch 2:  50%|██████████████████████                      | 2/4 [00:16<00:16,  8.48s/it, loss=1.16, v_num=82zb]mse_loss tensor(1.0204, grad_fn=<MseLossBackward0>)
+Epoch 2:  75%|█████████████████████████████████           | 3/4 [00:24<00:08,  8.17s/it, loss=1.14, v_num=82zb]
+
+
+Epoch 3:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.14, v_num=82zb]mse_loss tensor(1.0040, grad_fn=<MseLossBackward0>)
+
+Epoch 3:  25%|███████████                                 | 1/4 [00:08<00:25,  8.44s/it, loss=1.13, v_num=82zb]mse_loss tensor(1.0062, grad_fn=<MseLossBackward0>)
+
+Epoch 3:  50%|██████████████████████                      | 2/4 [00:16<00:16,  8.49s/it, loss=1.12, v_num=82zb]mse_loss tensor(1.0220, grad_fn=<MseLossBackward0>)
+Epoch 3:  75%|█████████████████████████████████           | 3/4 [00:24<00:08,  8.12s/it, loss=1.11, v_num=82zb]
+
+
+Epoch 4:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.11, v_num=82zb]mse_loss tensor(1.0063, grad_fn=<MseLossBackward0>)
+
+Epoch 4:  25%|███████████▎                                 | 1/4 [00:08<00:25,  8.63s/it, loss=1.1, v_num=82zb]mse_loss tensor(1.0121, grad_fn=<MseLossBackward0>)
+Epoch 4:  50%|██████████████████████▌                      | 2/4 [00:17<00:17,  8.55s/it, loss=1.1, v_num=82zb]mse_loss tensor(1.0086, grad_fn=<MseLossBackward0>)
+Epoch 4:  75%|█████████████████████████████████           | 3/4 [00:24<00:08,  8.14s/it, loss=1.09, v_num=82zb]
+
+
+Epoch 5:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.09, v_num=82zb]mse_loss tensor(1.0075, grad_fn=<MseLossBackward0>)
+
+Epoch 5:  25%|███████████                                 | 1/4 [00:08<00:25,  8.47s/it, loss=1.09, v_num=82zb]mse_loss tensor(1.0051, grad_fn=<MseLossBackward0>)
+
+Epoch 5:  50%|██████████████████████                      | 2/4 [00:17<00:17,  8.55s/it, loss=1.08, v_num=82zb]mse_loss tensor(1.0120, grad_fn=<MseLossBackward0>)
+Epoch 5:  75%|█████████████████████████████████           | 3/4 [00:24<00:08,  8.22s/it, loss=1.08, v_num=82zb]
+
+
+Epoch 6:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.08, v_num=82zb]mse_loss tensor(1.0144, grad_fn=<MseLossBackward0>)
+
+Epoch 6:  25%|███████████                                 | 1/4 [00:08<00:26,  8.97s/it, loss=1.07, v_num=82zb]mse_loss tensor(1.0015, grad_fn=<MseLossBackward0>)
+
+Epoch 6:  50%|██████████████████████                      | 2/4 [00:17<00:17,  8.73s/it, loss=1.07, v_num=82zb]mse_loss tensor(1.0105, grad_fn=<MseLossBackward0>)
+Epoch 6:  75%|█████████████████████████████████           | 3/4 [00:24<00:08,  8.30s/it, loss=1.06, v_num=82zb]
+
+
+Epoch 7:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.06, v_num=82zb]mse_loss tensor(1.0003, grad_fn=<MseLossBackward0>)
+
+Epoch 7:  25%|███████████                                 | 1/4 [00:08<00:25,  8.48s/it, loss=1.01, v_num=82zb]mse_loss tensor(1.0116, grad_fn=<MseLossBackward0>)
+
+Epoch 7:  50%|██████████████████████                      | 2/4 [00:17<00:17,  8.55s/it, loss=1.01, v_num=82zb]mse_loss tensor(1.0133, grad_fn=<MseLossBackward0>)
+Epoch 7:  75%|█████████████████████████████████           | 3/4 [00:24<00:08,  8.22s/it, loss=1.01, v_num=82zb]
+
+
+Epoch 8:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.01, v_num=82zb]mse_loss tensor(1.0109, grad_fn=<MseLossBackward0>)
+Epoch 8:  25%|███████████                                 | 1/4 [00:08<00:25,  8.45s/it, loss=1.01, v_num=82zb]mse_loss tensor(1.0146, grad_fn=<MseLossBackward0>)
+
+Epoch 8:  50%|██████████████████████                      | 2/4 [00:17<00:17,  8.51s/it, loss=1.01, v_num=82zb]mse_loss tensor(0.9948, grad_fn=<MseLossBackward0>)
+Epoch 8:  75%|█████████████████████████████████           | 3/4 [00:24<00:08,  8.11s/it, loss=1.01, v_num=82zb]
+
+
+Epoch 9:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.01, v_num=82zb]mse_loss tensor(1.0053, grad_fn=<MseLossBackward0>)
+
+Epoch 9:  25%|███████████                                 | 1/4 [00:08<00:25,  8.43s/it, loss=1.01, v_num=82zb]mse_loss tensor(1.0104, grad_fn=<MseLossBackward0>)
+
+Epoch 9:  50%|██████████████████████                      | 2/4 [00:17<00:17,  8.56s/it, loss=1.01, v_num=82zb]mse_loss tensor(1.0063, grad_fn=<MseLossBackward0>)
+Epoch 9:  75%|█████████████████████████████████           | 3/4 [00:24<00:08,  8.16s/it, loss=1.01, v_num=82zb]
+
+
+Epoch 10:   0%|                                                   | 0/4 [00:00<?, ?it/s, loss=1.01, v_num=82zb]mse_loss tensor(1.0196, grad_fn=<MseLossBackward0>)
+Epoch 10:  25%|██████████▊                                | 1/4 [00:08<00:25,  8.59s/it, loss=1.01, v_num=82zb]mse_loss tensor(0.9962, grad_fn=<MseLossBackward0>)
+
+Epoch 10:  50%|█████████████████████▌                     | 2/4 [00:17<00:17,  8.68s/it, loss=1.01, v_num=82zb]mse_loss tensor(1.0054, grad_fn=<MseLossBackward0>)
+Epoch 10:  75%|████████████████████████████████▎          | 3/4 [00:24<00:08,  8.23s/it, loss=1.01, v_num=82zb]
+
+
+Epoch 11:   0%|                                                   | 0/4 [00:00<?, ?it/s, loss=1.01, v_num=82zb]mse_loss tensor(1.0029, grad_fn=<MseLossBackward0>)
+Epoch 11:  25%|██████████▊                                | 1/4 [00:08<00:25,  8.55s/it, loss=1.01, v_num=82zb]mse_loss tensor(1.0125, grad_fn=<MseLossBackward0>)
+
+Epoch 11:  50%|█████████████████████▌                     | 2/4 [00:17<00:17,  8.65s/it, loss=1.01, v_num=82zb]mse_loss tensor(1.0065, grad_fn=<MseLossBackward0>)
+Epoch 11:  75%|████████████████████████████████▎          | 3/4 [00:25<00:08,  8.34s/it, loss=1.01, v_num=82zb]
+
+Epoch 12:   0%|                                                   | 0/4 [00:00<?, ?it/s, loss=1.01, v_num=82zb]mse_loss tensor(1.0041, grad_fn=<MseLossBackward0>)
+Epoch 12:  25%|██████████▊                                | 1/4 [00:08<00:25,  8.56s/it, loss=1.01, v_num=82zb]
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/call.py:48: UserWarning: Detected KeyboardInterrupt, attempting graceful shutdown...
+  rank_zero_warn("Detected KeyboardInterrupt, attempting graceful shutdown...")
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, test_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+
+Testing DataLoader 0: 100%|██████████████████████████████████████████████████████| 1/1 [00:03<00:00,  3.88s/it]
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Runningstage.testing metric      DataLoader 0
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+      test_mse_loss         1.0184143309035467
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────

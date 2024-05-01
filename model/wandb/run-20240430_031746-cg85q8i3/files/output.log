@@ -1,0 +1,71 @@
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+  | Name                | Type               | Params
+-----------------------------------------------------------
+0 | embedding_layer     | Linear             | 20
+1 | transformer_encoder | TransformerEncoder | 130 K
+2 | positional_encoding | PositionalEncoding | 0
+3 | predict_outcomes    | Sequential         | 154
+4 | output_dropout      | Dropout            | 0
+5 | loss_fn             | MSELoss            | 0
+-----------------------------------------------------------
+130 K     Trainable params
+0         Non-trainable params
+130 K     Total params
+0.523     Total estimated model params size (MB)
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, val_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+Sanity Checking DataLoader 0:   0%|                                                      | 0/1 [00:00<?, ?it/s]
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, train_dataloader, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py:1595: PossibleUserWarning: The number of training batches (3) is smaller than the logging interval Trainer(log_every_n_steps=40). Set a lower value for log_every_n_steps if you want to see logs for the training epoch.
+
+
+Epoch 0:   0%|                                                                           | 0/4 [00:00<?, ?it/s]mse_loss tensor(1.1200, grad_fn=<MseLossBackward0>)
+
+Epoch 0:  25%|███████████                                 | 1/4 [00:17<00:51, 17.30s/it, loss=1.12, v_num=q8i3]mse_loss tensor(1.0238, grad_fn=<MseLossBackward0>)
+
+Epoch 0:  50%|██████████████████████                      | 2/4 [00:35<00:35, 17.93s/it, loss=1.07, v_num=q8i3]mse_loss tensor(0.9920, grad_fn=<MseLossBackward0>)
+Epoch 0:  75%|█████████████████████████████████           | 3/4 [00:51<00:17, 17.32s/it, loss=1.05, v_num=q8i3]
+
+
+Epoch 1:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.05, v_num=q8i3]mse_loss tensor(1.0075, grad_fn=<MseLossBackward0>)
+
+Epoch 1:  25%|███████████                                 | 1/4 [00:17<00:52, 17.47s/it, loss=1.04, v_num=q8i3]mse_loss tensor(0.9968, grad_fn=<MseLossBackward0>)
+
+Epoch 1:  50%|██████████████████████                      | 2/4 [00:34<00:34, 17.18s/it, loss=1.03, v_num=q8i3]mse_loss tensor(0.9974, grad_fn=<MseLossBackward0>)
+Epoch 1:  75%|█████████████████████████████████           | 3/4 [00:49<00:16, 16.36s/it, loss=1.02, v_num=q8i3]
+
+
+Epoch 2:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.02, v_num=q8i3]mse_loss tensor(1.0060, grad_fn=<MseLossBackward0>)
+
+Epoch 2:  25%|███████████                                 | 1/4 [00:17<00:51, 17.32s/it, loss=1.02, v_num=q8i3]mse_loss tensor(0.9964, grad_fn=<MseLossBackward0>)
+
+Epoch 2:  50%|██████████████████████                      | 2/4 [00:34<00:34, 17.46s/it, loss=1.02, v_num=q8i3]mse_loss tensor(0.9804, grad_fn=<MseLossBackward0>)
+Epoch 2:  75%|█████████████████████████████████           | 3/4 [00:50<00:16, 16.99s/it, loss=1.01, v_num=q8i3]
+
+
+Epoch 3:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.01, v_num=q8i3]mse_loss tensor(0.9837, grad_fn=<MseLossBackward0>)
+
+Epoch 3:  25%|███████████                                 | 1/4 [00:17<00:51, 17.18s/it, loss=1.01, v_num=q8i3]mse_loss tensor(1.0183, grad_fn=<MseLossBackward0>)
+
+Epoch 3:  50%|██████████████████████                      | 2/4 [00:36<00:36, 18.44s/it, loss=1.01, v_num=q8i3]mse_loss tensor(0.9810, grad_fn=<MseLossBackward0>)
+Epoch 3:  75%|█████████████████████████████████           | 3/4 [00:53<00:17, 17.72s/it, loss=1.01, v_num=q8i3]
+
+
+Epoch 4:   0%|                                                    | 0/4 [00:00<?, ?it/s, loss=1.01, v_num=q8i3]mse_loss tensor(0.9953, grad_fn=<MseLossBackward0>)
+
+Epoch 4:  25%|███████████                                 | 1/4 [00:17<00:53, 17.94s/it, loss=1.01, v_num=q8i3]mse_loss tensor(0.9828, grad_fn=<MseLossBackward0>)
+Epoch 4:  50%|██████████████████████                      | 2/4 [00:34<00:34, 17.35s/it, loss=1.01, v_num=q8i3]
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/call.py:48: UserWarning: Detected KeyboardInterrupt, attempting graceful shutdown...
+  rank_zero_warn("Detected KeyboardInterrupt, attempting graceful shutdown...")
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, test_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+
+Testing DataLoader 0: 100%|██████████████████████████████████████████████████████| 1/1 [00:02<00:00,  2.39s/it]
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Runningstage.testing metric      DataLoader 0
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+      test_mse_loss                 nan
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────

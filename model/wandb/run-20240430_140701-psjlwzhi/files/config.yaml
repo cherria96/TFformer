@@ -1,0 +1,83 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    python_version: 3.11.5
+    cli_version: 0.16.1
+    framework: huggingface
+    huggingface_version: 4.35.2
+    is_jupyter_run: false
+    is_kaggle_kernel: true
+    start_time: 1714453621.998935
+    t:
+      1:
+      - 1
+      - 9
+      - 11
+      - 49
+      - 55
+      2:
+      - 1
+      - 9
+      - 11
+      - 49
+      - 55
+      3:
+      - 7
+      - 13
+      - 23
+      4: 3.11.5
+      5: 0.16.1
+      6: 4.35.2
+      8:
+      - 2
+      - 5
+      13: linux-x86_64
+    m:
+    - 1: trainer/global_step
+      6:
+      - 3
+    - 1: validation_mse_loss
+      5: 1
+      6:
+      - 1
+    - 1: epoch
+      5: 1
+      6:
+      - 1
+    - 1: train_mse_loss
+      5: 1
+      6:
+      - 1
+    - 1: test_mse_loss
+      5: 1
+      6:
+      - 1
+dim_treatments:
+  desc: null
+  value: 2
+dim_covariates:
+  desc: null
+  value: 7
+dim_outcomes:
+  desc: null
+  value: 4
+dim_statics:
+  desc: null
+  value: null
+seq_hidden_units:
+  desc: null
+  value: 32
+num_heads:
+  desc: null
+  value: 2
+dropout_rate:
+  desc: null
+  value: 0.2
+num_layer:
+  desc: null
+  value: 3
+timestep:
+  desc: null
+  value: 130

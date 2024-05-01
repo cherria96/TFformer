@@ -2,11 +2,20 @@
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import torch
+import pandas as pd
 # Parameters
-def create_dataset(num_points, num_feature):
-    A = np.random.normal(size=num_points).astype(np.float32)
-    B, C, D, E, F, G, H, I, M, N, O, P = [np.zeros(num_points, dtype=np.float32) for _ in range(num_feature -1)]
+np.random.seed(42)
+def create_dataset(num_feature,num_points = 365 * 10):
+    # timestamp = pd.date_range(start="2010-01-01", periods=num_points, freq="D")
+    trend_factor = 0.1 * np.linspace(0, 200, num_points)
+    cycle_factor = 20 * np.sin(np.linspace(0, 4 * np.pi, num_points))
+    seasonal_factor = 10 * np.sin(np.linspace(0, 20 * np.pi, num_points))
+    irregular_factor = 2 * np.random.normal(0, 5, num_points)
+
+    A = (trend_factor + cycle_factor + seasonal_factor + irregular_factor).astype(np.float64)
+    B, C, D, E, F, G, H, I, M, N, O, P = [np.zeros(num_points, dtype=np.float64) for _ in range(num_feature -1)]
     # Generate the series according to the relationships
+
     for k in range(3, num_points):
         B[k] = 0.7 * A[k-3] + 0.2 * C[k-1] + np.random.normal()
         C[k] = 0.8 * A[k] + 0.5 * C[k] + np.random.normal()
@@ -73,11 +82,12 @@ class LinearDataset(Dataset):
 def to_float32(batch):
     return {k: v.to(torch.float32) for k, v in batch.items()}
 if __name__ == "__main__":
-    num_points = 4000  # Number of time points
-    num_series = 13    # Number of series
+    num_points = 365*10  # Number of time points
+    num_feature = 13    # Number of series
     window = 100
     stride = 5
-    train_dataset= LinearDataset(num_points, num_series, window, stride)
+    data = create_dataset(num_feature,num_points)
+    train_dataset= LinearDataset(data, num_feature, window, stride)
     train_loader = DataLoader(train_dataset, batch_size = 32)
 
 

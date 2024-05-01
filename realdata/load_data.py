@@ -194,7 +194,6 @@ def load_var4_data_processed(data_path: str,
     # h5 = pd.HDFStore(data_path, 'r')
     h5 = np.load(data_path)
     n_a , n_b, n_c = h5.shape
-
     # Add index
     index = np.arange(n_a)
     index = np.repeat(index,n_b)
@@ -225,11 +224,12 @@ def load_var4_data_processed(data_path: str,
         outcome_list = ListConfig([outcome.replace('_', ' ') for outcome in outcome_list])
     if vital_list is None:
         vital_list = [
+            'x3',
+            'x1'
         ]
     if static_list is None:
         static_list = [
-            'x1',
-            'x3'
+            'x1'
         ]
 
     treatments = h5[treatment_list]

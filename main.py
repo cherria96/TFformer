@@ -105,19 +105,19 @@ datasetcollection.process_data_multi()
 
 # Example of iterating over the DataLoader
 config = {
-    "lr" : 0.01,
-    "epochs" : 100,
-    "batch_size": 256,
-    "fc_hidden_units": 32
+    "lr" : 0.0001,
+    "epochs" : 400,
+    "batch_size": 64,
+    "fc_hidden_units": 64
 }
 # dim_A = 4  # Dimension of treatments
 # dim_X = 2  # Dimension of vitals
 # dim_Y = 3  # Dimension of outputs
 # dim_V = 1  # Dimension of static inputs
 dim_A = 2  # Dimension of treatments
-dim_X = 0  # Dimension of vitals
+dim_X = 2  # Dimension of vitals
 dim_Y = 1  # Dimension of outputs
-dim_V = 2  # Dimension of static inputs
+dim_V = 1  # Dimension of static inputs
 batch_size = config['batch_size']
 epoch = config['epochs']
 fc_hidden_units = config['fc_hidden_units']
@@ -125,7 +125,7 @@ train_loader = DataLoader(datasetcollection.train_f, batch_size=batch_size, shuf
 val_loader = DataLoader(datasetcollection.val_f, batch_size=batch_size, shuffle=False)
 
 wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
-wandb_logger = WandbLogger(project = 'TFFormer', name = f'Realdata_Weather_{fc_hidden_units}_{batch_size}_{epoch}')
+wandb_logger = WandbLogger(project = 'TFFormer', name = f'Syntheis_VAR4_wostatic_{fc_hidden_units}_{batch_size}_{epoch}')
 # run = wandb.init(
 #     name = "CT_256_10", ## Wandb creates random run names if you skip this field
 #     reinit = True, ### Allows reinitalizing runs when you re-run this cell
@@ -135,7 +135,7 @@ wandb_logger = WandbLogger(project = 'TFFormer', name = f'Realdata_Weather_{fc_h
 #     config = config ### Wandb Config for your run
 # )
 
-trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch, log_every_n_steps = 40, logger = None)
+trainer = pl.Trainer(accelerator = "cpu",max_epochs = epoch, log_every_n_steps = 40, logger = wandb_logger)
 model = CT(dim_A=dim_A, dim_X = dim_X, dim_Y = dim_Y, dim_V = dim_V, fc_hidden_units=fc_hidden_units)
 trainer.fit(model, train_loader, val_loader)
 
@@ -176,7 +176,7 @@ trainer.test(model,val_loader)
 now = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 trainer.save_checkpoint(f"weights/{num_patients['train']}_{num_patients['test']}_{epoch}_{batch_size}_{now}.pt")
 
-
+raise NotImplemented
 val_rmse_orig, val_rmse_all = model.get_normalised_masked_rmse(datasetcollection.val_f)
 logger.info(f'Val normalised RMSE (all): {val_rmse_all}; Val normalised RMSE (orig): {val_rmse_orig}')
 results = {}

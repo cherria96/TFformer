@@ -62,7 +62,6 @@ class RealDataset(Dataset):
         #if not treatments.hasnans:
         if not treatments.isnull().values.any():
             active_entries = np.ones((len(user_sizes), max(user_sizes), 1)).astype(float)
-        # breakpoint()
         treatments = treatments.fillna(0.0).values.reshape((len(user_sizes), max(user_sizes), -1)).astype(float)
         outcomes = outcomes.fillna(0.0).values.reshape((len(user_sizes), max(user_sizes), -1))
         vitals = vitals.fillna(0.0).values.reshape((len(user_sizes), max(user_sizes), -1))

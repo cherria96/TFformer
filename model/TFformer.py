@@ -1,7 +1,6 @@
 #%%
 import sys
 sys.path.append('/home/user126/TFformer')
-
 from pytorch_lightning import LightningModule
 import torch
 torch.set_default_dtype(torch.float64)
@@ -14,137 +13,19 @@ import math
 import numpy as np
 import pdb
 import logging
-from torch.utils.data import DataLoader, Dataset
-from model.TFformer_transformer import TransformerEncoderBlock
-
+from torch.utils.data import DataLoader
+from model.TFformer_transformer import TransformerEncoderBlock, PositionalEncoding
+from model.utils import VariableSelection, SeriesDecomposition
 import wandb 
 from pytorch_lightning.loggers import WandbLogger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-class GatedLinearUnit(nn.Module):
-    def __init__(self, input_dim, output_dim):
-        super().__init__()
-        self.linear = nn.Linear(input_dim, output_dim)
-        self.sigmoid = nn.Linear(input_dim, output_dim)
-    
-    def forward(self, inputs):
-        return self.linear(inputs) * torch.sigmoid(self.sigmoid(inputs))
-    
-class GatedResidualNetwork(nn.Module):
-    def __init__(self, input_dim, output_dim, dropout_rate):
-        super().__init__()
-        
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.fc1 = nn.Linear(self.input_dim, self.input_dim)
-        self.fc2 = nn.Linear(self.input_dim, self.input_dim)
-        self.dropout = nn.Dropout(dropout_rate)
-        self.gated_linear_unit = GatedLinearUnit(self.input_dim, self.output_dim)
-        self.layer_norm = nn.LayerNorm(self.output_dim)
-        self.project = None  # Initialized only if needed in the forward method
-
-    def forward(self, inputs, context_vector = None):
-        if context_vector is not None:
-            x = torch.cat((inputs, context_vector), dim = -1)
-            x = F.elu(self.fc1(x))
-        else:
-            x = F.elu(self.fc1(inputs))
-        x = self.fc2(x)
-        x = self.dropout(x)
-        if inputs.shape[-1] != self.output_dim:
-            if self.project is None:
-                self.project = nn.Linear(self.input_dim, self.output_dim)
-            inputs = self.project(inputs)
-        x = inputs + self.gated_linear_unit(x)
-        x = self.layer_norm(x)
-        if torch.isnan(x).any():
-            print(f"NaN detected in GRN output")
-        return x
-
-class VariableSelection(nn.Module):
-    def __init__(self, feature, num_variable, output_unit, dropout_rate = 0.2, context_size = 0):
-        super().__init__()
-        self.feature = 'prev_' + str(feature)
-        self.grns = nn.ModuleList([GatedResidualNetwork(output_unit, output_unit, dropout_rate) for _ in range(num_variable)])
-        self.grn_concat = GatedResidualNetwork(num_variable * output_unit + context_size, num_variable, dropout_rate)
-        self.softmax = nn.Softmax(dim = -1)
-        self.embedding = nn.Linear(1, output_unit)
-
-    def forward(self, batch, context_vector = None):
-        '''
-        Params:
-            feature: treatments/covariates/outcomes
-        '''
-        batch_size, timesteps, num_features = batch.shape
-        inputs = [] 
-        for i in range(num_features):
-            inputs.append(self.embedding(batch[:,:,i].unsqueeze(-1)))
-        v = torch.cat(inputs, dim=-1) # (32, 99, 35)
-        v = self.grn_concat(v) # (32, 99, 7)
-        v = self.softmax(v)
-        sparse_weights = v.unsqueeze(-2) # (32, 99, 7, 1)
-        # v shape (batch, seq_len, num_feat, 1)
-        x = torch.stack([grn(input_tensor) for grn, input_tensor in zip(self.grns, inputs)], dim=-1) # (32, 99, 5, 7)
-
-        combined = sparse_weights * x
-        temporal_ctx = torch.sum(combined, dim = -1) # (32, 99, 5)
-        return temporal_ctx, sparse_weights # (batch_size, seq_length, output_unit)
-
-'''
-class VariableSelectionNetwork(nn.Module):
-    def __init__(self, dim_T, dim_C, dim_O):
-        super().__init__()
-        self.t = 2
-        self.c = 5
-        self.o = 1
-        self.out_dim = (self.t + self.c + self.o)
-        self.treatment_layer = nn.Linear(dim_T,self.t)
-        self.pos_treatment = PositionalEncoding(self.t)
-
-        self.covariates_layer = nn.Linear(dim_C,self.c)
-        self.pos_covariates = PositionalEncoding(self.c)
-        
-        # self.outcome_layer = nn.Linear(dim_O,o)
-        # self.pos_outcome = PositionalEncoding(o)
-    def forward(self, batch):
-        # x: (batch, timestep, features)
-        selected_treatments = F.relu(self.treatment_layer(batch['prev_treatments']))
-        selected_treatments = self.pos_treatment(selected_treatments)
-        selected_covariates = F.relu(self.treatment_layer(batch['prev_covariates']))
-        selected_covariates = self.pos_covariates(selected_covariates)
-        # selected_outputs = F.relu(self.treatment_layer(batch['outcomes']))
-        outputs = self.pos_outcome(batch['prev_outcomes'])
-        return torch.cat([selected_treatments, selected_covariates, outputs], dim = 2)'''
-    
-class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, dropout=0.1, max_len=100):
-        super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(p=dropout)
-
-        pe = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
-        pe[:, 0::2] = torch.sin(position * div_term)
-        if d_model % 2 == 0:
-            pe[:, 1::2] = torch.cos(position * div_term)
-        else:
-            pe[:, 1::2] = torch.cos(position * div_term[:-1]) if div_term.size(0) > 1 \
-                else torch.cos(position * torch.exp(torch.tensor(-math.log(10000.0) / d_model)))
-        pe = pe.unsqueeze(0) # (1, max_len, d_model)
-        self.register_buffer('pe', pe)
-
-    def forward(self, x):
-        seq_len = x.size(1)
-        x = x + self.pe[:,:seq_len, :]
-        return self.dropout(x)
-    
+#%%
 class TFformer(LightningModule):
 
     def __init__(self,
                  dim_treatments, dim_covariates, dim_outcomes, dim_statics,
-                 seq_hidden_units, num_heads, dropout_rate, num_layer, timestep):
+                 seq_hidden_units, iw, ow, num_heads, dropout_rate, num_layer):
         super().__init__()
         self.save_hyperparameters()
         
@@ -153,8 +34,10 @@ class TFformer(LightningModule):
         self.dim_C = dim_covariates
         self.dim_O = dim_outcomes
         self.dim_S = dim_statics
-        self.timestep = timestep
 
+        self.is_decomposition = True
+        if self.is_decomposition:
+            self.decomposition = SeriesDecomposition(kernel_size= 7)
         self.variable_selection = False
         if self.variable_selection:
             self.treatment_selection_layer = VariableSelection(feature = 'treatments', num_variable=self.dim_T, output_unit=2)
@@ -183,7 +66,7 @@ class TFformer(LightningModule):
         #                                                       nhead=self.num_heads, dropout = self.dropout_rate, batch_first = True)
         
         # self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers =self.num_layer)
-        self.positional_encoding = PositionalEncoding(d_model = self.seq_hidden_units*self.total, max_len=self.timestep)
+        self.positional_encoding = PositionalEncoding(d_model = self.seq_hidden_units*self.total, max_len=iw)
         self.transformer_encoder = nn.ModuleList([self.basic_block_cls(
             hidden = self.seq_hidden_units, attn_heads = self.num_heads, head_size = self.head_size,
             feed_forward_hidden = self.seq_hidden_units, dropout = self.dropout_rate,
@@ -191,10 +74,15 @@ class TFformer(LightningModule):
             ) for _ in range(self.num_layer)])
         
         output_unit = 1
-        self.predict_outcomes = nn.Sequential(
-            nn.Linear(self.seq_hidden_units, self.seq_hidden_units),
+        self.linear1 = nn.Sequential(
+            nn.Linear(self.seq_hidden_units, self.seq_hidden_units//2),
             nn.ReLU(),
-            nn.Linear(self.seq_hidden_units, output_unit)
+            nn.Linear(self.seq_hidden_units//2, output_unit)
+        )
+        self.linear2 = nn.Sequential(
+            nn.Linear(iw, (iw+ow)//2),
+            nn.ReLU(),
+            nn.Linear((iw+ow)//2, ow)
         )
 
         # dropout
@@ -202,7 +90,7 @@ class TFformer(LightningModule):
 
         # loss function
         self.loss_fn = nn.MSELoss()
-        self.causal_mask = self._generate_causal_mask(timestep, self.total)
+        self.causal_mask = self._generate_causal_mask(iw, self.total)
         self.register_buffer('tfcausal_mask', self.causal_mask)
 
     def forward(self,batch):
@@ -213,7 +101,7 @@ class TFformer(LightningModule):
         if self.variable_selection:
             treatment, w_T = self.treatment_selection_layer(batch[self.treatment_selection_layer.feature])            
             covariates, w_C = self.covariates_selection_layer(batch[self.covariates_selection_layer.feature])
-        batch = torch.cat([treatment, covariates, outcomes], dim = -1)
+        batch = torch.cat([treatment, covariates, outcomes], dim = -1) 
         batch_size, timesteps, feature_size = batch.shape
                         
         flattened = torch.flatten(batch, 1).unsqueeze(-1) # (batch_size, timesteps * feature_size, 1)
@@ -237,8 +125,9 @@ class TFformer(LightningModule):
         # hidden = hidden[:, feature_size - output_dim: ]
         # hidden = hidden[:,-1]
         
-        pred = self.predict_outcomes(hidden)
+        pred = self.linear1(hidden)
         pred = pred.reshape(batch_size, timesteps, -1)
+        pred = self.linear2(pred.permute(0,2,1)).permute(0,2,1)
         # pred = pred.view(hidden.shape[0], self.timestep, -1)
         return pred
     
@@ -266,7 +155,7 @@ class TFformer(LightningModule):
         return actual
 
     def configure_optimizers(self):
-        lr = 0.05 
+        lr = 0.001 
         optimizer = optim.Adam(self.parameters(), lr = lr)
         lr_scheduler = optim.lr_scheduler.ExponentialLR(optimizer,gamma = 0.99)
 
@@ -280,7 +169,6 @@ class TFformer(LightningModule):
                 pred = self(batch)
         
         mse_loss = self.loss_fn(pred, actual)
-        print("mse_loss", mse_loss)
         # mse_loss = (batch['active_entries'] * mse_loss).sum() / batch['active_entries'].sum()
         if trainer:
             self.log(f'train_mse_loss', mse_loss, on_epoch = True, on_step = False, sync_dist = True)
@@ -306,36 +194,56 @@ class TFformer(LightningModule):
         mse_loss = self.loss_fn(pred, actual)
         self.log(f'test_mse_loss', mse_loss.mean(), on_epoch=True, on_step=False, sync_dist=True)
     
-
 if __name__ == "__main__":
-    from synthetic_data.linear_causal import LinearDataset
-    num_points = 1000  # Number of time points
-    num_series = 13    # Number of series
-    window = 131
-    stride = 5
-    dim_T = 2
-    dim_C = 7
-    dim_O = 4
-    epochs = 10
-    batch_size = 64
+    from synthetic_data.timeseries_dataset import TimeSeriesDataset
     # def to_float32(batch):
     #     return {k: v.to(torch.float32) for k, v in batch.items()}
     import gc
     gc.collect()
-    train_dataset= LinearDataset(num_points, num_series, window, stride)
-    train_loader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
-    val_dataset= LinearDataset(num_points//4, num_series, window, stride)
-    val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
-    test_dataset= LinearDataset(num_points//4, num_series, window, stride)
-    test_loader = DataLoader(test_dataset, batch_size = batch_size, shuffle = False)
+    # num_points = 365*10  # Number of time points
+    # num_feature = 13    # Number of series
+    # window = 12*7
+    # stride = 5
+    # data = create_dataset(num_feature = num_feature, num_points = num_points)
+    # train_dataset= LinearDataset(data[:int(len(data)*0.5)], num_feature, window, stride)
+    # train_loader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
+    # val_dataset= LinearDataset(data[int(len(data)*0.5):int(len(data)*0.7)], num_feature, window, stride)
+    # val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
+    # test_dataset= LinearDataset(data[int(len(data)*0.7):], num_feature, window, stride)
+    # test_loader = DataLoader(test_dataset, batch_size = batch_size, shuffle = False)
+    data = np.load('/home/user126/TFformer/synthetic_data/data/techros_AD.npy')
+    dim_T = 2
+    dim_C = 10
+    dim_O = 5
+    epochs = 20
+    batch_size = 64
+    iw = 10*7
+    ow = 3*7
+    stride = 1
+    samples = len(data)
+    train_data = data[:int(samples * 0.5)]
+    val_data = data[int(samples * 0.5):int(samples * 0.7)]
+    test_data = data[int(samples * 0.7):]
+
+    train_data = TimeSeriesDataset(train_data, dim_T, dim_C, dim_O, iw, ow, stride)
+    train_dataloader = DataLoader(train_data, batch_size=64, shuffle=True)
+
+    val_data = TimeSeriesDataset(val_data, dim_T, dim_C, dim_O, iw, ow, stride)
+    val_dataloader = DataLoader(val_data, batch_size=64, shuffle=False)
+    
+    test_data = TimeSeriesDataset(test_data, dim_T, dim_C, dim_O, iw, ow, stride)
+    test_dataloader = DataLoader(test_data, batch_size=64, shuffle=False)
+
+    wandb.init()
     wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
     wandb_logger = WandbLogger(project = 'TFFormer', name = f'TFformer_linear_{epochs}')
 
-    trainer = pl.Trainer(accelerator = "cpu",max_epochs = 20, log_every_n_steps = 40, logger = wandb_logger)
+    trainer = pl.Trainer(accelerator = "cpu",max_epochs = 100, log_every_n_steps = 40, logger = wandb_logger)
     model = TFformer(dim_treatments=dim_T, dim_covariates=dim_C, dim_outcomes = dim_O, dim_statics=None,
-                     seq_hidden_units=32, num_heads = 2, dropout_rate=0.2, num_layer = 3, timestep= window -1)
-    trainer.fit(model, train_loader, val_loader)
-    trainer.test(model, test_loader)
+                     seq_hidden_units=32, iw = iw, ow = ow, num_heads = 2, dropout_rate=0.2, num_layer = 3)
+    
+    trainer.fit(model, train_dataloader, val_dataloader)
+    trainer.test(model, test_dataloader)
 
 
 

@@ -1,1 +1,1 @@
-{"validation_mse_loss": 0.9740202574570501, "epoch": 20, "trainer/global_step": 120, "_timestamp": 1714542821.2215881, "_runtime": 1432.0808231830597, "_step": 40, "train_mse_loss": 0.9961777186378993, "test_mse_loss": 1.0213668805478402}
+{"validation_mse_loss": 0.946559692629243, "epoch": 20, "trainer/global_step": 360, "_timestamp": 1714624684.9590855, "_runtime": 83295.81832051277, "_step": 123, "train_mse_loss": 0.2607687388950479, "test_mse_loss": 1.619338905220386, "_wandb": {"runtime": 6806}}

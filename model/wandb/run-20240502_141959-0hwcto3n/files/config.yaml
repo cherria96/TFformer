@@ -1,0 +1,65 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    python_version: 3.11.5
+    cli_version: 0.16.1
+    framework: huggingface
+    huggingface_version: 4.35.2
+    is_jupyter_run: true
+    is_kaggle_kernel: true
+    start_time: 1714627205.496402
+    t:
+      1:
+      - 1
+      - 9
+      - 11
+      - 49
+      - 55
+      2:
+      - 1
+      - 9
+      - 11
+      - 49
+      - 55
+      3:
+      - 23
+      4: 3.11.5
+      5: 0.16.1
+      6: 4.35.2
+      8:
+      - 1
+      - 2
+      - 5
+      13: linux-x86_64
+dim_treatments:
+  desc: null
+  value: 2
+dim_covariates:
+  desc: null
+  value: 7
+dim_outcomes:
+  desc: null
+  value: 4
+dim_statics:
+  desc: null
+  value: null
+seq_hidden_units:
+  desc: null
+  value: 32
+iw:
+  desc: null
+  value: 70
+ow:
+  desc: null
+  value: 21
+num_heads:
+  desc: null
+  value: 2
+dropout_rate:
+  desc: null
+  value: 0.2
+num_layer:
+  desc: null
+  value: 3

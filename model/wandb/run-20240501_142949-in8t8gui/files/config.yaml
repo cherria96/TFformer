@@ -24,6 +24,7 @@ _wandb:
       - 49
       - 55
       3:
+      - 2
       - 7
       - 13
       - 23
@@ -81,4 +82,10 @@ num_layer:
   value: 3
 timestep:
   desc: null
-  value: 99
+  value: 83
+iw:
+  desc: null
+  value: 70
+ow:
+  desc: null
+  value: 21

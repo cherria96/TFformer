@@ -81,6 +81,7 @@ class LinearDataset(Dataset):
         return batch 
 def to_float32(batch):
     return {k: v.to(torch.float32) for k, v in batch.items()}
+
 if __name__ == "__main__":
     num_points = 365*10  # Number of time points
     num_feature = 13    # Number of series

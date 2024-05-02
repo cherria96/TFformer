@@ -68,3 +68,91 @@ def unroll_temporal_data(data_full, observed_nodes_list, window_len, t_step = 1)
     return data_full_unrolled, _nodes_sets_list_full, _nodes_sets_list
 
 
+class GatedLinearUnit(nn.Module):
+    def __init__(self, input_dim, output_dim):
+        super().__init__()
+        self.linear = nn.Linear(input_dim, output_dim)
+        self.sigmoid = nn.Linear(input_dim, output_dim)
+    
+    def forward(self, inputs):
+        return self.linear(inputs) * torch.sigmoid(self.sigmoid(inputs))
+    
+class GatedResidualNetwork(nn.Module):
+    def __init__(self, input_dim, output_dim, dropout_rate):
+        super().__init__()
+        
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.fc1 = nn.Linear(self.input_dim, self.input_dim)
+        self.fc2 = nn.Linear(self.input_dim, self.input_dim)
+        self.dropout = nn.Dropout(dropout_rate)
+        self.gated_linear_unit = GatedLinearUnit(self.input_dim, self.output_dim)
+        self.layer_norm = nn.LayerNorm(self.output_dim)
+        self.project = None  # Initialized only if needed in the forward method
+
+    def forward(self, inputs, context_vector = None):
+        if context_vector is not None:
+            x = torch.cat((inputs, context_vector), dim = -1)
+            x = F.elu(self.fc1(x))
+        else:
+            x = F.elu(self.fc1(inputs))
+        x = self.fc2(x)
+        x = self.dropout(x)
+        if inputs.shape[-1] != self.output_dim:
+            if self.project is None:
+                self.project = nn.Linear(self.input_dim, self.output_dim)
+            inputs = self.project(inputs)
+        x = inputs + self.gated_linear_unit(x)
+        x = self.layer_norm(x)
+        if torch.isnan(x).any():
+            print(f"NaN detected in GRN output")
+        return x
+
+class VariableSelection(nn.Module):
+    def __init__(self, feature, num_variable, output_unit, dropout_rate = 0.2, context_size = 0):
+        super().__init__()
+        self.feature = 'prev_' + str(feature)
+        self.grns = nn.ModuleList([GatedResidualNetwork(output_unit, output_unit, dropout_rate) for _ in range(num_variable)])
+        self.grn_concat = GatedResidualNetwork(num_variable * output_unit + context_size, num_variable, dropout_rate)
+        self.softmax = nn.Softmax(dim = -1)
+        self.embedding = nn.Linear(1, output_unit)
+
+    def forward(self, batch, context_vector = None):
+        '''
+        Params:
+            feature: treatments/covariates/outcomes
+        '''
+        batch_size, timesteps, num_features = batch.shape
+        inputs = [] 
+        for i in range(num_features):
+            inputs.append(self.embedding(batch[:,:,i].unsqueeze(-1)))
+        v = torch.cat(inputs, dim=-1) # (32, 99, 35)
+        v = self.grn_concat(v) # (32, 99, 7)
+        v = self.softmax(v)
+        sparse_weights = v.unsqueeze(-2) # (32, 99, 7, 1)
+        # v shape (batch, seq_len, num_feat, 1)
+        x = torch.stack([grn(input_tensor) for grn, input_tensor in zip(self.grns, inputs)], dim=-1) # (32, 99, 5, 7)
+
+        combined = sparse_weights * x
+        temporal_ctx = torch.sum(combined, dim = -1) # (32, 99, 5)
+        return temporal_ctx, sparse_weights # (batch_size, seq_length, output_unit)
+
+class SeriesDecomposition(nn.Module):
+    def __init__(self, kernel_size, stride = 1):
+        super(SeriesDecomposition, self).__init__()
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.avg = nn.AvgPool1d(kernel_size = self.kernel_size, stride = stride, padding = 0)
+    def _moving_avg(self, x):
+        # padding on the both ends of time series
+        front = x[:, 0:1, :].repeat(1, (self.kernel_size - 1) // 2, 1)
+        end = x[:, -1:, :].repeat(1, (self.kernel_size - 1) // 2, 1)
+        x = torch.cat([front, x, end], dim = 1)
+        x = self.avg(x.permute(0,2,1))
+        x = x.permute(0,2,1)
+        return x
+    def forward(self, x):
+        trend = self._moving_avg(x)
+        seasonal = x - trend
+        return seasonal, trend
+

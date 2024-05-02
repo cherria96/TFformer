@@ -19,7 +19,27 @@ class LayerNorm(nn.Module):
         std = x.std(-1, keepdim=True)
         return self.weight * (x - mean) / (std + self.eps) + self.bias
 
+class PositionalEncoding(nn.Module):
+    def __init__(self, d_model, dropout=0.1, max_len=100):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(p=dropout)
 
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        if d_model % 2 == 0:
+            pe[:, 1::2] = torch.cos(position * div_term)
+        else:
+            pe[:, 1::2] = torch.cos(position * div_term[:-1]) if div_term.size(0) > 1 \
+                else torch.cos(position * torch.exp(torch.tensor(-math.log(10000.0) / d_model)))
+        pe = pe.unsqueeze(0) # (1, max_len, d_model)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        seq_len = x.size(1)
+        x = x + self.pe[:,:seq_len, :]
+        return self.dropout(x)
 
 class PositionwiseFeedForward(nn.Module):
     def __init__(self, d_model, d_ff, dropout=0.1):
@@ -34,7 +54,7 @@ class PositionwiseFeedForward(nn.Module):
         x_ = self.dropout(self.activation(self.conv1(x.permute(0, 2, 1))))
         return self.layer_norm(self.dropout(self.conv2(x_)).permute(0, 2, 1) + x)
 
-class ScaledDotProductAttention(nn.Module):
+class Attention(nn.Module):
     def __init__(self, 
                  positional_encoding_k = None,
                  positional_encoding_v = None,
@@ -68,8 +88,44 @@ class ScaledDotProductAttention(nn.Module):
             output = output + torch.einsum('b q v, q v d -> b q d', attn, R_v)
 
         return output, attn
-    
+
 class MultiHeadedAttention(nn.Module):
+    def __init__(self, num_heads, d_model, head_size=None, dropout=0.0, positional_encoding_k=None, positional_encoding_v=None,
+                 final_layer=False):
+        super().__init__()
+        assert d_model % num_heads == 0
+
+        self.num_heads = num_heads
+        if head_size is not None:
+            self.head_size = head_size
+        else:
+            self.head_size = d_model // num_heads
+        
+        self.linear_layers = nn.ModuleList([nn.Linear(d_model, self.num_heads * self.head_size) for _ in range(3)])
+        self.attention = Attention(positional_encoding_k, positional_encoding_v)
+        self.dropout = nn.Dropout(p=dropout)
+        if final_layer:
+            self.final_layer = nn.Linear(self.num_heads * self.head_size, d_model)
+        self.layer_norm = LayerNorm(d_model)
+
+    def forward(self, query, key, value, mask=None, one_direction=True):
+        batch_size = query.size(0)
+
+        # 1) do all the linear projections in batch from d_model => num_heads x d_k
+        query_, key_, value_ = [layer(x).view(batch_size, -1, self.num_heads, self.head_size).transpose(1, 2)
+                                for layer, x in zip(self.linear_layers, (query, key, value))]
+        # 2) apply self_attention on all the projected vectors in batch.
+        #print('qkv size', query_.shape,key_.shape,value_.shape) #torch.Size([32, 2, 60, 5]) torch.Size([32, 2, 60, 5]) torch.Size([32, 2, 60, 5])
+        x, attn = self.attention(query_, key_, value_, mask=mask, dropout=self.dropout, one_direction=one_direction)
+
+        # 3) "concat" using a view and apply a final linear.
+        x = x.transpose(1, 2).contiguous().view(batch_size, -1, self.num_heads * self.head_size)
+        if hasattr(self, 'final_layer'):
+            x = self.final_layer(x)
+
+        return self.layer_norm(x + query)
+   
+class _MultiHeadedAttention(nn.Module):
     def __init__(self, num_heads, d_model, head_size=None, dropout=0.0, positional_encoding_k=None, positional_encoding_v=None,
                  final_layer=False):
         super().__init__()
@@ -91,7 +147,7 @@ class MultiHeadedAttention(nn.Module):
         
 
         # self.linear_layers = nn.ModuleList([nn.Linear(d_model, self.num_heads * self.head_size) for _ in range(2)])
-        self.attention = ScaledDotProductAttention(positional_encoding_k, positional_encoding_v)
+        self.attention = Attention(positional_encoding_k, positional_encoding_v)
         self.dropout = nn.Dropout(p=dropout)
         if final_layer:
             self.final_layer = nn.Linear(self.num_heads * self.head_size, d_model)

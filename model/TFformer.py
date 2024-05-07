@@ -211,11 +211,11 @@ if __name__ == "__main__":
     # val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
     # test_dataset= LinearDataset(data[int(len(data)*0.7):], num_feature, window, stride)
     # test_loader = DataLoader(test_dataset, batch_size = batch_size, shuffle = False)
-    data = np.load('/home/user126/TFformer/synthetic_data/data/techros_AD.npy')
-    dim_T = 2
-    dim_C = 10
-    dim_O = 5
-    epochs = 20
+    data = np.load('/home/user126/TFformer/synthetic_data/data/sbk_AD.npy')
+    dim_T = 4
+    dim_C = 4
+    dim_O = 4
+    epochs = 100
     batch_size = 64
     iw = 10*7
     ow = 3*7

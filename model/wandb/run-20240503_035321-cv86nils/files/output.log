@@ -1,0 +1,85 @@
+[34m[1mwandb[39m[22m: [33mWARNING[39m Calling wandb.login() after wandb.init() has no effect.
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/loggers/wandb.py:396: UserWarning: There is a wandb run already in progress and newly created instances of `WandbLogger` will reuse this run. If this is not desired, call `wandb.finish()` before instantiating `WandbLogger`.
+  rank_zero_warn(
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+  | Name                | Type                | Params
+------------------------------------------------------------
+0 | decomposition       | SeriesDecomposition | 0
+1 | embedding_layer     | Linear              | 64
+2 | positional_encoding | PositionalEncoding  | 0
+3 | transformer_encoder | ModuleList          | 19.4 K
+4 | linear1             | Sequential          | 545
+5 | linear2             | Sequential          | 4.2 K
+6 | output_dropout      | Dropout             | 0
+7 | loss_fn             | MSELoss             | 0
+------------------------------------------------------------
+24.2 K    Trainable params
+0         Non-trainable params
+24.2 K    Total params
+0.097     Total estimated model params size (MB)
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, val_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+Traceback (most recent call last):
+  File "/home/user126/TFformer/model/TFformer.py", line 245, in <module>
+    trainer.fit(model, train_dataloader, val_dataloader)
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py", line 603, in fit
+    call._call_and_handle_interrupt(
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/call.py", line 38, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py", line 645, in _fit_impl
+    self._run(model, ckpt_path=self.ckpt_path)
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py", line 1098, in _run
+    results = self._run_stage()
+              ^^^^^^^^^^^^^^^^^
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py", line 1177, in _run_stage
+    self._run_train()
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py", line 1190, in _run_train
+    self._run_sanity_check()
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py", line 1262, in _run_sanity_check
+    val_loop.run()
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/loops/loop.py", line 199, in run
+    self.advance(*args, **kwargs)
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/loops/dataloader/evaluation_loop.py", line 152, in advance
+    dl_outputs = self.epoch_loop.run(self._data_fetcher, dl_max_batches, kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/loops/loop.py", line 199, in run
+    self.advance(*args, **kwargs)
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/loops/epoch/evaluation_epoch_loop.py", line 137, in advance
+    output = self._evaluation_step(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/loops/epoch/evaluation_epoch_loop.py", line 234, in _evaluation_step
+    output = self.trainer._call_strategy_hook(hook_name, *kwargs.values())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py", line 1480, in _call_strategy_hook
+    output = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/strategies/strategy.py", line 390, in validation_step
+    return self.model.validation_step(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/TFformer/model/TFformer.py", line 178, in validation_step
+    pred = self(batch)
+           ^^^^^^^^^^^
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/TFformer/model/TFformer.py", line 111, in forward
+    embedded = self.positional_encoding(embedded)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user126/TFformer/model/TFformer_transformer.py", line 41, in forward
+    x = x + self.pe[:,:seq_len, :]
+        ~~^~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (384) must match the size of tensor b (544) at non-singleton dimension 2
+Sanity Checking DataLoader 0:   0%|                                                                | 0/2 [00:00<?, ?it/s]

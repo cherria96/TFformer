@@ -1,0 +1,739 @@
+2024-05-03 03:58:12,281 INFO    StreamThr :1145000 [internal.py:wandb_internal():86] W&B internal server running at pid: 1145000, started at: 2024-05-03 03:58:12.280679
+2024-05-03 03:58:12,284 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status
+2024-05-03 03:58:12,285 INFO    WriterThread:1145000 [datastore.py:open_for_write():85] open: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/run-v5q3ec2b.wandb
+2024-05-03 03:58:12,286 DEBUG   SenderThread:1145000 [sender.py:send():382] send: header
+2024-05-03 03:58:12,291 DEBUG   SenderThread:1145000 [sender.py:send():382] send: run
+2024-05-03 03:58:12,837 INFO    SenderThread:1145000 [dir_watcher.py:__init__():211] watching files in: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files
+2024-05-03 03:58:12,837 INFO    SenderThread:1145000 [sender.py:_start_run_threads():1136] run started: v5q3ec2b with start time 1714676292.280645
+2024-05-03 03:58:12,848 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: check_version
+2024-05-03 03:58:12,849 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: check_version
+2024-05-03 03:58:12,943 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: run_start
+2024-05-03 03:58:12,969 ERROR   HandlerThread:1145000 [gpu.py:is_available():381] Error initializing NVML: RM has detected an NVML/RM version mismatch.
+2024-05-03 03:58:12,970 DEBUG   HandlerThread:1145000 [system_info.py:__init__():32] System info init
+2024-05-03 03:58:12,970 DEBUG   HandlerThread:1145000 [system_info.py:__init__():47] System info init done
+2024-05-03 03:58:12,971 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:58:12,971 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:58:12,972 INFO    HandlerThread:1145000 [system_monitor.py:probe():214] Collecting system info
+2024-05-03 03:58:12,972 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:58:12,973 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:58:12,973 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:58:12,974 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:58:13,013 DEBUG   HandlerThread:1145000 [system_info.py:probe():196] Probing system
+2024-05-03 03:58:13,015 DEBUG   HandlerThread:1145000 [system_info.py:_probe_git():181] Probing git
+2024-05-03 03:58:13,024 DEBUG   HandlerThread:1145000 [system_info.py:_probe_git():189] Probing git done
+2024-05-03 03:58:13,024 DEBUG   HandlerThread:1145000 [system_info.py:probe():244] Probing system done
+2024-05-03 03:58:13,024 DEBUG   HandlerThread:1145000 [system_monitor.py:probe():223] {'os': 'Linux-5.15.0-87-generic-x86_64-with-glibc2.35', 'python': '3.11.5', 'heartbeatAt': '2024-05-02T18:58:13.014044', 'startedAt': '2024-05-02T18:58:12.274797', 'docker': None, 'cuda': None, 'args': (), 'state': 'running', 'program': '/home/user126/TFformer/model/TFformer.py', 'codePathLocal': 'TFformer.py', 'codePath': 'model/TFformer.py', 'git': {'remote': 'https://github.com/cherria96/TFformer.git', 'commit': 'ab5173b22e8979ccf38bab73a44397d1a82853e7'}, 'email': 'sujineeda@postech.ac.kr', 'root': '/home/user126/TFformer', 'host': 'n126', 'username': 'user126', 'executable': '/home/user126/anaconda3/envs/dt_idl/bin/python', 'cpu_count': 32, 'cpu_count_logical': 32, 'cpu_freq': {'current': 1.8152499999999998, 'min': 1500.0, 'max': 3000.0}, 'cpu_freq_per_core': [{'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 3.0, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 3.0, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 2.4, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 2.4, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 2.4, 'min': 1500.0, 'max': 3000.0}, {'current': 2.4, 'min': 1500.0, 'max': 3000.0}, {'current': 2.4, 'min': 1500.0, 'max': 3000.0}, {'current': 1.5, 'min': 1500.0, 'max': 3000.0}, {'current': 2.4, 'min': 1500.0, 'max': 3000.0}], 'disk': {'/': {'total': 3517.2806854248047, 'used': 196.30279541015625}}, 'memory': {'total': 377.7440071105957}}
+2024-05-03 03:58:13,025 INFO    HandlerThread:1145000 [system_monitor.py:probe():224] Finished collecting system info
+2024-05-03 03:58:13,025 INFO    HandlerThread:1145000 [system_monitor.py:probe():227] Publishing system info
+2024-05-03 03:58:13,025 DEBUG   HandlerThread:1145000 [system_info.py:_save_pip():52] Saving list of pip packages installed into the current environment
+2024-05-03 03:58:13,025 DEBUG   HandlerThread:1145000 [system_info.py:_save_pip():68] Saving pip packages done
+2024-05-03 03:58:13,025 DEBUG   HandlerThread:1145000 [system_info.py:_save_conda():75] Saving list of conda packages installed into the current environment
+2024-05-03 03:58:13,839 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_created():271] file/dir created: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/conda-environment.yaml
+2024-05-03 03:58:13,839 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_created():271] file/dir created: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/requirements.txt
+2024-05-03 03:58:15,516 DEBUG   HandlerThread:1145000 [system_info.py:_save_conda():87] Saving conda packages done
+2024-05-03 03:58:15,517 INFO    HandlerThread:1145000 [system_monitor.py:probe():229] Finished publishing system info
+2024-05-03 03:58:15,519 DEBUG   SenderThread:1145000 [sender.py:send():382] send: files
+2024-05-03 03:58:15,519 INFO    SenderThread:1145000 [sender.py:_save_file():1392] saving file wandb-metadata.json with policy now
+2024-05-03 03:58:15,540 DEBUG   SenderThread:1145000 [sender.py:send():382] send: telemetry
+2024-05-03 03:58:15,540 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-03 03:58:15,541 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 03:58:15,542 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: stop_status
+2024-05-03 03:58:15,838 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/conda-environment.yaml
+2024-05-03 03:58:15,838 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_created():271] file/dir created: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 03:58:15,839 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_created():271] file/dir created: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/wandb-metadata.json
+2024-05-03 03:58:15,895 DEBUG   SenderThread:1145000 [sender.py:send():382] send: config
+2024-05-03 03:58:16,361 INFO    wandb-upload_0:1145000 [upload_job.py:push():131] Uploaded file /tmp/tmps28rhf53wandb/k3r26i3d-wandb-metadata.json
+2024-05-03 03:58:16,412 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:58:16,412 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:58:16,412 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:58:16,412 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:58:16,412 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:58:16,412 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:58:16,413 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:58:16,413 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:58:16,414 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:58:16,414 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:58:16,414 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:58:17,415 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:58:17,839 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 03:58:18,840 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 03:58:21,733 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:58:21,734 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:58:21,734 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:58:21,734 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:58:21,734 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:58:21,735 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:58:21,735 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:58:21,737 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:58:21,738 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:58:21,739 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:58:21,739 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:58:21,739 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:58:21,739 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:58:21,740 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:58:21,740 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:58:21,741 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:58:21,741 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:58:21,741 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:58:21,742 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:58:22,742 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:58:22,968 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:58:22,968 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:58:22,968 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:58:22,969 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:58:22,969 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:58:22,970 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:58:22,970 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:58:22,971 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:58:22,973 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:58:22,973 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:58:22,973 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:58:22,973 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:58:22,974 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:58:22,974 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:58:22,974 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:58:22,975 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:58:22,975 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:58:22,975 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:58:22,976 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:58:24,842 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 03:58:27,978 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:58:30,539 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-03 03:58:30,539 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 03:58:30,540 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: stop_status
+2024-05-03 03:58:33,775 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:58:38,775 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:58:42,052 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:58:42,052 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:58:42,052 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:58:42,053 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:58:42,053 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:58:42,054 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:58:42,055 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:58:42,055 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:58:42,097 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:58:42,097 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:58:42,097 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:58:42,097 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:58:42,098 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:58:42,098 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:58:42,098 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:58:42,098 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:58:42,099 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:58:42,099 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:58:42,100 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:58:44,105 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:58:44,848 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/config.yaml
+2024-05-03 03:58:45,539 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-03 03:58:45,539 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 03:58:45,540 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: stop_status
+2024-05-03 03:58:49,717 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:58:49,717 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:58:49,717 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:58:49,718 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:58:49,718 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:58:49,719 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:58:49,719 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:58:49,720 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:58:49,761 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:58:49,761 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:58:49,761 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:58:49,762 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:58:49,762 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:58:49,762 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:58:49,763 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:58:49,763 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:58:49,763 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:58:49,764 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:58:49,764 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:58:49,764 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:58:52,851 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 03:58:54,584 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:58:54,584 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:58:54,584 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:58:54,585 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:58:54,585 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:58:54,586 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:58:54,587 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:58:54,587 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:58:54,589 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:58:54,589 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:58:54,590 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:58:54,590 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:58:54,590 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:58:54,590 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:58:54,591 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:58:54,591 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:58:54,591 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:58:54,591 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:58:54,592 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:58:55,593 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:58:56,852 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 03:59:00,539 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-03 03:59:00,540 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 03:59:00,540 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: stop_status
+2024-05-03 03:59:00,806 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:59:05,807 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:59:09,809 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:59:09,810 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:59:09,810 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:59:09,810 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:59:09,810 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:59:09,811 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:59:09,811 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:59:09,812 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:59:09,853 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:59:09,853 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:59:09,853 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:59:09,854 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:59:09,854 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:59:09,854 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:59:09,855 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:59:09,855 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:59:09,855 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:59:09,855 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:59:09,856 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:59:10,856 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:59:12,859 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 03:59:15,540 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-03 03:59:15,540 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 03:59:15,540 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: stop_status
+2024-05-03 03:59:16,758 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:59:19,837 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:59:19,837 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:59:19,837 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:59:19,837 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:59:19,838 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:59:19,838 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:59:19,839 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:59:19,840 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:59:19,877 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:59:19,877 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:59:19,877 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:59:19,877 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:59:19,878 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:59:19,878 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:59:19,878 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:59:19,879 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:59:19,879 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:59:19,879 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:59:19,880 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:59:20,503 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:59:20,503 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:59:20,503 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:59:20,503 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:59:20,504 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:59:20,504 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:59:20,505 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:59:20,506 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:59:20,508 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:59:20,508 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:59:20,508 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:59:20,508 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:59:20,509 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:59:20,509 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:59:20,509 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:59:20,509 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:59:20,509 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:59:20,510 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:59:20,511 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:59:22,137 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:59:22,137 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:59:22,137 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:59:22,137 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:59:22,138 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:59:22,138 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:59:22,139 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:59:22,141 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:59:22,142 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:59:22,143 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:59:22,143 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:59:22,143 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:59:22,143 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:59:22,143 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:59:22,144 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:59:22,144 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:59:22,144 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:59:22,144 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:59:22,144 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:59:22,145 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:59:22,862 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 03:59:23,386 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:59:23,386 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:59:23,386 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:59:23,387 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:59:23,387 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:59:23,387 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:59:23,389 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:59:23,390 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:59:23,391 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:59:23,391 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:59:23,391 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:59:23,392 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:59:23,392 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:59:23,392 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:59:23,392 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:59:23,393 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:59:23,393 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:59:23,393 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:59:23,393 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:59:24,863 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 03:59:27,395 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:59:30,540 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-03 03:59:30,540 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 03:59:30,541 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: stop_status
+2024-05-03 03:59:32,836 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:59:35,066 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:59:35,066 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:59:35,066 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:59:35,067 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:59:35,067 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:59:35,067 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:59:35,068 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:59:35,069 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:59:35,109 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:59:35,109 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:59:35,110 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:59:35,110 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:59:35,110 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:59:35,110 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:59:35,111 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:59:35,111 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:59:35,111 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:59:35,111 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:59:35,112 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:59:36,868 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 03:59:38,113 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:59:43,114 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:59:45,540 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-03 03:59:45,541 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 03:59:45,541 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: stop_status
+2024-05-03 03:59:48,824 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:59:52,452 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:59:52,452 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:59:52,452 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:59:52,452 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:59:52,453 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:59:52,453 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:59:52,454 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:59:52,455 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:59:52,493 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:59:52,493 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:59:52,493 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:59:52,494 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:59:52,494 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:59:52,494 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:59:52,495 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:59:52,495 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:59:52,495 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:59:52,496 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:59:52,496 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:59:54,497 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 03:59:54,874 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 03:59:57,203 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 03:59:57,203 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 03:59:57,203 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 03:59:57,203 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 03:59:57,204 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 03:59:57,204 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 03:59:57,205 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 03:59:57,206 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 03:59:57,208 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 03:59:57,208 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 03:59:57,208 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 03:59:57,208 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 03:59:57,208 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 03:59:57,208 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 03:59:57,209 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 03:59:57,209 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 03:59:57,209 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 03:59:57,209 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 03:59:57,210 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 03:59:58,876 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:00,211 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:00,540 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-03 04:00:00,541 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: stop_status
+2024-05-03 04:00:00,541 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 04:00:05,755 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:10,756 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:12,408 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:12,408 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:12,408 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:12,409 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:12,409 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:12,410 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:12,410 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:12,411 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:12,449 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 04:00:12,449 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 04:00:12,449 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:12,450 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:12,450 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:12,450 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:12,450 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:12,451 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:12,451 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:12,451 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:12,452 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 04:00:14,881 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:14,993 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:14,993 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:14,993 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:14,993 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:14,994 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:14,994 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:14,995 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:14,995 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:14,998 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 04:00:14,998 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 04:00:14,998 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:14,998 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:14,999 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:14,999 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:14,999 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:15,000 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:15,000 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:15,000 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:15,001 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 04:00:15,541 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-03 04:00:15,541 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 04:00:15,541 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: stop_status
+2024-05-03 04:00:15,775 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:16,104 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:16,104 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:16,104 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:16,105 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:16,105 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:16,106 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:16,106 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:16,107 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:16,145 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 04:00:16,145 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 04:00:16,145 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:16,146 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:16,146 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:16,147 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:16,147 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:16,147 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:16,147 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:16,147 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:16,148 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 04:00:16,882 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:17,986 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:17,986 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:17,986 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:17,987 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:17,987 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:17,988 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:17,988 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:17,988 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:17,991 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 04:00:17,991 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 04:00:17,991 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:17,991 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:17,991 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:17,991 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:17,992 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:17,993 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:17,993 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:17,993 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:17,994 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 04:00:18,186 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:18,186 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:18,186 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:18,187 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:18,187 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:18,188 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:18,188 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:18,189 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:18,191 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 04:00:18,191 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 04:00:18,191 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:18,192 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:18,192 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:18,192 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:18,193 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:18,193 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:18,193 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:18,193 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:18,193 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 04:00:18,883 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:20,884 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:21,194 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:23,924 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:23,924 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:23,924 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:23,924 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:23,925 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:23,925 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:23,925 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:23,926 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:23,928 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 04:00:23,928 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 04:00:23,928 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:23,929 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:23,929 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:23,929 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:23,930 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:23,931 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:23,931 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:23,931 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:23,931 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 04:00:26,886 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:26,933 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:30,541 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-03 04:00:30,541 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 04:00:30,541 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: stop_status
+2024-05-03 04:00:32,842 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:37,843 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:41,487 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:41,487 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:41,488 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:41,488 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:41,488 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:41,489 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:41,490 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:41,491 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:41,529 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 04:00:41,529 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 04:00:41,529 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:41,529 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:41,530 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:41,530 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:41,531 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:41,531 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:41,531 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:41,531 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:41,532 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 04:00:42,891 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:43,505 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:43,505 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:43,505 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:43,506 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:43,506 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:43,507 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:43,507 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:43,508 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:43,510 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:43,510 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 04:00:43,511 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 04:00:43,511 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:43,511 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:43,511 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:43,512 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:43,512 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:43,513 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:43,513 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:43,513 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:43,513 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 04:00:44,892 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:45,541 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-03 04:00:45,541 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 04:00:45,542 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: stop_status
+2024-05-03 04:00:46,856 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:46,856 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:46,856 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:46,857 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:46,857 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:46,858 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:46,860 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:46,861 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:47,038 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 04:00:47,038 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 04:00:47,038 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:47,038 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:47,039 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:47,039 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:47,040 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:47,040 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:47,040 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:47,041 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:47,042 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 04:00:47,580 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:47,580 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:47,580 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:47,580 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:47,580 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:47,581 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:47,581 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:47,582 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:47,584 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 04:00:47,585 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 04:00:47,585 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:47,585 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:47,585 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:47,585 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:47,586 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:47,587 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:47,587 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:47,587 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:47,588 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 04:00:48,588 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:48,893 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:53,590 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:55,540 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:55,540 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:55,540 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:55,541 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:55,542 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:55,542 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:55,543 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:55,544 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:55,547 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: pause
+2024-05-03 04:00:55,547 INFO    HandlerThread:1145000 [handler.py:handle_request_pause():705] stopping system metrics thread
+2024-05-03 04:00:55,548 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:55,548 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:55,548 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:55,548 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:55,549 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:55,549 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:55,549 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:55,550 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:55,550 DEBUG   SenderThread:1145000 [sender.py:send():382] send: stats
+2024-05-03 04:00:56,693 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: resume
+2024-05-03 04:00:56,693 INFO    HandlerThread:1145000 [handler.py:handle_request_resume():696] starting system metrics thread
+2024-05-03 04:00:56,693 INFO    HandlerThread:1145000 [system_monitor.py:start():194] Starting system monitor
+2024-05-03 04:00:56,693 INFO    SystemMonitor:1145000 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-03 04:00:56,694 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started cpu monitoring
+2024-05-03 04:00:56,694 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started disk monitoring
+2024-05-03 04:00:56,694 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started memory monitoring
+2024-05-03 04:00:56,695 INFO    SystemMonitor:1145000 [interfaces.py:start():190] Started network monitoring
+2024-05-03 04:00:56,896 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:56,922 DEBUG   SenderThread:1145000 [sender.py:send():382] send: telemetry
+2024-05-03 04:00:56,923 DEBUG   SenderThread:1145000 [sender.py:send():382] send: exit
+2024-05-03 04:00:56,923 INFO    SenderThread:1145000 [sender.py:send_exit():589] handling exit code: 0
+2024-05-03 04:00:56,924 INFO    SenderThread:1145000 [sender.py:send_exit():591] handling runtime: 4
+2024-05-03 04:00:56,924 INFO    SenderThread:1145000 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-05-03 04:00:56,924 INFO    SenderThread:1145000 [sender.py:send_exit():597] send defer
+2024-05-03 04:00:56,924 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:56,925 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 0
+2024-05-03 04:00:56,925 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:56,925 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 0
+2024-05-03 04:00:56,925 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 1
+2024-05-03 04:00:56,925 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:56,925 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 1
+2024-05-03 04:00:56,925 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:56,926 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 1
+2024-05-03 04:00:56,926 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 2
+2024-05-03 04:00:56,926 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:56,926 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 2
+2024-05-03 04:00:56,926 INFO    HandlerThread:1145000 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-03 04:00:56,926 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-03 04:00:56,926 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-03 04:00:56,926 DEBUG   SystemMonitor:1145000 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-03 04:00:56,927 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-03 04:00:56,927 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined disk monitor
+2024-05-03 04:00:56,927 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined memory monitor
+2024-05-03 04:00:56,927 INFO    HandlerThread:1145000 [interfaces.py:finish():202] Joined network monitor
+2024-05-03 04:00:56,928 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:56,928 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 2
+2024-05-03 04:00:56,928 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 3
+2024-05-03 04:00:56,928 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:56,928 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 3
+2024-05-03 04:00:56,928 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:56,928 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 3
+2024-05-03 04:00:56,928 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 4
+2024-05-03 04:00:56,928 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:56,929 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 4
+2024-05-03 04:00:56,929 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:56,929 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 4
+2024-05-03 04:00:56,929 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 5
+2024-05-03 04:00:56,929 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:56,929 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 5
+2024-05-03 04:00:56,929 DEBUG   SenderThread:1145000 [sender.py:send():382] send: summary
+2024-05-03 04:00:56,930 INFO    SenderThread:1145000 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-05-03 04:00:56,930 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:56,930 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 5
+2024-05-03 04:00:56,930 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 6
+2024-05-03 04:00:56,930 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:56,930 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 6
+2024-05-03 04:00:56,931 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:56,931 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 6
+2024-05-03 04:00:56,935 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: status_report
+2024-05-03 04:00:57,162 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 7
+2024-05-03 04:00:57,163 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:57,163 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 7
+2024-05-03 04:00:57,163 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:57,163 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 7
+2024-05-03 04:00:57,896 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/config.yaml
+2024-05-03 04:00:57,897 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_created():271] file/dir created: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/wandb-summary.json
+2024-05-03 04:00:57,924 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: poll_exit
+2024-05-03 04:00:58,190 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 8
+2024-05-03 04:00:58,190 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: poll_exit
+2024-05-03 04:00:58,190 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:58,190 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 8
+2024-05-03 04:00:58,191 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:58,191 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 8
+2024-05-03 04:00:58,191 INFO    SenderThread:1145000 [job_builder.py:build():298] Attempting to build job artifact
+2024-05-03 04:00:58,191 INFO    SenderThread:1145000 [job_builder.py:_get_source_type():428] is repo sourced job
+2024-05-03 04:00:58,191 INFO    SenderThread:1145000 [job_builder.py:_get_program_relpath():446] run is notebook based run
+2024-05-03 04:00:58,191 INFO    SenderThread:1145000 [job_builder.py:_build_repo_job_source():166] target path does not exist, exiting
+2024-05-03 04:00:58,192 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 9
+2024-05-03 04:00:58,192 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:58,192 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 9
+2024-05-03 04:00:58,192 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:58,192 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 9
+2024-05-03 04:00:58,192 INFO    SenderThread:1145000 [dir_watcher.py:finish():358] shutting down directory watcher
+2024-05-03 04:00:58,897 INFO    Thread-12 :1145000 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:58,897 INFO    SenderThread:1145000 [dir_watcher.py:finish():388] scan: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files
+2024-05-03 04:00:58,898 INFO    SenderThread:1145000 [dir_watcher.py:finish():402] scan save: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/config.yaml config.yaml
+2024-05-03 04:00:58,898 INFO    SenderThread:1145000 [dir_watcher.py:finish():402] scan save: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/requirements.txt requirements.txt
+2024-05-03 04:00:58,898 INFO    SenderThread:1145000 [dir_watcher.py:finish():402] scan save: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/wandb-summary.json wandb-summary.json
+2024-05-03 04:00:58,903 INFO    SenderThread:1145000 [dir_watcher.py:finish():402] scan save: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/conda-environment.yaml conda-environment.yaml
+2024-05-03 04:00:58,904 INFO    SenderThread:1145000 [dir_watcher.py:finish():402] scan save: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log output.log
+2024-05-03 04:00:58,904 INFO    SenderThread:1145000 [dir_watcher.py:finish():402] scan save: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/wandb-metadata.json wandb-metadata.json
+2024-05-03 04:00:58,905 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 10
+2024-05-03 04:00:58,905 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:58,905 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 10
+2024-05-03 04:00:58,906 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:58,906 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 10
+2024-05-03 04:00:58,906 INFO    SenderThread:1145000 [file_pusher.py:finish():175] shutting down file pusher
+2024-05-03 04:00:58,924 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: poll_exit
+2024-05-03 04:00:58,925 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: poll_exit
+2024-05-03 04:00:59,383 INFO    wandb-upload_1:1145000 [upload_job.py:push():131] Uploaded file /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/config.yaml
+2024-05-03 04:00:59,567 INFO    wandb-upload_0:1145000 [upload_job.py:push():131] Uploaded file /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/requirements.txt
+2024-05-03 04:00:59,678 INFO    wandb-upload_2:1145000 [upload_job.py:push():131] Uploaded file /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/wandb-summary.json
+2024-05-03 04:00:59,770 INFO    wandb-upload_3:1145000 [upload_job.py:push():131] Uploaded file /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/conda-environment.yaml
+2024-05-03 04:00:59,795 INFO    wandb-upload_4:1145000 [upload_job.py:push():131] Uploaded file /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/files/output.log
+2024-05-03 04:00:59,925 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: poll_exit
+2024-05-03 04:00:59,925 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: poll_exit
+2024-05-03 04:00:59,996 INFO    Thread-11 (_thread_body):1145000 [sender.py:transition_state():617] send defer: 11
+2024-05-03 04:00:59,996 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:59,996 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 11
+2024-05-03 04:00:59,997 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:59,997 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 11
+2024-05-03 04:00:59,997 INFO    SenderThread:1145000 [file_pusher.py:join():181] waiting for file pusher
+2024-05-03 04:00:59,997 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 12
+2024-05-03 04:00:59,997 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:00:59,997 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 12
+2024-05-03 04:00:59,998 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:00:59,998 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 12
+2024-05-03 04:00:59,998 INFO    SenderThread:1145000 [file_stream.py:finish():595] file stream finish called
+2024-05-03 04:01:00,215 INFO    SenderThread:1145000 [file_stream.py:finish():599] file stream finish is done
+2024-05-03 04:01:00,216 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 13
+2024-05-03 04:01:00,216 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:01:00,216 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 13
+2024-05-03 04:01:00,216 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:01:00,216 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 13
+2024-05-03 04:01:00,216 INFO    SenderThread:1145000 [sender.py:transition_state():617] send defer: 14
+2024-05-03 04:01:00,217 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: defer
+2024-05-03 04:01:00,217 INFO    HandlerThread:1145000 [handler.py:handle_request_defer():172] handle defer: 14
+2024-05-03 04:01:00,217 DEBUG   SenderThread:1145000 [sender.py:send():382] send: final
+2024-05-03 04:01:00,217 DEBUG   SenderThread:1145000 [sender.py:send():382] send: footer
+2024-05-03 04:01:00,218 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: defer
+2024-05-03 04:01:00,218 INFO    SenderThread:1145000 [sender.py:send_request_defer():613] handle sender defer: 14
+2024-05-03 04:01:00,218 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: poll_exit
+2024-05-03 04:01:00,219 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: poll_exit
+2024-05-03 04:01:00,220 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-03 04:01:00,220 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: server_info
+2024-05-03 04:01:00,221 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: server_info
+2024-05-03 04:01:00,261 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: get_summary
+2024-05-03 04:01:00,261 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: sampled_history
+2024-05-03 04:01:00,261 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: job_info
+2024-05-03 04:01:00,429 DEBUG   SenderThread:1145000 [sender.py:send_request():409] send_request: job_info
+2024-05-03 04:01:00,430 DEBUG   HandlerThread:1145000 [handler.py:handle_request():146] handle_request: shutdown
+2024-05-03 04:01:00,430 INFO    HandlerThread:1145000 [handler.py:finish():866] shutting down handler
+2024-05-03 04:01:01,262 INFO    WriterThread:1145000 [datastore.py:close():294] close: /home/user126/TFformer/model/wandb/run-20240503_035812-v5q3ec2b/run-v5q3ec2b.wandb
+2024-05-03 04:01:01,429 INFO    SenderThread:1145000 [sender.py:finish():1548] shutting down sender
+2024-05-03 04:01:01,429 INFO    SenderThread:1145000 [file_pusher.py:finish():175] shutting down file pusher
+2024-05-03 04:01:01,429 INFO    SenderThread:1145000 [file_pusher.py:join():181] waiting for file pusher

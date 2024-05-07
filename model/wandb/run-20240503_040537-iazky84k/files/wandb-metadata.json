@@ -1,0 +1,200 @@
+{
+    "os": "Linux-5.15.0-87-generic-x86_64-with-glibc2.35",
+    "python": "3.11.5",
+    "heartbeatAt": "2024-05-02T19:05:37.741467",
+    "startedAt": "2024-05-02T19:05:37.033019",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/home/user126/TFformer/model/TFformer.py",
+    "codePathLocal": "TFformer.py",
+    "codePath": "model/TFformer.py",
+    "git": {
+        "remote": "https://github.com/cherria96/TFformer.git",
+        "commit": "ab5173b22e8979ccf38bab73a44397d1a82853e7"
+    },
+    "email": "sujineeda@postech.ac.kr",
+    "root": "/home/user126/TFformer",
+    "host": "n126",
+    "username": "user126",
+    "executable": "/home/user126/anaconda3/envs/dt_idl/bin/python",
+    "cpu_count": 32,
+    "cpu_count_logical": 32,
+    "cpu_freq": {
+        "current": 3.01825,
+        "min": 1500.0,
+        "max": 3000.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.291,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.293,
+            "min": 1500.0,
+            "max": 3000.0
+        },
+        {
+            "current": 3.0,
+            "min": 1500.0,
+            "max": 3000.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 3517.2806854248047,
+            "used": 196.30415725708008
+        }
+    },
+    "memory": {
+        "total": 377.7440071105957
+    }
+}

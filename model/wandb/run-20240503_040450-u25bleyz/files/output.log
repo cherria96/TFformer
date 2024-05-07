@@ -1,0 +1,83 @@
+[34m[1mwandb[39m[22m: [33mWARNING[39m Calling wandb.login() after wandb.init() has no effect.
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/loggers/wandb.py:396: UserWarning: There is a wandb run already in progress and newly created instances of `WandbLogger` will reuse this run. If this is not desired, call `wandb.finish()` before instantiating `WandbLogger`.
+  rank_zero_warn(
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+  | Name                | Type                | Params
+------------------------------------------------------------
+0 | decomposition       | SeriesDecomposition | 0
+1 | embedding_layer     | Linear              | 64
+2 | positional_encoding | PositionalEncoding  | 0
+3 | transformer_encoder | ModuleList          | 19.4 K
+4 | linear1             | Sequential          | 545
+5 | linear2             | Sequential          | 4.2 K
+6 | output_dropout      | Dropout             | 0
+7 | loss_fn             | MSELoss             | 0
+------------------------------------------------------------
+24.2 K    Trainable params
+0         Non-trainable params
+24.2 K    Total params
+0.097     Total estimated model params size (MB)
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, val_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+Sanity Checking DataLoader 0:   0%|                                                                                                   | 0/2 [00:00<?, ?it/s]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Sanity Checking DataLoader 0:  50%|█████████████████████████████████████████████▌                                             | 1/2 [00:02<00:02,  2.91s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Epoch 0:   0%|                                                                                                                       | 0/44 [00:00<?, ?it/s]torch.Size([64, 70, 384])
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, train_dataloader, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/trainer.py:1595: PossibleUserWarning: The number of training batches (32) is smaller than the logging interval Trainer(log_every_n_steps=40). Set a lower value for log_every_n_steps if you want to see logs for the training epoch.
+  rank_zero_warn(
+torch.Size([64, 70, 384])
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/call.py:48: UserWarning: Detected KeyboardInterrupt, attempting graceful shutdown...
+  rank_zero_warn("Detected KeyboardInterrupt, attempting graceful shutdown...")
+/home/user126/anaconda3/envs/dt_idl/lib/python3.11/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:224: PossibleUserWarning: The dataloader, test_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+  rank_zero_warn(
+Testing DataLoader 0:   0%|                                                                                                          | 0/19 [00:00<?, ?it/s]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:   5%|█████▏                                                                                            | 1/19 [00:02<00:49,  2.77s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  11%|██████████▎                                                                                       | 2/19 [00:05<00:46,  2.76s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  16%|███████████████▍                                                                                  | 3/19 [00:08<00:43,  2.73s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  21%|████████████████████▋                                                                             | 4/19 [00:10<00:40,  2.72s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  26%|█████████████████████████▊                                                                        | 5/19 [00:13<00:37,  2.71s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  32%|██████████████████████████████▉                                                                   | 6/19 [00:16<00:35,  2.74s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  37%|█████████████████████████████████▉                                                          | 7/19 [00:19<00:33,  2.78s/it]      torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  42%|██████████████████████████████████████▋                                                     | 8/19 [00:22<00:30,  2.77s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  47%|███████████████████████████████████████████▌                                                | 9/19 [00:25<00:27,  2.78s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  53%|███████████████████████████████████████████████▉                                           | 10/19 [00:27<00:25,  2.78s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  58%|████████████████████████████████████████████████████▋                                      | 11/19 [00:30<00:22,  2.77s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  63%|█████████████████████████████████████████████████████████▍                                 | 12/19 [00:34<00:20,  2.91s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  68%|██████████████████████████████████████████████████████████████▎                            | 13/19 [00:41<00:19,  3.20s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+
+Testing DataLoader 0:  74%|███████████████████████████████████████████████████████████████████                        | 14/19 [00:49<00:17,  3.55s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  79%|███████████████████████████████████████████████████████████████████████▊                   | 15/19 [00:57<00:15,  3.86s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  84%|████████████████████████████████████████████████████████████████████████████▋              | 16/19 [01:06<00:12,  4.14s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  89%|█████████████████████████████████████████████████████████████████████████████████▍         | 17/19 [01:14<00:08,  4.41s/it]torch.Size([64, 70, 384])
+torch.Size([64, 70, 384])
+Testing DataLoader 0:  95%|██████████████████████████████████████████████████████████████████████████████████████▏    | 18/19 [01:23<00:04,  4.62s/it]torch.Size([30, 70, 384])
+torch.Size([30, 70, 384])
+Testing DataLoader 0: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 19/19 [01:28<00:00,  4.67s/it]
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Runningstage.testing metric      DataLoader 0
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+      test_mse_loss                 nan
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

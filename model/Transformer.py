@@ -1,7 +1,7 @@
 #%%
-torch.set_default_dtype(torch.float32)
 
 import torch
+torch.set_default_dtype(torch.float32)
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
@@ -149,7 +149,7 @@ def gen_attention_mask(x):
     return mask
 
 if __name__ == "__main__":
-    data = np.load('/home/user126/TFformer/synthetic_data/data/techros_AD.npy')
+    data = np.load('/home/user126/TFformer/synthetic_data/data/sbk_AD.npy')
     # Dataset parameters
     iw = 10*7
     ow = 3*7
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     # Initialize the model
     num_features = data.shape[-1]
     model = TimeSeriesTransformer(num_features, iw = iw, ow = ow, d_model = 10, nhead = 2, nlayers = 2, dropout = 0.2)
-    trainer = pl.Trainer(accelerator = "cpu",max_epochs = 20, log_every_n_steps = 40, logger = None)
+    trainer = pl.Trainer(accelerator = "cpu",max_epochs = 100, log_every_n_steps = 40, logger = None)
     
     trainer.fit(model, train_dataloader, val_dataloader)
     trainer.test(model, test_dataloader)

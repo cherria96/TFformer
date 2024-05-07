@@ -36,12 +36,16 @@ def create_dataset(num_feature,num_points = 365 * 10):
 
     # Now you have 13 series (A to N) each with 4000 points.
     # You can stack them in a 2D array where each row represents a time point and each column a series
-    data = np.stack((A, B, C, D, E, F, G, H, I, M, N, O, P), axis=-1)
+    data = np.stack((A, F, B, C, D, E, G, H, I, M, N, O, P), axis=-1)
+
 
     # Standardize the dataset
     mean = data.mean(axis = 0)
     std = data.std(axis = 0)
     data = (data - mean) / std 
+    time_feature = [0,1,2,3,4,5,6]
+    time_feature_col = time_feature * (num_points // 7) + time_feature[:num_points % 7]
+    data = np.concatenate((data, np.array(time_feature_col).reshape(-1,1)), axis =1)
     return data
 
 class LinearDataset(Dataset):
@@ -88,6 +92,7 @@ if __name__ == "__main__":
     window = 100
     stride = 5
     data = create_dataset(num_feature,num_points)
+    np.save('linear_causal.npy', data)
     train_dataset= LinearDataset(data, num_feature, window, stride)
     train_loader = DataLoader(train_dataset, batch_size = 32)
 

@@ -5,7 +5,7 @@ import torch
 import pandas as pd
 # Parameters
 np.random.seed(42)
-def create_dataset(num_feature,num_points = 365 * 10):
+def create_dataset(num_feature,num_points = 365 * 10, type = 'linear'):
     # timestamp = pd.date_range(start="2010-01-01", periods=num_points, freq="D")
     trend_factor = 0.1 * np.linspace(0, 200, num_points)
     cycle_factor = 20 * np.sin(np.linspace(0, 4 * np.pi, num_points))
@@ -15,24 +15,41 @@ def create_dataset(num_feature,num_points = 365 * 10):
     A = (trend_factor + cycle_factor + seasonal_factor + irregular_factor).astype(np.float64)
     B, C, D, E, F, G, H, I, M, N, O, P = [np.zeros(num_points, dtype=np.float64) for _ in range(num_feature -1)]
     # Generate the series according to the relationships
+    if type == 'linear':
+        for k in range(3, num_points):
+            B[k] = 0.7 * A[k-3] + 0.2 * C[k-1] + np.random.normal()
+            C[k] = 0.8 * A[k] + 0.5 * C[k] + np.random.normal()
+            O[k] = 0.3 * C[k-5] + np.random.normal()
+            P[k] = 0.4 * C[k-1] + 0.1 * P[k] + np.random.normal()
+            D[k] = 0.3 * B[k-4] + np.random.normal()
 
-    for k in range(3, num_points):
-        B[k] = 0.7 * A[k-3] + 0.2 * C[k-1] + np.random.normal()
-        C[k] = 0.8 * A[k] + 0.5 * C[k] + np.random.normal()
-        O[k] = 0.3 * C[k-5] + np.random.normal()
-        P[k] = 0.4 * C[k-1] + 0.1 * P[k] + np.random.normal()
-        D[k] = 0.3 * B[k-4] + np.random.normal()
+        for k in range(2, num_points):
+            E[k] = 0.5 * D[k-2] + 0.4 * E[k-2] + np.random.normal()
+            F[k] = 0.7 * D[k-2] + np.random.normal()
+            M[k] = 0.9 * H[k] + np.random.normal()
 
-    for k in range(2, num_points):
-        E[k] = 0.5 * D[k-2] + 0.4 * E[k-2] + np.random.normal()
-        F[k] = 0.7 * D[k-2] + np.random.normal()
-        M[k] = 0.9 * H[k] + np.random.normal()
+        for k in range(num_points):
+            G[k] = 0.8 * D[k] + np.random.normal()
+            I[k] = 0.2 * F[k] + 0.8 * G[k-1] + np.random.normal()
+            H[k] = 0.3 * E[k] + np.random.normal()
+            N[k] = 0.7 * H[k-1] + np.random.normal()
+    elif type == 'nonlinear':
+        for k in range(5, num_points):
+            B[k] = 0.7 * A[k-3] + 0.2 * C[k-1]**2 + np.random.normal()
+            C[k] = 0.8 * A[k] + 0.5 * C[k] + np.random.normal()
+            O[k] = 0.3 * np.sqrt(abs(C[k-5])) + np.random.normal()
+            P[k] = 0.1 * P[k] + 0.4 * C[k-1] + np.random.normal()
+            D[k] = np.sin(0.3 * B[k-4]) + np.random.normal()
+        for k in range(2, num_points):
+            E[k] = 0.5 * D[k-2]**3 + 0.4 * E[k-2] + np.random.normal()
+            F[k] = np.cos(0.7 * D[k-2]) + np.random.normal()
+            M[k] = 0.9 * np.sin(H[k]) + np.random.normal()
+        for k in range(1, num_points):
+            G[k] = 0.8 * (D[k] - 2)**2 + np.random.normal()
+            I[k] = 0.2 * F[k] + 0.8 * G[k-1] + np.random.normal()
+            H[k] = 0.3 * (E[k] + 1)**2 + np.random.normal()
+            N[k] = 0.7 * np.sqrt(abs(H[k-1])) + np.random.normal()
 
-    for k in range(num_points):
-        G[k] = 0.8 * D[k] + np.random.normal()
-        I[k] = 0.2 * F[k] + 0.8 * G[k-1] + np.random.normal()
-        H[k] = 0.3 * E[k] + np.random.normal()
-        N[k] = 0.7 * H[k-1] + np.random.normal()
 
     # Now you have 13 series (A to N) each with 4000 points.
     # You can stack them in a 2D array where each row represents a time point and each column a series
@@ -91,10 +108,10 @@ if __name__ == "__main__":
     num_feature = 13    # Number of series
     window = 100
     stride = 5
-    data = create_dataset(num_feature,num_points)
-    np.save('linear_causal.npy', data)
-    train_dataset= LinearDataset(data, num_feature, window, stride)
-    train_loader = DataLoader(train_dataset, batch_size = 32)
+    data = create_dataset(num_feature,num_points, type ='nonlinear')
+    np.save('nonlinear_causal.npy', data)
+    # train_dataset= LinearDataset(data, num_feature, window, stride)
+    # train_loader = DataLoader(train_dataset, batch_size = 32)
 
 
 

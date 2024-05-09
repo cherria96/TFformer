@@ -1,7 +1,7 @@
 #%%
 import sys
 sys.path.append('/Users/sujinchoi/Library/CloudStorage/OneDrive-postech.ac.kr/ADMetalearning/코드')
-from utils.timeseries_dataset import TimeSeriesDataset
+from synthetic_data.timeseries_dataset import TimeSeriesDataset
 import numpy as np
 import pandas as pd
 import torch

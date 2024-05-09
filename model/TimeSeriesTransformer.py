@@ -1,4 +1,17 @@
 #%%
+"""
+synthetic data 사용할 경우 (linear, nonlinear)
+dim_T = 2
+dim_C = 7
+dim_O = 4
+wandb_config['data'] = 'synthetic'
+
+real data 사용할 경우 (sbk_ad)
+dim_T = 2
+dim_C = 4
+dim_O = 4
+wandb_config['data'] = 'AD'
+"""
 import sys
 sys.path.append('/Users/sujinchoi/Library/CloudStorage/OneDrive-postech.ac.kr/ADMetalearning/코드')
 from synthetic_data.timeseries_dataset import TimeSeriesDataset
@@ -234,7 +247,7 @@ if __name__ == "__main__":
     # dim_O = 4
     dim_input = dim_T + dim_C+ dim_O
     wandb_config = {
-        'data': 'synthetic',
+        'data': 'synthetic', # AD dataset: 'AD'
         'window': 60,
         'stride': 1,
         'batch_size': 64,
@@ -242,8 +255,6 @@ if __name__ == "__main__":
         'lr': 0.0005,
         'loss': 'gelu',
         'scheduler': 'ExponentialLR'
-
-
     }
     window = 60
     stride = 1
@@ -275,7 +286,7 @@ if __name__ == "__main__":
         encoder_layers=2,  # Number of encoder layers
         decoder_layers=2,  # Number of decoder layers
         encoder_attention_heads=2,  # Number of attention heads in the encoder
-        decoder_attention_heads=2,  # Number of attention heads in the decode r
+        decoder_attention_heads=2,  # Number of attention heads in the decoder
         dropout=0.1,  # Dropout rate
         activation_function='gelu',  # Activation function
         prediction_length=window - 1,  # Predicting one step ahead

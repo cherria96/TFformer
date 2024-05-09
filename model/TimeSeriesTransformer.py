@@ -84,7 +84,6 @@ class TimeSeriesTransformer(LightningModule):
             outputs = torch.sum(slots * masks, dim = 1) # b, 89, 9
         else: 
             masks = None
-            outputs = outputs[0]
         return outputs, masks
     def setup_adapters(self):
         input_feature_size = self.config.input_size
@@ -120,8 +119,10 @@ class TimeSeriesTransformer(LightningModule):
                             batch['curr_covariates'], 
                             batch['curr_outcomes']], dim = -1)
 
-        # loss = outputs.loss
-        loss = self.loss_fn(outputs, future_values)
+        if self.slot_attention:
+            loss = self.loss_fn(outputs, future_values)
+        else:
+            loss = outputs.loss
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
     
@@ -130,9 +131,11 @@ class TimeSeriesTransformer(LightningModule):
         future_values = torch.cat([batch['curr_treatments'], 
                             batch['curr_covariates'], 
                             batch['curr_outcomes']], dim = -1)
+        if self.slot_attention:
+            loss = self.loss_fn(outputs, future_values)
+        else:
+            loss = outputs.loss
 
-        # loss = outputs.loss
-        loss = self.loss_fn(outputs, future_values)
         self.log('val_loss', loss, on_epoch=True, prog_bar=True, logger=True)
         return loss
     
@@ -142,8 +145,11 @@ class TimeSeriesTransformer(LightningModule):
                             batch['curr_covariates'], 
                             batch['curr_outcomes']], dim = -1)
 
-        # loss = outputs.loss
-        loss = self.loss_fn(outputs, future_values)
+        if self.slot_attention:
+            loss = self.loss_fn(outputs, future_values)
+        else:
+            loss = outputs.loss
+
         self.log('test_loss', loss, on_epoch=True, prog_bar=True, logger=True)
         return loss
 

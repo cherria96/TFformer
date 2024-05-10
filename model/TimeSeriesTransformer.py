@@ -60,7 +60,7 @@ class TimeSeriesTransformer(LightningModule):
             elif model == "informer":
                 self.model = InformerForPrediction(self.config)
             self.setup_decoder(model = model)
-            self.setup_last_decoder()
+            # self.setup_last_decoder()
         if self.transfer_learning:
             self.setup_adapters()
             # self.linear = nn.Linear(dim_T + dim_C-1 + dim_O, self.config.input_size)
@@ -102,7 +102,7 @@ class TimeSeriesTransformer(LightningModule):
             outputs = outputs.reshape(outputs.shape[0], self.config.input_size, -1) # (b, f, w' * d_model)
             outputs = self.decoder(outputs) # b, f, w * f
             masks = outputs.reshape(outputs.shape[0], self.config.input_size, self.config.prediction_length, -1, 2) # b, f, w, f, 2
-            slots, masks = outputs.split([1, 1],dim = -1)
+            slots, masks = masks.split([1, 1],dim = -1)
             slots = slots.squeeze(-1) # b, f, w, f
             masks = masks.squeeze(-1) # b,f,w,f
             masks = nn.Softmax(dim = 1)(masks) #b,f,w,f

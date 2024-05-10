@@ -12,8 +12,8 @@ dim_C = 4
 dim_O = 4
 wandb_config['data'] = 'AD'
 """
+#%%
 import sys
-sys.path.append('/Users/sujinchoi/Library/CloudStorage/OneDrive-postech.ac.kr/ADMetalearning/코드')
 from synthetic_data.timeseries_dataset import TimeSeriesDataset
 import numpy as np
 import pandas as pd
@@ -35,10 +35,14 @@ import wandb
 wandb.login(key="aa1e46306130e6f8863bbad2d35c96d0a62a4ddd")
 
 from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.utilities.seed import seed_everything
+
+seed_everything(100)
+
 
 
 class TimeSeriesTransformer(LightningModule):
-    def __init__(self, config, batch_size = 32, window = 30, stride = 1, lr = 0.0005, slot_attention = True, transfer_learning = False, pretrained_path = None, model = None):
+    def __init__(self, config, batch_size = 32, window = 30, stride = 1, lr = 0.0005, slot_attention = True, transfer_learning = False, pretrained_path = None, model = 'tsformer'):
         super().__init__()
         self.save_hyperparameters()
         self.config = config 
@@ -51,10 +55,12 @@ class TimeSeriesTransformer(LightningModule):
         if pretrained_path:
             self.load_from_checkpoint(pretrained_path, config = self.config)
         else:
-            self.model = TimeSeriesTransformerForPrediction(self.config)
-            if model == "informer":
+            if model == 'tsformer':
+                self.model = TimeSeriesTransformerForPrediction(self.config)
+            elif model == "informer":
                 self.model = InformerForPrediction(self.config)
             self.setup_decoder(model = model)
+            self.setup_last_decoder()
         if self.transfer_learning:
             self.setup_adapters()
             # self.linear = nn.Linear(dim_T + dim_C-1 + dim_O, self.config.input_size)
@@ -62,16 +68,22 @@ class TimeSeriesTransformer(LightningModule):
         self.masks = None
 
     def forward(self, batch):
-        past_values = torch.cat([batch['prev_treatments'], 
+        batch['prev_timefeatures'] = batch['prev_timefeatures'].unsqueeze(-1) if batch['prev_timefeatures'].ndim <3 else batch['prev_timefeatures']
+        batch['curr_timefeatures'] = batch['curr_timefeatures'].unsqueeze(-1) if batch['curr_timefeatures'].ndim <3 else batch['curr_timefeatures']
+        past_values = torch.cat([#batch['prev_treatments'], 
                                     batch['prev_covariates'], 
                                     batch['prev_outcomes']], dim = -1)
-        past_time_features = torch.stack([batch['prev_timefeatures']] * (self.config.num_time_features + self.config.num_dynamic_real_features), dim =2)
-        past_observed_mask = batch['prev_mask']
-        future_values = torch.cat([batch['curr_treatments'], 
+        # past_time_features = torch.stack([batch['prev_timefeatures']] * (self.config.num_time_features + self.config.num_dynamic_real_features), dim =2)
+        past_time_features = torch.cat([batch['prev_timefeatures'],
+                                        batch['prev_treatments']], dim = -1)
+        past_observed_mask = batch['prev_mask'][:,:,2:]
+        future_values = torch.cat([#batch['curr_treatments'], 
                                     batch['curr_covariates'], 
                                     batch['curr_outcomes']], dim = -1)
-        future_time_features = torch.stack([batch['curr_timefeatures']] * (self.config.num_time_features + self.config.num_dynamic_real_features), dim =2)
-        future_observed_mask = batch['curr_mask']
+        # future_time_features = torch.stack([batch['curr_timefeatures']] * (self.config.num_time_features + self.config.num_dynamic_real_features), dim =2)
+        future_time_features = torch.cat([batch['curr_timefeatures'],
+                                        batch['curr_treatments']], dim = -1)
+        future_observed_mask = batch['curr_mask'][:,:,2:]
         if self.transfer_learning:
             past_values = self.input_adapter(past_values)
             past_observed_mask = self.input_adapter(past_observed_mask)
@@ -86,24 +98,19 @@ class TimeSeriesTransformer(LightningModule):
                         future_observed_mask = future_observed_mask)  # You might need to adjust this call based on actual API
         # print(outputs.encoder_last_hidden_state.shape) # 64, 82, 64
         if self.slot_attention:
-            outputs = outputs.encoder_last_hidden_state.unsqueeze(2).repeat(1, 1, self.config.input_size,1) #(64, 82, 9 , 64)
-            outputs = outputs.reshape(outputs.shape[0], self.config.input_size, -1) 
-            outputs = self.decoder(outputs) # b, 9, 89 * 10
-            outputs = outputs.reshape(outputs.shape[0], self.config.input_size, self.config.prediction_length, -1) # b, 9, 89, 10
-            
-            slots, masks = outputs.split([self.config.input_size, 1],dim = -1)
-
-            masks = nn.Softmax(dim = 1)(masks)
-            outputs = torch.sum(slots * masks, dim = 1) # b, 89, 9
+            outputs = outputs.encoder_last_hidden_state.unsqueeze(2).repeat(1, 1, self.config.input_size,1) #(b, w', f , d_model)
+            outputs = outputs.reshape(outputs.shape[0], self.config.input_size, -1) # (b, f, w' * d_model)
+            outputs = self.decoder(outputs) # b, f, w * f
+            masks = outputs.reshape(outputs.shape[0], self.config.input_size, self.config.prediction_length, -1, 2) # b, f, w, f, 2
+            slots, masks = outputs.split([1, 1],dim = -1)
+            slots = slots.squeeze(-1) # b, f, w, f
+            masks = masks.squeeze(-1) # b,f,w,f
+            masks = nn.Softmax(dim = 1)(masks) #b,f,w,f
+            # slots = past_values.permute(0,2,1).unsqueeze(-1) # b,f,w,1
+            outputs = torch.sum(slots * masks, dim = 1) # b, w, f
         else: 
             masks = None
         return outputs, masks
-    def setup_adapters(self):
-        input_feature_size = self.config.input_size
-        self.input_adapter = nn.Linear(input_feature_size, 9)
-        self.output_adapter = nn.Linear(self.config.prediction_length * self.config.d_model, 
-                                        self.config.prediction_length * (self.config.input_size + 1))
-        self.decoder[-1] =self.output_adapter
                                        
     def setup_decoder(self, model = None):
         input_dim = self.config.context_length * self.config.d_model
@@ -113,25 +120,37 @@ class TimeSeriesTransformer(LightningModule):
             nn.Linear(input_dim,self.config.prediction_length * self.config.d_model),
             nn.LayerNorm(self.config.prediction_length * self.config.d_model),
             nn.GELU(),
+            nn.Dropout(0.5),
             nn.Linear(self.config.prediction_length * self.config.d_model, self.config.prediction_length * self.config.d_model),
             nn.LayerNorm(self.config.prediction_length * self.config.d_model),
             nn.GELU(),
+            nn.Dropout(0.5),
             nn.Linear(self.config.prediction_length * self.config.d_model, 
-                    self.config.prediction_length * (self.config.input_size + 1)))
+                    self.config.prediction_length * self.config.input_size * 2))
+
+    def setup_adapters(self):
+        input_feature_size = self.config.input_size
+        self.input_adapter = nn.Linear(input_feature_size, 9)
+        self.output_adapter = nn.Linear(self.config.prediction_length * self.config.d_model, 
+                                        self.config.prediction_length * (self.config.input_size + 1))
+        self.decoder[-1] =self.output_adapter
 
     def configure_optimizers(self):
         lr = self.lr
         optimizer = AdamW(self.parameters(), lr = lr)
         lr_scheduler = optim.lr_scheduler.ExponentialLR(optimizer,gamma = 0.99)
 
-
         return [optimizer], [lr_scheduler]
     def training_step(self, batch, batch_idx):
         outputs, _ = self(batch)
-        future_values = torch.cat([batch['curr_treatments'], 
+        future_values = torch.cat([#batch['curr_treatments'], 
                             batch['curr_covariates'], 
                             batch['curr_outcomes']], dim = -1)
-
+        
+        if self.slot_attention:
+            loss = self.loss_fn(outputs, future_values)
+        else:
+            loss = outputs.loss
         if self.slot_attention:
             loss = self.loss_fn(outputs, future_values)
         else:
@@ -141,20 +160,20 @@ class TimeSeriesTransformer(LightningModule):
     
     def validation_step(self, batch, batch_idx):
         outputs, self.masks = self(batch)
-        future_values = torch.cat([batch['curr_treatments'], 
+        future_values = torch.cat([#batch['curr_treatments'], 
                             batch['curr_covariates'], 
                             batch['curr_outcomes']], dim = -1)
+
         if self.slot_attention:
             loss = self.loss_fn(outputs, future_values)
         else:
             loss = outputs.loss
-
         self.log('val_loss', loss, on_epoch=True, prog_bar=True, logger=True)
         return loss
     
     def test_step(self, batch, batch_idx):
         outputs, _ = self(batch)
-        future_values = torch.cat([batch['curr_treatments'], 
+        future_values = torch.cat([#batch['curr_treatments'], 
                             batch['curr_covariates'], 
                             batch['curr_outcomes']], dim = -1)
 
@@ -162,17 +181,19 @@ class TimeSeriesTransformer(LightningModule):
             loss = self.loss_fn(outputs, future_values)
         else:
             loss = outputs.loss
-
         self.log('test_loss', loss, on_epoch=True, prog_bar=True, logger=True)
         return loss
 
     def forecasting(self, batch):
         # self.model.eval()
-        past_values = torch.cat([batch['prev_treatments'], 
+        past_values = torch.cat([#batch['prev_treatments'], 
                                 batch['prev_covariates'], 
                                 batch['prev_outcomes']], dim = -1)
-        past_time_features = torch.stack([batch['prev_timefeatures']] * (self.config.num_time_features + self.config.num_dynamic_real_features), dim =2)
-        past_observed_mask = batch['prev_mask']
+        # past_time_features = torch.stack([batch['prev_timefeatures']] * (self.config.num_time_features + self.config.num_dynamic_real_features), dim =2)
+        past_time_features = torch.cat([batch['prev_timefeatures'],
+                                        batch['prev_treatments']], dim = -1)
+
+        past_observed_mask = batch['prev_mask'][:,:,2:]
         if self.transfer_learning:
             past_values = self.linear(past_values)
             past_observed_mask = self.linear(past_observed_mask)
@@ -224,12 +245,11 @@ class TimeSeriesTransformer(LightningModule):
 
 if __name__ == "__main__":
 
+    data_type = 'nonlinear'
     FILE_PATH = '/Users/sujinchoi/Library/CloudStorage/OneDrive-postech.ac.kr/ADMetalearning/데이터/nonlinear_causal.npy'
     data = np.load(FILE_PATH)
 
     # Assuming `data` is your dataset as a NumPy array or a PyTorch tensor of shape (4237, 10)
-    # past_time_features =np.array(data['Weekday'])
-    # data = np.array(data.drop('Weekday', axis = 1))
     data_tensor = torch.tensor(data) if isinstance(data, np.ndarray) else data
     # data_tensor = data_tensor[:,[0,1,2,3,6,10,19,20,21,22,23,
     #                              24,25,26,27,30,34,43,44,45,46,
@@ -242,23 +262,30 @@ if __name__ == "__main__":
     dim_T = 2
     dim_C = 7
     dim_O = 4
+    dim_time = 1
     # dim_T = 2
-    # dim_C = 4
+    # dim_C = 2
     # dim_O = 4
-    dim_input = dim_T + dim_C+ dim_O
+    # dim_time = 3
+    dim_input = dim_C+ dim_O
     wandb_config = {
-        'data': 'synthetic', # AD dataset: 'AD'
-        'window': 60,
+        'data_type': data_type,
+        'data': 'synthetic', # 'AD'
+        'window': 45,
         'stride': 1,
-        'batch_size': 64,
-        'epoch': 30,
+        'batch_size': 32,
+        'epoch': 25,
         'lr': 0.0005,
         'loss': 'gelu',
-        'scheduler': 'ExponentialLR'
+        'scheduler': 'ExponentialLR',
+        'model': 'tsformer'
+
+
     }
-    window = 60
+    window = 45
     stride = 1
-    batch_size = 64
+    batch_size = 32
+    epoch = 25
     # Define the split ratio
     train_ratio = 0.5
     val_ratio = 0.3
@@ -294,8 +321,8 @@ if __name__ == "__main__":
         context_length=window -1 -7,  # How many steps the encoder looks back
         num_static_categorical_features=0,  # No static categorical features
         num_static_real_features=0,  # No static real features
-        num_dynamic_real_features=dim_input,  # All features are dynamic
-        num_time_features=1,  # No additional time features
+        num_dynamic_real_features=dim_T,  # All features are dynamic
+        num_time_features=dim_time,  # No additional time features
         num_parallel_samples = 10,
         output_hidde_states = True 
     )
@@ -327,23 +354,26 @@ if __name__ == "__main__":
     #     output_hidde_states = True 
     # )
 
-    epoch = 20 
     model = TimeSeriesTransformer(config, batch_size = wandb_config["batch_size"], 
                                   window = wandb_config["window"], 
                                   stride = wandb_config["stride"], 
                                   lr = wandb_config["lr"],
                                   slot_attention=True,
                                   transfer_learning = False,
-                                  model = None) 
+                                  model = wandb_config['model']) 
                                 #   pretrained_path= "/Users/sujinchoi/Library/CloudStorage/OneDrive-postech.ac.kr/ADMetalearning/코드/sbk_bestmodel.ckpt")
     # model = TimeSeriesTransformer.load_from_checkpoint("/Users/sujinchoi/Library/CloudStorage/OneDrive-postech.ac.kr/ADMetalearning/코드/sbk_bestmodel.ckpt")
-    wandb_logger = WandbLogger(project = 'TimeSeriesTransformer_nonlinear', name = f'nonlinear__-{epoch}_{window}_{batch_size}')
+    wandb_logger = WandbLogger(project = f'TimeSeriesTransformer_{data_type}', name = f'{data_type}-{epoch}_{window}_{batch_size}')
     wandb.config.update(wandb_config)
 
-
-    trainer = pl.Trainer(max_epochs = epoch, logger = wandb_logger)
+    trainer = pl.Trainer(max_epochs = wandb_config['epoch'], logger = wandb_logger)
     trainer.fit(model = model, train_dataloaders= train_dataloader, val_dataloaders=val_dataloader)
     trainer.test(model, test_dataloader)
-    trainer.save_checkpoint('nonlinear_model.ckpt')
+    trainer.save_checkpoint(f'{data_type}-{epoch}_{window}_{batch_size}.ckpt')
+
+
+
+# %%
+
 
 

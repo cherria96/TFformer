@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"name": "TFformer",
+			"uri": "vscode-remote://ssh-remote+141.223.25.21/home/user126/TFformer"
+		}
+	],
+	"remoteAuthority": "ssh-remote+141.223.25.21",
+	"settings": {
+		"python.REPL.enableREPLSmartSend": false
+	}
+}

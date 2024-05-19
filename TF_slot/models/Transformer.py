@@ -85,6 +85,7 @@ class Model(nn.Module):
         enc_out, attns = self.encoder(enc_out, attn_mask = enc_self_mask)
 
         if self.do_kmeans:
+            print('***KMEANS clustering****')
             b, w, d_model = enc_out.shape
             enc_rolling = rolling_average(enc_out, window_size = window_size) # (b, w', d_model)
             enc_rolling = enc_rolling.reshape(b, -1) # (b, w'* d_model)
@@ -259,6 +260,7 @@ class TimeSeriesForecasting(L.LightningModule):
 
     # def on_fit_start(self):
     #     if self.configs.inverse_scaling and self.scaler is not None:
+<<<<<<< HEAD
     #         if self.scaler.device == torch.device("cpu"):
     #             self.scaler.to(self.device)
 
@@ -266,6 +268,15 @@ class TimeSeriesForecasting(L.LightningModule):
     #     if self.configs.inverse_scaling and self.scaler is not None:
     #         if self.scaler.device == torch.device("cpu"):
     #             self.scaler.to(self.device)
+=======
+    #         if self.scaler.scaler.device == torch.device("cpu"):
+    #             self.scaler.scaler.to(self.device)
+
+    # def on_test_start(self):
+    #     if self.configs.inverse_scaling and self.scaler is not None:
+    #         if self.scaler.scaler.device == torch.device("cpu"):
+    #             self.scaler.scaler.to(self.device)
+>>>>>>> 1931291 (Update TF_slot branch)
 
     def loss(self, outputs, targets, **kwargs):
         if self.configs.loss == "mse":

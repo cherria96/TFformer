@@ -5,6 +5,7 @@ __pycache__/
 hf_tsformer_sbk_AD/
 ours_sbk_AD/
 ours_weather/
+baseline_sbk_AD/
 lightning_logs/
 wandb/
 weights/

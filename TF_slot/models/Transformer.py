@@ -257,15 +257,15 @@ class TimeSeriesForecasting(L.LightningModule):
         self.log_dict(self.test_metrics, on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return {"outputs": outputs, "targets": batch_y}
 
-    def on_fit_start(self):
-        if self.configs.inverse_scaling and self.scaler is not None:
-            if self.scaler.device == torch.device("cpu"):
-                self.scaler.to(self.device)
+    # def on_fit_start(self):
+    #     if self.configs.inverse_scaling and self.scaler is not None:
+    #         if self.scaler.device == torch.device("cpu"):
+    #             self.scaler.to(self.device)
 
-    def on_test_start(self):
-        if self.configs.inverse_scaling and self.scaler is not None:
-            if self.scaler.device == torch.device("cpu"):
-                self.scaler.to(self.device)
+    # def on_test_start(self):
+    #     if self.configs.inverse_scaling and self.scaler is not None:
+    #         if self.scaler.device == torch.device("cpu"):
+    #             self.scaler.to(self.device)
 
     def loss(self, outputs, targets, **kwargs):
         if self.configs.loss == "mse":

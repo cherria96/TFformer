@@ -340,7 +340,7 @@ class TimeSeriesDataset(Dataset):
         if data.ndim >=3:
             data_shape = data.shape
             data = data.reshape(-1, data.shape[-1])
-            data = self.scaler.inverse_transform(data)
+            data = self.scaler.inverse_transform(data.cpu().detach().numpy())
             data = torch.tensor(data).reshape(*data_shape)
 
         return data

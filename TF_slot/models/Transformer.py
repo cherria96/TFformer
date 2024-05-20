@@ -51,9 +51,12 @@ class Model(nn.Module):
             ],
             norm_layer = torch.nn.LayerNorm(configs.d_model)
         )
-        
+        self.configs = configs    
         # KMeans
+    
         self.do_kmeans = configs.kmeans
+        self.do_slotattention = configs.slotattention
+
         self.pca = PCA(n_components= configs.n_components)
         self.kmeans = KMeans(n_clusters = configs.num_clusters, n_init = 'auto')
 
@@ -75,17 +78,17 @@ class Model(nn.Module):
             ],
             norm_layer = torch.nn.LayerNorm(configs.d_model),
         )
-        self.projection = nn.Linear(configs.d_model, configs.c_out, bias = True)
+        self.projection = nn.Linear(configs.d_model, configs.c_out + 1, bias = True)
 
         
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
                 enc_self_mask = None, dec_self_mask = None, dec_enc_mask = None, 
-                kmeans = True, window_size = 7):
+                window_size = 7):
         enc_out = self.enc_embedding(x_enc, x_mark_enc)
         enc_out, attns = self.encoder(enc_out, attn_mask = enc_self_mask)
 
         if self.do_kmeans:
-            print('***KMEANS clustering****')
+            print('*********** KMEANS clustering ****************')
             b, w, d_model = enc_out.shape
             enc_rolling = rolling_average(enc_out, window_size = window_size) # (b, w', d_model)
             enc_rolling = enc_rolling.reshape(b, -1) # (b, w'* d_model)
@@ -108,8 +111,15 @@ class Model(nn.Module):
                                                 x_mask=dec_self_mask, cross_mask=dec_enc_mask)
                 
                 dec_out_one_cluster = self.projection(dec_out_one_cluster)
-                dec_out.append(dec_out_one_cluster)
+                recon, mask = dec_out_one_cluster.split([self.configs.c_out, 1], dim = -1)
+                mask = nn.Softmax(dim =1)(mask)
+
+                dec_out.append(recon * mask)
             dec_out = torch.cat(dec_out, dim = 0)
+        elif self.do_slotattention:
+            print('*********** Slot attention start ****************')
+
+            pass
 
         else:
             dec_out = self.dec_embedding(x_dec, x_mark_dec)
@@ -158,6 +168,7 @@ class Config:
                 scheduler= 'exponential',
                 inverse_scaling = True,
                 kmeans = True,
+                slotattention = False,
                 num_workers = 0,
 
                  ):
@@ -260,7 +271,6 @@ class TimeSeriesForecasting(L.LightningModule):
 
     # def on_fit_start(self):
     #     if self.configs.inverse_scaling and self.scaler is not None:
-<<<<<<< HEAD
     #         if self.scaler.device == torch.device("cpu"):
     #             self.scaler.to(self.device)
 
@@ -268,15 +278,6 @@ class TimeSeriesForecasting(L.LightningModule):
     #     if self.configs.inverse_scaling and self.scaler is not None:
     #         if self.scaler.device == torch.device("cpu"):
     #             self.scaler.to(self.device)
-=======
-    #         if self.scaler.scaler.device == torch.device("cpu"):
-    #             self.scaler.scaler.to(self.device)
-
-    # def on_test_start(self):
-    #     if self.configs.inverse_scaling and self.scaler is not None:
-    #         if self.scaler.scaler.device == torch.device("cpu"):
-    #             self.scaler.scaler.to(self.device)
->>>>>>> 1931291 (Update TF_slot branch)
 
     def loss(self, outputs, targets, **kwargs):
         if self.configs.loss == "mse":

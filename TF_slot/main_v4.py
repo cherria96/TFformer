@@ -55,11 +55,15 @@ if __name__ == "__main__":
     data_name = "real"
     data_type = "ETTh1"
     
-    accelerator = "gpu"
+    accelerator = "cpu"
     treatment = True  
     # True: predict treatment using model -> include treatment into input
-    kmeans = False  # True: use our model, False: simpel Timeseries Transformer from hugginface
-    wandblogging = True
+    kmeans = True  # True: use our model, False: simpel Timeseries Transformer from hugginface
+    if kmeans: print('*********** KMEANS clustering ****************')
+    slotattention = False
+    if slotattention: print('*********** slotattention ****************')
+
+    wandblogging = False
     if kmeans:
         model_name = "ours"
     else:
@@ -105,7 +109,8 @@ if __name__ == "__main__":
         scheduler= 'exponential',
         inverse_scaling = True,
         kmeans = kmeans,
-        num_workers = 0)
+        num_workers = 0,
+        slotattention=slotattention)
 
     wandb_config = config.to_dict()
 

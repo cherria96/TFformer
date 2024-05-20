@@ -208,6 +208,7 @@ class Config:
         self.inverse_scaling = inverse_scaling
         self.kmeans = kmeans
         self.num_workers = num_workers
+        self.slotattention = slotattention
 
     def to_dict(self):
         return {key: value for key, value in self.__dict__.items()}

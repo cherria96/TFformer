@@ -17,6 +17,10 @@ from layers.SelfAttention_Family import FullAttention, AttentionLayer
 from layers.Embed import DataEmbedding
 from layers.Preprocess import rolling_average
 import pdb 
+
+
+
+
 class Model(nn.Module):
     '''
     Vanilla Transformer
@@ -84,11 +88,24 @@ class Model(nn.Module):
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
                 enc_self_mask = None, dec_self_mask = None, dec_enc_mask = None, 
                 window_size = 7):
+        device = next(self.parameters()).device
+
+        # Normalization 
+        # x_raw = x_enc.clone().detach()
+        # mean_enc = x_enc.mean(1, keepdim=True).detach() # B x 1 x E
+        # x_enc = x_enc - mean_enc
+        # std_enc = torch.sqrt(torch.var(x_enc, dim=1, keepdim=True, unbiased=False) + 1e-5).detach() # B x 1 x E
+        # x_enc = x_enc / std_enc
+        # x_dec_new = torch.cat([x_enc[:, -self.label_len: , :], torch.zeros_like(x_dec[:, -self.pred_len:, :])], dim=1).to(x_enc.device).clone()
+
+        # tau = self.tau_learner(x_raw, std_enc).exp() # b, 1
+        # delta = self.delta_learner(x_raw, mean_enc)  # b, w
+
         enc_out = self.enc_embedding(x_enc, x_mark_enc)
         enc_out, attns = self.encoder(enc_out, attn_mask = enc_self_mask)
 
         if self.do_kmeans:
-            print('*********** KMEANS clustering ****************')
+            
             b, w, d_model = enc_out.shape
             enc_rolling = rolling_average(enc_out, window_size = window_size) # (b, w', d_model)
             enc_rolling = enc_rolling.reshape(b, -1) # (b, w'* d_model)
@@ -102,7 +119,7 @@ class Model(nn.Module):
                 cluster_pca = enc_pca[cluster_indices.numpy()] # (b', n_components)
                 enc_one_cluster = self.pca.inverse_transform(cluster_pca) # (b', w'*d_model)
                 enc_one_cluster = enc_one_cluster.reshape(enc_one_cluster.shape[0], -1, d_model) # (b', w', d_model)
-                enc_one_cluster = torch.FloatTensor(enc_one_cluster)
+                enc_one_cluster = torch.FloatTensor(enc_one_cluster).to(device)
 
                 x_dec_one_cluster = x_dec[cluster_indices]
                 x_dec_mark_one_cluster = x_mark_dec[cluster_indices]
@@ -170,6 +187,9 @@ class Config:
                 kmeans = True,
                 slotattention = False,
                 num_workers = 0,
+                small_batch_size = None,
+                small_stride = 1,
+
 
                  ):
 
@@ -209,6 +229,8 @@ class Config:
         self.kmeans = kmeans
         self.num_workers = num_workers
         self.slotattention = slotattention
+        self.small_batch_size = small_batch_size
+        self.small_stride = small_stride
 
     def to_dict(self):
         return {key: value for key, value in self.__dict__.items()}
@@ -231,6 +253,7 @@ class TimeSeriesForecasting(L.LightningModule):
         self.scaler = scaler
 
     def forward(self, batch_x, batch_y, batch_x_mark, batch_y_mark):
+        breakpoint()
         decoder_input = torch.zeros((batch_y.size(0), self.configs.pred_len, batch_y.size(-1))).type_as(batch_y)
         decoder_input = torch.cat([batch_y[:, : self.configs.label_len, :], decoder_input], dim=1)
         outputs = self.model(batch_x, batch_x_mark, decoder_input, batch_y_mark)

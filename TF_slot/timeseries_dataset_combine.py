@@ -244,7 +244,9 @@ class TimeSeriesDataset(Dataset):
             scale = True,
             random_state = 42,
             is_timeencoded = False,
-            frequency = 'd'
+            frequency = 'd',
+            small_batch_size = None,
+            stride = 1,
             ):
         assert split in ['train', 'val', 'test']
         self.path = path 
@@ -259,7 +261,9 @@ class TimeSeriesDataset(Dataset):
         self.random_state = random_state
         self.is_timeencoded = is_timeencoded
         self.frequency = frequency
-
+        self.small_batch_size = small_batch_size
+        self.stride = stride
+        
         self.scaler = StandardScaler()
 
         self.prepare_data()
@@ -270,50 +274,15 @@ class TimeSeriesDataset(Dataset):
         df = df.fillna(method = 'bfill')
         df['date'] = pd.to_datetime(df['date'])
 
-        indices = df.index.tolist()
+        # indices = df.index.tolist()
         train_size = 0.5
         val_size = 0.3
         test_size = 0.2
-        if self.split_sequential:
-            train_end = int(len(indices) * train_size)
-            val_end = train_end + int(len(indices) * val_size)
-            train_indices = indices[:train_end]
-            if self.split == 'train':
-              split_indices = train_indices
-            elif self.split == 'val':
-              split_indices = indices[:val_end]
-            if self.split == 'test':
-              split_indices = indices[val_end:]
-        else:
-            train_indices, temp_indices = train_test_split(indices, train_size=train_size, random_state=self.random_state)
-            val_indices, test_indices = train_test_split(temp_indices, test_size=test_size / (val_size + test_size), random_state=self.random_state)
-            if self.split == 'train':
-                split_indices = train_indices
-            elif self.split == 'val':
-                split_indices = val_indices
-            elif self.split == 'test':
-                split_indices = test_indices
-            split_indices.sort() 
-                   
-        df_split = df.loc[split_indices]
-        if self.variate == 'm' or self.variate == 'mu':
-            data_columns = df.columns[1:]
-            df_data = df_split[data_columns]
-            self.feature_names = data_columns
-        elif self.variate == 'u':
-            df_data = df.split[[self.target]]
-            self.feature_name = [self.target]
-        
-        data = torch.FloatTensor(df_data.values)
 
-        if self.scale:
-            train_data = df.loc[train_indices][self.feature_names].values
-            self.scaler.fit(train_data)
-            data = self.scaler.transform(data)
-        else:
-            data = df_data.values
-        
-        timestamp = df_split[['date']]
+        self.feature_dim = df.shape[-1]
+        self.num_samples = (len(df) - self.seq_len - self.label_len) // self.stride + 1
+
+        timestamp = df[['date']]
         if not self.is_timeencoded:
             timestamp['month'] = timestamp.date.apply(lambda row: row.month, 1)
             timestamp['day'] = timestamp.date.apply(lambda row: row.day, 1)
@@ -327,27 +296,81 @@ class TimeSeriesDataset(Dataset):
         else:
             timestamp_data = time_features(pd.to_datetime(timestamp.date.values), freq = self.frequency)
             timestamp_data = timestamp_data.transpose(1,0)
-            #TBU
-            pass
+
+        data_all = np.zeros([self.seq_len + self.pred_len, self.num_samples, self.feature_dim - 1])
+        timestamp_list = []
+        for i in np.arange(self.num_samples):
+            start_index = self.stride * i
+            end_index = start_index + self.seq_len + self.pred_len
+            data_all[:,i] = df.iloc[start_index : end_index, 1:]
+            timestamp_list.append(timestamp_data[start_index:end_index])
+        data_all = data_all.reshape(-1, self.num_samples, self.feature_dim - 1).transpose(1,0,2) # (17277, 144, 7)
+        timestamp = np.stack(timestamp_list, axis = 0) # (17277,144)
+
+        indices = np.arange(len(data_all))
+        # (n,w,f) -> (n', b, w, f)
+        if self.split_sequential:
+            train_end = int(len(indices) * train_size)
+            val_end = train_end + int(len(indices) * val_size)
+            train_indices = indices[:train_end]
+            if self.split == 'train':
+              split_indices = train_indices
+            elif self.split == 'val':
+              split_indices = indices[train_end:val_end]
+            if self.split == 'test':
+              split_indices = indices[val_end:]
+        else:
+            train_indices, temp_indices = train_test_split(indices, train_size=train_size, random_state=self.random_state)
+            val_indices, test_indices = train_test_split(temp_indices, test_size=test_size / (val_size + test_size), random_state=self.random_state)
+            if self.split == 'train':
+                split_indices = train_indices
+            elif self.split == 'val':
+                split_indices = val_indices
+            elif self.split == 'test':
+                split_indices = test_indices
+            split_indices.sort() 
+        df_split = data_all[split_indices]
+        timestamp_data = timestamp[split_indices]
+        if self.variate == 'm' or self.variate == 'mu':
+            df_data = df_split[:,:,1:]
+            # self.feature_names = data_columns
+            self.feature_list = np.arange(1,df_data.shape[-1]+1).tolist()
+        elif self.variate == 'u':
+            target_idx = df.columns.get_loc(self.target)
+            # df_data = df_split[[self.target]]
+            df_data = df_split[:,:, target_idx]
+            self.feature_list = [target_idx]
+        
+        data = torch.FloatTensor(df_data)
+        data_shape = data.shape
+
+        if self.scale:
+            train_data = data_all[train_indices][:,:,self.feature_list]
+            # train_data = df.loc[train_indices][self.feature_names].values
+            self.scaler.fit(train_data.reshape(-1, data_shape[2]))
+            data = self.scaler.transform(data.reshape(-1, data_shape[2]))
+            data = data.reshape(data_shape[0], data_shape[1], data_shape[2])
 
         self.time_series = torch.FloatTensor(data)
         self.timestamp = torch.FloatTensor(timestamp_data)
+        
     
     def __getitem__(self, index):
-        x_begin_index = index
-        x_end_index = x_begin_index + self.seq_len
-        y_begin_index = x_end_index - self.label_len
-        y_end_index = y_begin_index + self.label_len + self.pred_len
+        begin_index = index
+        end_index = begin_index + self.small_batch_size
+        small_batch = self.time_series[begin_index : end_index]
+        small_batch_timestamp = self.timestamp[begin_index : end_index]
 
-        x = self.time_series[x_begin_index:x_end_index]
-        y = self.time_series[y_begin_index:y_end_index]
-        x_timestamp = self.timestamp[x_begin_index:x_end_index]
-        y_timestamp = self.timestamp[y_begin_index:y_end_index]
+        x = small_batch[:,:self.seq_len]
+        y = small_batch[:, self.seq_len - self.label_len: self.label_len + self.pred_len]
+        x_timestamp = small_batch_timestamp[:,:self.seq_len]
+        y_timestamp = small_batch_timestamp[:, self.seq_len - self.label_len: self.label_len + self.pred_len]
 
         return x, y, x_timestamp, y_timestamp
 
     def __len__(self):
-        return len(self.time_series) - self.seq_len - self.pred_len + 1
+        # return len(self.time_series) - self.seq_len - self.pred_len + 1
+        return len(self.time_series) - self.small_batch_size + 1
 
     def inverse_transform(self, data):
         if data.ndim >=3:

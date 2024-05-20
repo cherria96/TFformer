@@ -110,14 +110,16 @@ if __name__ == "__main__":
         inverse_scaling = True,
         kmeans = kmeans,
         num_workers = 0,
-        slotattention=slotattention)
+        slotattention=slotattention,
+        small_batch_size = 20,
+        small_stride = 1)
 
     wandb_config = config.to_dict()
 
     train_data = TimeSeriesDataset(
                 path = config.path,
                 split="train",
-                split_sequential = True,
+                split_sequential = False,
                 seq_len=config.seq_len,
                 label_len=config.label_len,
                 pred_len=config.pred_len,
@@ -126,13 +128,16 @@ if __name__ == "__main__":
                 scale=config.scale,
                 is_timeencoded=config.is_timeencoded,
                 frequency=config.freq,
-                random_state=config.random_state
+                random_state=config.random_state,
+                small_batch_size=config.small_batch_size,
+                stride=config.small_stride
+
             )
 
     val_data = TimeSeriesDataset(
                 path = config.path,
                 split="val",
-                split_sequential = True,
+                split_sequential = False,
                 seq_len=config.seq_len,
                 label_len=config.label_len,
                 pred_len=config.pred_len,
@@ -141,13 +146,16 @@ if __name__ == "__main__":
                 scale=config.scale,
                 is_timeencoded=config.is_timeencoded,
                 frequency=config.freq,
-                random_state=config.random_state
+                random_state=config.random_state,
+                small_batch_size=config.small_batch_size,
+                stride=config.small_stride
+
             )
 
     test_data = TimeSeriesDataset(
                 path = config.path,
                 split="test",
-                split_sequential = True,
+                split_sequential = False,
                 seq_len=config.seq_len,
                 label_len=config.label_len,
                 pred_len=config.pred_len,
@@ -156,7 +164,10 @@ if __name__ == "__main__":
                 scale=config.scale,
                 is_timeencoded=config.is_timeencoded,
                 frequency=config.freq,
-                random_state=config.random_state
+                random_state=config.random_state,
+                small_batch_size=config.small_batch_size,
+                stride=config.small_stride
+
             )
     
     train_dataloader = DataLoader(
@@ -168,7 +179,7 @@ if __name__ == "__main__":
     val_dataloader = DataLoader(
                         val_data,
                         batch_size=config.batch_size,
-                        shuffle=True,
+                        shuffle=False,
                         num_workers=config.num_workers,
                         )
     test_dataloader = DataLoader(

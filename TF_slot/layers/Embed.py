@@ -16,11 +16,11 @@ class PositionalEmbedding(nn.Module):
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
 
-        pe = pe.unsqueeze(0).unsqueeze(1)
+        pe = pe.unsqueeze(0)
         self.register_buffer('pe', pe)
 
     def forward(self, x):
-        return self.pe[:, :, :x.size(2)]
+        return self.pe[:, :x.size(1)]
 
 
 class TokenEmbedding(nn.Module):
@@ -34,10 +34,7 @@ class TokenEmbedding(nn.Module):
                 nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='leaky_relu')
 
     def forward(self, x):
-        x_shape = x.shape
-        x = x.reshape(-1, x.shape[2], x.shape[3])
         x = self.tokenConv(x.permute(0, 2, 1)).transpose(1, 2)
-        x = x.reshape(x_shape[0], x_shape[1], x_shape[2], -1)
         return x
 
 
@@ -81,11 +78,11 @@ class TemporalEmbedding(nn.Module):
 
     def forward(self, x):
         x = x.long()
-        minute_x = self.minute_embed(x[:, :, :, 4]) if hasattr(self, 'minute_embed') else 0.
-        hour_x = self.hour_embed(x[:, :, :, 3]) if hasattr(self, 'hour_embed') else 0.
-        weekday_x = self.weekday_embed(x[:, :, :, 2])
-        day_x = self.day_embed(x[:, :, :, 1])
-        month_x = self.month_embed(x[:, :, :, 0])
+        minute_x = self.minute_embed(x[:, :, 4]) if hasattr(self, 'minute_embed') else 0.
+        hour_x = self.hour_embed(x[:, :, 3])
+        weekday_x = self.weekday_embed(x[:, :, 2])
+        day_x = self.day_embed(x[:, :, 1])
+        month_x = self.month_embed(x[:, :, 0])
 
         return hour_x + weekday_x + day_x + month_x + minute_x
         # return weekday_x + day_x + month_x

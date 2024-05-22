@@ -270,8 +270,8 @@ class TimeSeriesDataset(Dataset):
 
     def prepare_data(self):
         df = pd.read_csv(self.path) # 1st col: date 
-        df = df.fillna(method = 'ffill')
-        df = df.fillna(method = 'bfill')
+        df = df.ffill()
+        df = df.bfill()
         df['date'] = pd.to_datetime(df['date'])
         # indices = df.index.tolist()
         train_size = 0.5
@@ -361,9 +361,9 @@ class TimeSeriesDataset(Dataset):
         small_batch_timestamp = self.timestamp[begin_index : end_index]
 
         x = small_batch[:,:self.seq_len]
-        y = small_batch[:, self.seq_len - self.label_len: self.label_len + self.pred_len]
+        y = small_batch[:, self.seq_len - self.label_len: self.seq_len + self.pred_len]
         x_timestamp = small_batch_timestamp[:,:self.seq_len]
-        y_timestamp = small_batch_timestamp[:, self.seq_len - self.label_len: self.label_len + self.pred_len]
+        y_timestamp = small_batch_timestamp[:, self.seq_len - self.label_len: self.seq_len + self.pred_len]
 
         return x, y, x_timestamp, y_timestamp
 

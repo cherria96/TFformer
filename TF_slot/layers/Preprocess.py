@@ -12,10 +12,10 @@ def rolling_average(data, window_size):
     Returns:
         torch.Tensor: Output tensor with shortened seq_len due to rolling average
     """
-    Batch, batch, seq_len, d_model = data.shape
+    batch, seq_len, d_model = data.shape
 
     # Ensure the data is in the shape (batch, d_model, seq_len) for F.unfold
-    data = data.permute(0, 1, 3, 2)  # Shape: (Batch, batch, d_model, seq_len)
+    data = data.permute(0, 2, 1)  # Shape: (batch, d_model, seq_len)
     
     # Apply padding if necessary
     padding = (window_size - 1) // 2
@@ -28,6 +28,6 @@ def rolling_average(data, window_size):
     rolling_avg = unfolded_data.mean(dim=-1)  # Shape: (batch, d_model, new_seq_len)
     
     # Permute back to the original shape
-    rolling_avg = rolling_avg.permute(0, 1, 3, 2)  # Shape: (Batch, batch, new_seq_len, d_model)
+    rolling_avg = rolling_avg.permute(0, 2, 1)  # Shape: (Batch, batch, new_seq_len, d_model)
     
     return rolling_avg

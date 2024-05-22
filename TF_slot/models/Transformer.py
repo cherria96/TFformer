@@ -112,7 +112,6 @@ class Model(nn.Module):
             
             dec_out = []
             for label in torch.unique(cluster_labels):
-                breakpoint()
                 cluster_indices = torch.where(cluster_labels == label)[0]
                 cluster_pca = enc_pca[cluster_indices.numpy()] # (b', n_components)
                 enc_one_cluster = self.pca.inverse_transform(cluster_pca) # (b', w'*d_model)
@@ -130,17 +129,15 @@ class Model(nn.Module):
 
                 x_dec_one_cluster = x_dec[cluster_indices]
                 x_dec_mark_one_cluster = x_mark_dec[cluster_indices]
-                x_dec_mark_one_cluster = torch.cat([enc_one_cluster[:, -self.label_len: , :], torch.zeros_like(x_dec_one_cluster[:, -self.pred_len:, :])], dim=1).to(enc_one_cluster.device).clone()
-
-                dec_out_one_cluster = self.dec_embedding(x_dec_one_cluster, x_dec_mark_one_cluster)
-                dec_out_one_cluster = self.decoder(dec_out_one_cluster, enc_one_cluster, 
-                                                x_mask=dec_self_mask, cross_mask=dec_enc_mask)
+                x_dec_one_cluster = self.dec_embedding(x_dec_one_cluster, x_dec_mark_one_cluster)
+                x_dec_one_cluster = torch.cat([enc_one_cluster[:, -self.configs.label_len: , :], torch.zeros_like(x_dec_one_cluster[:, -self.pred_len:, :])], dim=1).to(enc_one_cluster.device).clone()
+                dec_out_one_cluster = self.decoder(x_dec_one_cluster, enc_one_cluster, x_mask=dec_self_mask, cross_mask=dec_enc_mask)
                 dec_out_one_cluster = self.projection(dec_out_one_cluster)
                 recon, mask = dec_out_one_cluster.split([self.configs.c_out, 1], dim = -1)
                 mask = nn.Softmax(dim =1)(mask)
                 dec_out_one_cluster = recon * mask
                 dec_out_one_cluster = dec_out_one_cluster.reshape(b, -1)
-                dec_out_one_cluster = (recon * mask) * std_enc + mean_enc
+                dec_out_one_cluster = dec_out_one_cluster * std_enc + mean_enc
                 dec_out_one_cluster = dec_out_one_cluster.reshape(b, w, -1)
 
                 dec_out.append(dec_out_one_cluster)
@@ -266,8 +263,8 @@ class TimeSeriesForecasting(L.LightningModule):
         self.scaler = scaler
 
     def forward(self, batch_x, batch_y, batch_x_mark, batch_y_mark):
-        decoder_input = torch.zeros((batch_y.size(0), batch_y.size(1), self.configs.pred_len, batch_y.size(-1))).type_as(batch_y)
-        decoder_input = torch.cat([batch_y[:, :, : self.configs.label_len, :], decoder_input], dim=1)
+        decoder_input = torch.zeros((batch_y.size(0), self.configs.pred_len, batch_y.size(-1))).type_as(batch_y)
+        decoder_input = torch.cat([batch_y[:, : self.configs.label_len, :], decoder_input], dim=1)
         outputs = self.model(batch_x, batch_x_mark, decoder_input, batch_y_mark)
         if self.model.output_attention:
             outputs = outputs[0]

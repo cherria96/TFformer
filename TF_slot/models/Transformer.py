@@ -141,6 +141,7 @@ class Model(nn.Module):
                 dec_out_one_cluster = dec_out_one_cluster.reshape(b, w, -1)
 
                 dec_out.append(dec_out_one_cluster)
+            breakpoint()
             dec_out = torch.cat(dec_out, dim = 0)
         
         elif self.do_slotattention:
@@ -283,8 +284,8 @@ class TimeSeriesForecasting(L.LightningModule):
             loss_all = []
             for i in range(Batch_size):
                 small_batch = (batch_x[i], batch_y[i], batch_x_mark[i], batch_y_mark[i])
-                outputs, batch_y = self.shared_step(small_batch, )
-                loss = self.loss(outputs, batch_y)
+                outputs, true = self.shared_step(small_batch, )
+                loss = self.loss(outputs, true)
                 loss_all.append(loss)
             loss = sum(loss_all) / Batch_size
         else:
@@ -301,12 +302,12 @@ class TimeSeriesForecasting(L.LightningModule):
             loss_all = []
             for i in range(Batch_size):
                 small_batch = (batch_x[i], batch_y[i], batch_x_mark[i], batch_y_mark[i])
-                outputs, batch_y = self.shared_step(small_batch, )
+                outputs, true = self.shared_step(small_batch, )
                 if self.configs.inverse_scaling and self.scaler is not None:
                     outputs = self.scaler.inverse_transform(outputs)
-                    batch_y = self.scaler.inverse_transform(batch_y)
-                # self.val_metrics(outputs, batch_y)
-                loss = torch.sqrt(self.loss(outputs, batch_y))
+                    true = self.scaler.inverse_transform(true)
+                # self.val_metrics(outputs, true)
+                loss = torch.sqrt(self.loss(outputs, true))
                 
                 loss_all.append(loss)
             loss = sum(loss_all) / Batch_size
@@ -330,12 +331,12 @@ class TimeSeriesForecasting(L.LightningModule):
             loss_all = []
             for i in range(Batch_size):
                 small_batch = (batch_x[i], batch_y[i], batch_x_mark[i], batch_y_mark[i])
-                outputs, batch_y = self.shared_step(small_batch, )
+                outputs, true = self.shared_step(small_batch, )
                 if self.configs.inverse_scaling and self.scaler is not None:
                     outputs = self.scaler.inverse_transform(outputs)
-                    batch_y = self.scaler.inverse_transform(batch_y)
-                # self.val_metrics(outputs, batch_y)
-                loss = torch.sqrt(self.loss(outputs, batch_y))
+                    true = self.scaler.inverse_transform(true)
+                # self.val_metrics(outputs, true)
+                loss = torch.sqrt(self.loss(outputs, true))
                 
                 loss_all.append(loss)
             loss = sum(loss_all) / Batch_size

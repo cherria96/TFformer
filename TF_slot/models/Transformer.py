@@ -141,7 +141,6 @@ class Model(nn.Module):
                 dec_out_one_cluster = dec_out_one_cluster.reshape(b, w, -1)
 
                 dec_out.append(dec_out_one_cluster)
-            breakpoint()
             dec_out = torch.cat(dec_out, dim = 0)
         
         elif self.do_slotattention:

@@ -15,6 +15,7 @@ from sklearn.preprocessing import StandardScaler
 from layers.Transformer_EncDec import Decoder, DecoderLayer, Encoder, EncoderLayer, ConvLayer
 from layers.SelfAttention_Family import FullAttention, AttentionLayer
 from layers.Embed import DataEmbedding
+from layers.SlotAttention import SlotAttention
 from layers.Preprocess import rolling_average
 import pdb 
 
@@ -64,6 +65,8 @@ class Model(nn.Module):
         self.pca = PCA(n_components= configs.n_components)
         self.kmeans = KMeans(n_clusters = configs.num_clusters, n_init = 'auto')
 
+        self.slot_attention = SlotAttention(num_slots= 10, dim= configs.seq_len*configs.d_model, iters = 10, hidden_dim= 128)
+
         # Decoder
         self.decoder = Decoder(
             [
@@ -101,7 +104,7 @@ class Model(nn.Module):
         # tau = self.tau_learner(x_raw, std_enc).exp() # b, 1
         # delta = self.delta_learner(x_raw, mean_enc)  # b, w
         enc_out = self.enc_embedding(x_enc, x_mark_enc)
-        enc_out, attns = self.encoder(enc_out, attn_mask = enc_self_mask)
+        enc_out, attns = self.encoder(enc_out, attn_mask = enc_self_mask) 
         # enc_out = enc_out.view(B, b, w, d)
         if self.do_kmeans:
             enc_rolling = rolling_average(enc_out, window_size = window_size) # (b, w', d_model)
@@ -144,9 +147,12 @@ class Model(nn.Module):
             dec_out = torch.cat(dec_out, dim = 0)
         
         elif self.do_slotattention:
-            print('*********** Slot attention start ****************')
+            # enc_out.shape (b,w,d)
+            breakpoint()
+            self.slot_attention(enc_out)
 
-            pass
+
+
 
         else:
             dec_out = self.dec_embedding(x_dec, x_mark_dec)

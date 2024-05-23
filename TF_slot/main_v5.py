@@ -1,6 +1,7 @@
 import sys
 sys.path.append("/Users/sujinchoi/Desktop/TF_slot")
 from timeseries_dataset_combine import TimeSeriesDatasetUnique, TimeSeriesDataset
+from models.Conv import TCNAutoEncoder
 from models.Transformer import Model, Config, TimeSeriesForecasting
 import numpy as np
 import pandas as pd
@@ -52,20 +53,19 @@ if __name__ == "__main__":
 
     '''
     ########## parameters ############
-    data_name = "real"
-    data_type = "ETTh1"
+    data_name = "ETTh1"
+    data_type = "real"
     
     accelerator = "cpu"
     treatment = True  
     # True: predict treatment using model -> include treatment into input
     kmeans = False  # True: use our model, False: simpel Timeseries Transformer from hugginface
-    if kmeans: print('*********** KMEANS clustering ****************')
-    slotattention = True
-    if slotattention: print('*********** slotattention ****************')
-
+    slot = False
     wandblogging = False
     if kmeans:
         model_name = "ours"
+    elif slot:
+        model_name = "ours_slot_conv"
     else:
         model_name = "baseline"
 
@@ -75,44 +75,46 @@ if __name__ == "__main__":
         treatment_txt = ""
     
     config = Config(
+        # path= "data/sbk_AD_unscaled.csv",
         path= "data/ETTh1.csv",
         data_type= data_name,
         data= data_type,  # "synthetic", "AD"
-        seq_len= 96,
-        label_len= 48,
-        pred_len= 48,
+        seq_len= 30,
+        label_len= 15,
+        pred_len= 15,
         variate= 'm',
         target= None,
         scale= True,
-        is_timeencoded= True,
+        is_timeencoded= False,
         random_state= 42,
         output_attention = False,
-        enc_in = 7,
-        d_model = 512,
+        enc_in = 7,  # 8 for ad, 7 for etth1
+        d_model = 64,
         embed = 'fixed',
-        freq = 'h',
+        freq = 'h',   # if data is etth1 modify to h
         dropout = 0.05,
-        dec_in = 7,
+        dec_in = 8,
         factor = 5,
         n_heads = 8,
-        d_ff = 1028,
+        d_ff = 2048,
         activation = 'gelu',
         e_layers = 3,
         n_components = 10,
         num_clusters = 5,
         d_layers = 3,
-        c_out = 7,
-        batch_size= 64,
-        epoch= 20,
+        c_out = 8,
+        batch_size= 32,
+        epoch= 30,
         lr= 0.0005,
         loss= 'mse',
         scheduler= 'exponential',
         inverse_scaling = True,
         kmeans = kmeans,
         num_workers = 0,
-        slotattention=slotattention,
-        small_batch_size = 20,
+        slotattention=slot,
+        small_batch_size = 64,
         small_stride = 1)
+
 
     wandb_config = config.to_dict()
 
@@ -130,8 +132,6 @@ if __name__ == "__main__":
                 frequency=config.freq,
                 random_state=config.random_state,
                 small_batch_size=config.small_batch_size,
-                stride=config.small_stride
-
             )
 
     val_data = TimeSeriesDataset(
@@ -148,8 +148,6 @@ if __name__ == "__main__":
                 frequency=config.freq,
                 random_state=config.random_state,
                 small_batch_size=config.small_batch_size,
-                stride=config.small_stride
-
             )
 
     test_data = TimeSeriesDataset(
@@ -166,8 +164,6 @@ if __name__ == "__main__":
                 frequency=config.freq,
                 random_state=config.random_state,
                 small_batch_size=config.small_batch_size,
-                stride=config.small_stride
-
             )
     
     train_dataloader = DataLoader(
@@ -179,7 +175,7 @@ if __name__ == "__main__":
     val_dataloader = DataLoader(
                         val_data,
                         batch_size=config.batch_size,
-                        shuffle=False,
+                        shuffle=True,
                         num_workers=config.num_workers,
                         )
     test_dataloader = DataLoader(
@@ -188,7 +184,9 @@ if __name__ == "__main__":
                         shuffle=False,
                         num_workers=config.num_workers,
                         )
-    model = TimeSeriesForecasting(config, scaler = train_data)
+    model = TCNAutoEncoder(config, num_slots = 5, num_levels=2, kernel_size=2, dilation_c=2, scaler=train_data)
+
+    # model = TimeSeriesForecasting(config, scaler = train_data)
     logger = None
     if wandblogging:
         wandb_logger = WandbLogger(project = f'{model_name}_{data_name}', name = f"{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{treatment_txt}", config=wandb_config)
@@ -197,11 +195,3 @@ if __name__ == "__main__":
     trainer.fit(model = model, train_dataloaders= train_dataloader, val_dataloaders=val_dataloader)
     trainer.test(model, test_dataloader)
     trainer.save_checkpoint(f"./weights/{model_name}-{data_name}-{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{treatment_txt}.ckpt")
-
-
-
-
-
-
-
-

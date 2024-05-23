@@ -262,14 +262,14 @@ class TCNAutoEncoder(L.LightningModule):
         recons, masks = decoder_output.split([f, 1], dim = -1)
         masks = nn.Softmax(dim = 1)(masks)
         out_combine = torch.sum(recons * masks, dim = 1) 
-        return out_combine
+        return out_combine[:,:,-self.configs.pred_len:,:]
     
 
     def shared_step(self, batch, batch_idx):
         batch_x, batch_y, batch_x_mark, batch_y_mark = batch
         outputs = self(batch_x)
         f_dim = -1 if self.configs.variate == "mu" else 0
-        batch_y = batch_y[:, :,-self.pred_len :, f_dim:]
+        batch_y = batch_y[:, :,-self.configs.pred_len :, f_dim:]
         return outputs, batch_y
     
     def training_step(self, batch, batch_idx):

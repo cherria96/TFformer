@@ -208,7 +208,7 @@ class TCNAutoEncoder(L.LightningModule):
         
         self.get_slot = SlotAttention(
             num_slots = self.num_slots, 
-            dim = configs.seq_len * configs.d_model, 
+            dim = configs.seq_len * configs.d_model//4, 
             iters = 5, 
             hidden_dim =  configs.d_model
         )
@@ -264,7 +264,6 @@ class TCNAutoEncoder(L.LightningModule):
         enc_output = self.encoder(enc_input)
         slot_input = enc_output.reshape(B, -1, b, w).permute(0,2,3,1).reshape(B, b, -1)
         
-        breakpoint()
         slot_input = nn.LayerNorm(slot_input.shape[1:]).to(device)(slot_input)
         slot_input = self.fc1(slot_input)
         slot_input = F.relu(slot_input)

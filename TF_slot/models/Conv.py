@@ -258,12 +258,13 @@ class TCNAutoEncoder(L.LightningModule):
         -> (B, n_s, w*d//4) -> (B, n_s, b, w*d//4) -> (B*n_s, b*d//4, w) -> decoder (group = b)
         -> (B*n_s, b(f+1), w) -> (B, n_s, b, w, f+1) -> (B, n_s, b, w, f) & (B, n_s, b, w, 1) -> (B, b, w, f)
         '''
+        device = next(self.parameters()).device
         B, b, w, f = batch_x.shape
         enc_input = batch_x.permute(0, 3, 2, 1).reshape(B, -1, w)
         enc_output = self.encoder(enc_input)
         slot_input = enc_output.reshape(B, -1, b, w).permute(0,2,3,1).reshape(B, b, -1)
 
-        slot_input = nn.LayerNorm(slot_input.shape[1:])(slot_input)
+        slot_input = nn.LayerNorm(slot_input.shape[1:]).to(device)(slot_input)
         slot_input = self.fc1(slot_input)
         slot_input = F.relu(slot_input)
         slot_input = self.fc2(slot_input)

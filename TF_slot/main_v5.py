@@ -60,7 +60,7 @@ if __name__ == "__main__":
     treatment = True  
     # True: predict treatment using model -> include treatment into input
     kmeans = False  # True: use our model, False: simpel Timeseries Transformer from hugginface
-    slot = False
+    slot = True
     wandblogging = False
     if kmeans:
         model_name = "ours"

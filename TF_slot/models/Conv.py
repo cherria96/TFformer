@@ -104,7 +104,10 @@ class FirstBlock(nn.Module):
                                            stride=stride, padding=padding, dilation=dilation, groups=groups)
 
         self.chomp1 = Chomp1d(padding)
-        self.net = nn.Sequential(self.conv1, self.chomp1)      
+        self.relu1 = nn.PReLU(n_outputs)
+        self.dropout = nn.Dropout(dropout = 0.3)
+
+        self.net = nn.Sequential(self.conv1, self.chomp1, self.relu1, self.dropout)
         self.relu = nn.PReLU(n_inputs)
         self.init_weights()
 
@@ -123,8 +126,11 @@ class TemporalBlock(nn.Module):
         self.conv1 = nn.Conv1d(n_inputs, n_outputs, kernel_size,
                                            stride=stride, padding=padding, dilation=dilation, groups=groups)
         self.chomp1 = Chomp1d(padding)
-        self.net = nn.Sequential(self.conv1, self.chomp1)
+        self.relu1 = nn.PReLU(n_outputs)
+        self.dropout = nn.Dropout(dropout = 0.3)
+        self.net = nn.Sequential(self.conv1, self.chomp1, self.relu1, self.dropout)
         self.relu = nn.PReLU(n_outputs)
+        
         self.init_weights()
 
     def init_weights(self):
@@ -196,6 +202,10 @@ class TCNAutoEncoder(L.LightningModule):
         # Layers
         self.encoder = TemporalConvNet(num_inputs = configs.enc_in * configs.small_batch_size, num_outputs = configs.d_model * configs.small_batch_size, 
                                        num_levels = num_levels, kernel_size = kernel_size, dilation_c = dilation_c, groups = configs.small_batch_size)
+        self.fc1 = nn.Linear(configs.d_model * configs.small_batch_size,configs.d_model * configs.small_batch_size//2)
+        self.fc2 = nn.Linear(configs.d_model * configs.small_batch_size//2,configs.d_model * configs.small_batch_size//4)
+
+        
         self.get_slot = SlotAttention(
             num_slots = self.num_slots, 
             dim = configs.seq_len * configs.d_model, 
@@ -203,7 +213,7 @@ class TCNAutoEncoder(L.LightningModule):
             hidden_dim =  configs.d_model
         )
         
-        self.decoder = TemporalConvNet(num_inputs = configs.d_model * configs.small_batch_size, num_outputs = (configs.c_out) * configs.small_batch_size, 
+        self.decoder = TemporalConvNet(num_inputs = configs.d_model * configs.small_batch_size//4, num_outputs = (configs.c_out) * configs.small_batch_size, 
                                        num_levels = num_levels, kernel_size = kernel_size, dilation_c = dilation_c, groups = configs.small_batch_size)
 
         metrics = torchmetrics.MetricCollection([torchmetrics.MeanSquaredError(), torchmetrics.MeanAbsoluteError()])
@@ -244,14 +254,20 @@ class TCNAutoEncoder(L.LightningModule):
         Propose 3
         --------------
         x (B, b, w, f)
-        input (B, f * b, w) -> encoder -> (B, d * b, w) -> (B, b, w*d) -> slot 
-        -> (B, n_s, w*d) -> (B, n_s, b, w*d) -> (B*n_s, b*d, w) -> decoder (group = b)
+        input (B, f * b, w) -> encoder(group=b)-> (B, d * b, w) -> (B, b, w*d) -> (B, b, w*d // 4) -> slot 
+        -> (B, n_s, w*d//4) -> (B, n_s, b, w*d//4) -> (B*n_s, b*d//4, w) -> decoder (group = b)
         -> (B*n_s, b(f+1), w) -> (B, n_s, b, w, f+1) -> (B, n_s, b, w, f) & (B, n_s, b, w, 1) -> (B, b, w, f)
         '''
         B, b, w, f = batch_x.shape
         enc_input = batch_x.permute(0, 3, 2, 1).reshape(B, -1, w)
         enc_output = self.encoder(enc_input)
         slot_input = enc_output.reshape(B, -1, b, w).permute(0,2,3,1).reshape(B, b, -1)
+
+        slot_input = nn.LayerNorm(slot_input.shape[1:])(slot_input)
+        slot_input = self.fc1(slot_input)
+        slot_input = F.relu(slot_input)
+        slot_input = self.fc2(slot_input)
+
         slot_output = self.get_slot(slot_input)
         slot_output = slot_output.unsqueeze(2)
         slot_output = slot_output.repeat(1,1,b,1)

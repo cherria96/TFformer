@@ -223,12 +223,16 @@ if __name__ == "__main__":
                         num_workers=config.num_workers,
                         )
     
-    model = DepthConv1d(config, num_levels=2, kernel_size=2, dilation_c=2, scaler=train_data)
+    model = DepthConv1d(config, num_levels=3, kernel_size=5, dilation_c=2, scaler=train_data)
 
     # model = TimeSeriesForecasting(config, scaler = train_data)
     logger = None
     if wandblogging:
-        wandb_logger = WandbLogger(project = f'{model_name}_{data_name}', name = f"{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{treatment_txt}", config=wandb_config)
+        import datetime
+        now = datetime.datetime.now()
+        nowDatetime = now.strftime('%Y.%m.%d%H.%M.%S')
+        print(nowDatetime)  # 2015-04-19 12:11:32
+        wandb_logger = WandbLogger(project = f'{model_name}_{data_name}', name = f"{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{nowDatetime}{treatment_txt}", config=wandb_config)
         logger = wandb_logger
     trainer = L.Trainer(max_epochs = config.epoch, logger = logger, accelerator=accelerator)
     trainer.fit(model = model, train_dataloaders= train_dataloader, val_dataloaders=val_dataloader)

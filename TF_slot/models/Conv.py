@@ -202,8 +202,8 @@ class TCNAutoEncoder(L.LightningModule):
         # Layers
         self.encoder = TemporalConvNet(num_inputs = configs.enc_in * configs.small_batch_size, num_outputs = configs.d_model * configs.small_batch_size, 
                                        num_levels = num_levels, kernel_size = kernel_size, dilation_c = dilation_c, groups = configs.small_batch_size)
-        self.fc1 = nn.Linear(configs.d_model * configs.small_batch_size,configs.d_model * configs.small_batch_size//2)
-        self.fc2 = nn.Linear(configs.d_model * configs.small_batch_size//2,configs.d_model * configs.small_batch_size//4)
+        self.fc1 = nn.Linear(configs.d_model * configs.seq_len,configs.d_model * configs.seq_len//2)
+        self.fc2 = nn.Linear(configs.d_model * configs.seq_len//2,configs.d_model * configs.seq_len//4)
 
         
         self.get_slot = SlotAttention(
@@ -263,7 +263,8 @@ class TCNAutoEncoder(L.LightningModule):
         enc_input = batch_x.permute(0, 3, 2, 1).reshape(B, -1, w)
         enc_output = self.encoder(enc_input)
         slot_input = enc_output.reshape(B, -1, b, w).permute(0,2,3,1).reshape(B, b, -1)
-
+        
+        breakpoint()
         slot_input = nn.LayerNorm(slot_input.shape[1:]).to(device)(slot_input)
         slot_input = self.fc1(slot_input)
         slot_input = F.relu(slot_input)

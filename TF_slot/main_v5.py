@@ -191,7 +191,7 @@ if __name__ == "__main__":
     if wandblogging:
         wandb_logger = WandbLogger(project = f'{model_name}_{data_name}', name = f"{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{treatment_txt}", config=wandb_config)
         logger = wandb_logger
-    trainer = L.Trainer(max_epochs = config.epoch, logger = logger, accelerator=accelerator, default_root_dir=os.getcwd())
+    trainer = L.Trainer(max_epochs = config.epoch, logger = logger, accelerator=accelerator, default_root_dir='./weights/')
     trainer.fit(model = model, train_dataloaders= train_dataloader, val_dataloaders=val_dataloader)
     trainer.test(model, test_dataloader)
     trainer.save_checkpoint(f"./weights/{model_name}-{data_name}-{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{treatment_txt}.ckpt")

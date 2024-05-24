@@ -16,7 +16,7 @@ import pytorch_lightning as pl
 import torch.optim as optim
 import torch.nn.functional as F
 import lightning as L
-
+import os
 import csv
 from sklearn.preprocessing import MinMaxScaler
 import torch
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     data_name = "ETTh1"
     data_type = "real"
     
-    accelerator = "cpu"
+    accelerator = "gpu"
     treatment = True  
     # True: predict treatment using model -> include treatment into input
     kmeans = False  # True: use our model, False: simpel Timeseries Transformer from hugginface
@@ -112,7 +112,7 @@ if __name__ == "__main__":
         kmeans = kmeans,
         num_workers = 0,
         slotattention=slot,
-        small_batch_size = 64,
+        small_batch_size = 32,
         small_stride = 1)
 
 
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     if wandblogging:
         wandb_logger = WandbLogger(project = f'{model_name}_{data_name}', name = f"{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{treatment_txt}", config=wandb_config)
         logger = wandb_logger
-    trainer = L.Trainer(max_epochs = config.epoch, logger = logger, accelerator=accelerator)
+    trainer = L.Trainer(max_epochs = config.epoch, logger = logger, accelerator=accelerator, default_root_dir=os.getcwd())
     trainer.fit(model = model, train_dataloaders= train_dataloader, val_dataloaders=val_dataloader)
     trainer.test(model, test_dataloader)
     trainer.save_checkpoint(f"./weights/{model_name}-{data_name}-{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{treatment_txt}.ckpt")

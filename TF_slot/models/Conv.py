@@ -105,7 +105,7 @@ class FirstBlock(nn.Module):
 
         self.chomp1 = Chomp1d(padding)
         self.relu1 = nn.PReLU(n_outputs)
-        self.dropout = nn.Dropout(dropout = 0.3)
+        self.dropout = nn.Dropout(p = 0.3)
 
         self.net = nn.Sequential(self.conv1, self.chomp1, self.relu1, self.dropout)
         self.relu = nn.PReLU(n_inputs)
@@ -127,7 +127,7 @@ class TemporalBlock(nn.Module):
                                            stride=stride, padding=padding, dilation=dilation, groups=groups)
         self.chomp1 = Chomp1d(padding)
         self.relu1 = nn.PReLU(n_outputs)
-        self.dropout = nn.Dropout(dropout = 0.3)
+        self.dropout = nn.Dropout(p = 0.3)
         self.net = nn.Sequential(self.conv1, self.chomp1, self.relu1, self.dropout)
         self.relu = nn.PReLU(n_outputs)
         

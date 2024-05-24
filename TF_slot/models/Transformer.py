@@ -160,3 +160,89 @@ class TimeSeriesForecasting(L.LightningModule):
         else:
             raise RuntimeError("The scheduler {self.configs.lr_scheduler} is not implemented.")
         return [optimizer], [scheduler]
+    
+class Config:
+    def __init__(self,
+                path,
+                data_type,
+                data,  # "synthetic", "AD"
+                seq_len= 60,
+                label_len= 60,
+                pred_len= 30,
+                variate= 'm',
+                target= None,
+                scale= True,
+                is_timeencoded= False,
+                random_state= 42,
+                output_attention = False,
+                enc_in = 8,
+                d_model = 512,
+                embed = 'fixed',
+                freq = 'd',
+                dropout = 0.05,
+                dec_in = 8,
+                factor = 5,
+                n_heads = 8,
+                d_ff = 2048,
+                activation = 'gelu',
+                e_layers = 3,
+                n_components = 10,
+                num_clusters = 5,
+                d_layers = 3,
+                c_out = 8,
+                batch_size= 32,
+                epoch= 30,
+                lr= 0.0005,
+                loss= 'mse',
+                scheduler= 'exponential',
+                inverse_scaling = True,
+                kmeans = True,
+                slotattention = False,
+                num_workers = 0,
+                small_batch_size = None,
+                small_stride = 1,
+
+
+                 ):
+
+        self.path = path
+        self.data_type = data_type
+        self.data = data
+        self.seq_len = seq_len
+        self.label_len = label_len
+        self.pred_len = pred_len
+        self.variate = variate
+        self.target = target
+        self.scale = scale
+        self.is_timeencoded = is_timeencoded
+        self.random_state = random_state
+        self.output_attention = output_attention
+        self.enc_in = enc_in
+        self.d_model = d_model
+        self.embed = embed
+        self.freq = freq
+        self.dropout = dropout
+        self.dec_in = dec_in
+        self.factor = factor
+        self.n_heads = n_heads
+        self.d_ff = d_ff
+        self.activation = activation
+        self.e_layers = e_layers
+        self.n_components = n_components
+        self.num_clusters = num_clusters
+        self.d_layers = d_layers
+        self.c_out = c_out
+        self.batch_size = batch_size
+        self.epoch = epoch
+        self.lr = lr
+        self.loss = loss
+        self.scheduler = scheduler
+        self.inverse_scaling = inverse_scaling
+        self.kmeans = kmeans
+        self.num_workers = num_workers
+        self.slotattention = slotattention
+        self.small_batch_size = small_batch_size
+        self.small_stride = small_stride
+
+    def to_dict(self):
+        return {key: value for key, value in self.__dict__.items()}

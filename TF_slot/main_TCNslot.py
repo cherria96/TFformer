@@ -72,10 +72,9 @@ if __name__ == "__main__":
     kernel_size = 2
     dilation_c = 2
     #####################################
-    if kmeans: print('*********** KMEANS clustering ****************')
     if slotattention: print('*********** slotattention ****************')
 
-    if kmeans or slotattention:
+    if slotattention:
         model_name = "ours"
     else:
         model_name = "baseline"
@@ -143,7 +142,6 @@ if __name__ == "__main__":
         loss= 'mse',
         scheduler= 'exponential',
         inverse_scaling = True,
-        kmeans = kmeans,
         num_workers = 0,
         slotattention=slotattention,
         small_batch_size = small_batch_size,

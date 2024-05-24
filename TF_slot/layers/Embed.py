@@ -79,7 +79,7 @@ class TemporalEmbedding(nn.Module):
     def forward(self, x):
         x = x.long()
         minute_x = self.minute_embed(x[:, :, 4]) if hasattr(self, 'minute_embed') else 0.
-        hour_x = self.hour_embed(x[:, :, 3])
+        hour_x = self.hour_embed(x[:, :, 3]) if hasattr(self, 'hour_embed') else 0.
         weekday_x = self.weekday_embed(x[:, :, 2])
         day_x = self.day_embed(x[:, :, 1])
         month_x = self.month_embed(x[:, :, 0])

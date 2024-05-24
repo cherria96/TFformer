@@ -53,8 +53,8 @@ if __name__ == "__main__":
 
     '''
     ########## parameters ############
-    data_name = "real"
-    data_type = "ETTh1"
+    data_name = "AD"
+    data_type = "sbk_AD"
     size = {
         'seq_len': 30,
         'label_len': 15,

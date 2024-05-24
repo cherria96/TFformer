@@ -1,7 +1,7 @@
 import sys
 sys.path.append("/Users/sujinchoi/Desktop/TF_slot")
 from timeseries_dataset_combine import TimeSeriesDatasetUnique, TimeSeriesDataset, TimeSeriesDataset_bb
-from models.Conv import TCNAutoEncoder
+from models.Conv import TCNAutoEncoder, TCN
 from models.Transformer import Model, Config, TimeSeriesForecasting
 import numpy as np
 import pandas as pd
@@ -61,17 +61,16 @@ if __name__ == "__main__":
         'pred_len': 48
     }
     d_model = 64
-    small_batch_size = 20
+    small_batch_size = 32
     split_sequential = False # True: chronological split; False: random split
     accelerator = "cpu"
-    kmeans = False  # True: Our model, False: Baseline
     slotattention = True # True: Our model, False: Baseline
     wandblogging = True
 
-    num_slots = 5
+    num_slots = 10
     num_levels = 2
     kernel_size = 2
-    dilation_c = 2,
+    dilation_c = 2
     #####################################
     if kmeans: print('*********** KMEANS clustering ****************')
     if slotattention: print('*********** slotattention ****************')
@@ -220,19 +219,29 @@ if __name__ == "__main__":
                         shuffle=False,
                         num_workers=config.num_workers,
                         )
-    model = TCNAutoEncoder(config, 
-                           num_slots = num_slots,
-                           num_levels = num_levels, 
-                           kernel_size = kernel_size, 
-                           dilation_c = dilation_c, 
-                           scaler=train_data)
+    if slotattention:
+        model_str = 'TCNslot'
+        model = TCNAutoEncoder(config, 
+                            num_slots = num_slots,
+                            num_levels = num_levels, 
+                            kernel_size = kernel_size, 
+                            dilation_c = dilation_c, 
+                            scaler=train_data)
+    else:
+        model_str = 'TCN'
+        model = TCN(config, 
+                    num_levels = num_levels, 
+                    kernel_size = kernel_size, 
+                    dilation_c = dilation_c, 
+                    scaler=train_data)
+ 
 
     # model = TimeSeriesForecasting(config, scaler = train_data)
     logger = None
     if wandblogging:
-        wandb_logger = WandbLogger(project = f'{model_name}_{data_name}', name = f"TCNslot_{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{treatment_txt}", config=wandb_config)
+        wandb_logger = WandbLogger(project = f'{model_name}_{data_name}', name = f"{model_str}_{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{treatment_txt}", config=wandb_config)
         logger = wandb_logger
     trainer = L.Trainer(max_epochs = config.epoch, logger = logger, accelerator=accelerator, default_root_dir='./weights/')
     trainer.fit(model = model, train_dataloaders= train_dataloader, val_dataloaders=val_dataloader)
     trainer.test(model, test_dataloader)
-    trainer.save_checkpoint(f"./weights/TCNslot_{model_name}-{data_name}-{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{treatment_txt}.ckpt")
+    trainer.save_checkpoint(f"./weights/{model_str}_{model_name}-{data_name}-{config.epoch}_{config.seq_len}_{config.label_len}_{config.pred_len}_{treatment_txt}.ckpt")

@@ -202,18 +202,18 @@ class TCNAutoEncoder(L.LightningModule):
         # Layers
         self.encoder = TemporalConvNet(num_inputs = configs.enc_in * configs.small_batch_size, num_outputs = configs.d_model * configs.small_batch_size, 
                                        num_levels = num_levels, kernel_size = kernel_size, dilation_c = dilation_c, groups = configs.small_batch_size)
-        self.fc1 = nn.Linear(configs.d_model * configs.seq_len,configs.d_model * configs.seq_len//2)
-        self.fc2 = nn.Linear(configs.d_model * configs.seq_len//2,configs.d_model * configs.seq_len//4)
+        self.fc1 = nn.Linear(configs.d_model * configs.seq_len,configs.d_model * configs.seq_len//8)
+        self.fc2 = nn.Linear(configs.d_model * configs.seq_len//8,configs.d_model * configs.seq_len//16)
 
         
         self.get_slot = SlotAttention(
             num_slots = self.num_slots, 
-            dim = configs.seq_len * configs.d_model//4, 
+            dim = configs.seq_len * configs.d_model//16, 
             iters = 5, 
             hidden_dim =  configs.d_model
         )
         
-        self.decoder = TemporalConvNet(num_inputs = configs.d_model * configs.small_batch_size//4, num_outputs = (configs.c_out) * configs.small_batch_size, 
+        self.decoder = TemporalConvNet(num_inputs = configs.d_model * configs.small_batch_size//16, num_outputs = (configs.c_out) * configs.small_batch_size, 
                                        num_levels = num_levels, kernel_size = kernel_size, dilation_c = dilation_c, groups = configs.small_batch_size)
 
         metrics = torchmetrics.MetricCollection([torchmetrics.MeanSquaredError(), torchmetrics.MeanAbsoluteError()])
@@ -254,8 +254,8 @@ class TCNAutoEncoder(L.LightningModule):
         Propose 3
         --------------
         x (B, b, w, f)
-        input (B, f * b, w) -> encoder(group=b)-> (B, d * b, w) -> (B, b, w*d) -> (B, b, w*d // 4) -> slot 
-        -> (B, n_s, w*d//4) -> (B, n_s, b, w*d//4) -> (B*n_s, b*d//4, w) -> decoder (group = b)
+        input (B, f * b, w) -> encoder(group=b)-> (B, d * b, w) -> (B, b, w*d) -> (B, b, w*d//16) -> slot 
+        -> (B, n_s, w*d//16) -> (B, n_s, b, w*d//16) -> (B*n_s, b*d//16, w) -> decoder (group = b)
         -> (B*n_s, b(f+1), w) -> (B, n_s, b, w, f+1) -> (B, n_s, b, w, f) & (B, n_s, b, w, 1) -> (B, b, w, f)
         '''
         device = next(self.parameters()).device
@@ -341,4 +341,98 @@ class TCNAutoEncoder(L.LightningModule):
 
 
 
+
+from torch import nn
+import torch.nn.functional as F
+from torch.autograd import Variable
+from torch.nn.utils import weight_norm
+import numpy as np
+
+class TCN(nn.Module):
+    def __init__(self, configs, scaler, num_levels=2, kernel_size=2, dilation_c=2):
+        super(TCN, self).__init__()
+        num_inputs = configs.enc_in * configs.small_batch_size
+        num_outputs = configs.enc_in * configs.small_batch_size
+        self.encoder = TemporalConvNet(num_inputs = num_inputs, num_outputs = num_outputs, 
+                                       num_levels = num_levels, kernel_size = kernel_size, dilation_c = dilation_c, groups = configs.small_batch_size)
+
+        self.pointwise = nn.Conv1d(num_inputs, 1, 1)
+
+        self._attention = torch.ones(num_inputs,1)
+        self._attention = Variable(self._attention, requires_grad=False)
+
+        self.fs_attention = nn.Parameter(self._attention.data)
+        self.configs = configs
+                  
+    def init_weights(self):
+        self.pointwise.weight.data.normal_(0, 0.1)       
+        
+    def forward(self, x):
+        '''
+        TCDF
+        --------------
+        x (B, b, w, f)
+        input (B, f * b, w) -> encoder(group=b) + attention-> (B, f * b, w) -> (B, b, w, f)
+        '''
+        B, b, w, f = x.shape
+        x = x.permute(0,1,3,2).reshape(B, -1, w)
+        y1=self.encoder(x*F.softmax(self.fs_attention, dim=0))
+        y1 = y1.reshape(B, b, f, w).permute(0,1,3,2)
+        return y1[:,:,-self.configs.pred_len:,:]
+
+    def shared_step(self, batch, batch_idx):
+        batch_x, batch_y, batch_x_mark, batch_y_mark = batch
+        outputs = self(batch_x)
+        f_dim = -1 if self.configs.variate == "mu" else 0
+        batch_y = batch_y[:, :,-self.configs.pred_len :, f_dim:]
+        return outputs, batch_y
+    
+    def training_step(self, batch, batch_idx):
+        outputs, batch_y = self.shared_step(batch, batch_idx)
+        loss = self.loss(outputs, batch_y)
+        self.log("Train_Loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        return loss
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.configs.lr)
+        if self.configs.scheduler == "exponential":
+            scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.5)
+        elif self.configs.scheduler == "two_step_exp":
+
+            def two_step_exp(epoch):
+                if epoch % 4 == 2:
+                    return 0.5
+                if epoch % 4 == 0:
+                    return 0.2
+                return 1.0
+
+            scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer, lr_lambda=[two_step_exp])
+        else:
+            raise RuntimeError("The scheduler {self.configs.lr_scheduler} is not implemented.")
+        return [optimizer], [scheduler]
+
+    def loss(self, outputs, targets, **kwargs):
+        if self.configs.loss == "mse":
+            return F.mse_loss(outputs, targets)
+        raise RuntimeError("The loss function {self.configs.loss} is not implemented.")
+
+    def validation_step(self, batch, batch_idx):
+        outputs, batch_y = self.shared_step(batch, batch_idx)
+        loss = self.loss(outputs, batch_y)
+        self.log("Val_Loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        if self.configs.inverse_scaling and self.scaler is not None:
+            outputs = self.scaler.inverse_transform(outputs)
+            batch_y = self.scaler.inverse_transform(batch_y)
+        self.val_metrics(outputs, batch_y)
+        self.log_dict(self.val_metrics, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        return {"outputs": outputs, "targets": batch_y}
+
+    def test_step(self, batch, batch_idx):
+        outputs, batch_y = self.shared_step(batch, batch_idx)
+        if self.configs.inverse_scaling and self.scaler is not None:
+            outputs = self.scaler.inverse_transform(outputs)
+            batch_y = self.scaler.inverse_transform(batch_y)
+        self.test_metrics(outputs, batch_y)
+        self.log_dict(self.test_metrics, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        return {"outputs": outputs, "targets": batch_y}
 

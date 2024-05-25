@@ -200,7 +200,9 @@ class TCNAutoEncoder(L.LightningModule):
         
 
         # Layers
-        self.encoder = TemporalConvNet(num_inputs = configs.enc_in * configs.small_batch_size, num_outputs = configs.d_model * configs.small_batch_size, 
+        timestamp = 3
+        num_inputs = (configs.enc_in + timestamp) * configs.small_batch_size
+        self.encoder = TemporalConvNet(num_inputs = num_inputs, num_outputs = configs.d_model * configs.small_batch_size, 
                                        num_levels = num_levels, kernel_size = kernel_size, dilation_c = dilation_c, groups = configs.small_batch_size)
         self.fc1 = nn.Linear(configs.d_model * configs.seq_len,configs.d_model * configs.seq_len//8)
         self.fc2 = nn.Linear(configs.d_model * configs.seq_len//8,configs.d_model * configs.seq_len//16)
@@ -249,14 +251,14 @@ class TCNAutoEncoder(L.LightningModule):
         out_combine = torch.sum(recons * masks, dim = 1) 
         return out_combine
     
-    def forward(self, batch_x):
+    def _forward(self, batch_x): # propose 3
         '''
         Propose 3
         --------------
-        x (B, b, w, f)
+        x (B, b, w, f)  y (B, b, w, f')
         input (B, f * b, w) -> encoder(group=b)-> (B, d * b, w) -> (B, b, w*d) -> (B, b, w*d//16) -> slot 
         -> (B, n_s, w*d//16) -> (B, n_s, b, w*d//16) -> (B*n_s, b*d//16, w) -> decoder (group = b)
-        -> (B*n_s, b(f+1), w) -> (B, n_s, b, w, f+1) -> (B, n_s, b, w, f) & (B, n_s, b, w, 1) -> (B, b, w, f)
+        -> (B*n_s, b(f'+1), w) -> (B, n_s, b, w, f'+1) -> (B, n_s, b, w, f') & (B, n_s, b, w, 1) -> (B, b, w, f')
         '''
         device = next(self.parameters()).device
         B, b, w, f = batch_x.shape
@@ -275,16 +277,54 @@ class TCNAutoEncoder(L.LightningModule):
         decoder_input = slot_output.reshape(B*self.num_slots, -1, w)
         decoder_output = self.decoder(decoder_input)
 
-        decoder_output = decoder_output.reshape(B, self.num_slots, b, f+1, w).permute(0,1,2,4,3)
-        recons, masks = decoder_output.split([f, 1], dim = -1)
+        decoder_output = decoder_output.reshape(B, self.num_slots, b, -1, w).permute(0,1,2,4,3)
+        recons, masks = decoder_output.split([decoder_output.shape[-1] - 1, 1], dim = -1)
         masks = nn.Softmax(dim = 1)(masks)
-        out_combine = torch.sum(recons * masks, dim = 1) 
+        out_combine = torch.sum(recons * masks, dim = 1)
+
+        return out_combine[:,:,-self.configs.pred_len:,:]
+    def forward(self, batch_x): # propose 4
+        '''
+        Propose 4
+        --------------
+        f = feature dim + timestamp
+        f'= output dim + timestamp
+        x (B, b, w, f)  y (B, b, w, f')
+        input (B, f * b, w) -> encoder(group=b)-> (B, d * b, w) -> (B, b, w*d) -> (B, b, w*d//16) -> slot 
+        -> (B, n_s, w*d//16) -> (B, n_s, b, w*d//16) -> (B*n_s, b*d//16, w) -> q -> (B*n_s, w, b*d)
+        decoder input (B, b, w, f') -> (B, w, f'* b) -> self attention -> (B, w, f' * b) -> k, v  -> (B, w, b*d) -> (B, n_s, w, b*d) -> (B*n_s, w, b*d)
+        crossattention output  (B*n_s, w, b*d) -> (decoder (group = b) -> (B*n_s, b(f'+1), w) -> (B, n_s, b, w, f'+1) 
+        -> (B, n_s, b, w, f') & (B, n_s, b, w, 1) -> (B, b, w, f')
+        '''
+        device = next(self.parameters()).device
+        B, b, w, f = batch_x.shape
+        enc_input = batch_x.permute(0, 3, 2, 1).reshape(B, -1, w)
+        enc_output = self.encoder(enc_input)
+        slot_input = enc_output.reshape(B, -1, b, w).permute(0,2,3,1).reshape(B, b, -1)
+        
+        slot_input = nn.LayerNorm(slot_input.shape[1:]).to(device)(slot_input)
+        slot_input = self.fc1(slot_input)
+        slot_input = F.relu(slot_input)
+        slot_input = self.fc2(slot_input)
+
+        slot_output = self.get_slot(slot_input)
+        slot_output = slot_output.unsqueeze(2)
+        slot_output = slot_output.repeat(1,1,b,1)
+        decoder_input = slot_output.reshape(B*self.num_slots, -1, w)
+        decoder_output = self.decoder(decoder_input)
+
+        decoder_output = decoder_output.reshape(B, self.num_slots, b, -1, w).permute(0,1,2,4,3)
+        recons, masks = decoder_output.split([decoder_output.shape[-1] - 1, 1], dim = -1)
+        masks = nn.Softmax(dim = 1)(masks)
+        out_combine = torch.sum(recons * masks, dim = 1)
+
         return out_combine[:,:,-self.configs.pred_len:,:]
     
 
     def shared_step(self, batch, batch_idx):
         batch_x, batch_y, batch_x_mark, batch_y_mark = batch
-        outputs = self(batch_x)
+        x = torch.cat((batch_x, batch_x_mark), dim = -1)
+        outputs = self(x)
         f_dim = -1 if self.configs.variate == "mu" else 0
         batch_y = batch_y[:, :,-self.configs.pred_len :, f_dim:]
         return outputs, batch_y

@@ -53,12 +53,12 @@ if __name__ == "__main__":
 
     '''
     ########## parameters ############
-    data_name = "real"
-    data_type = "ETTm2"
+    data_name = "AD"
+    data_type = "sbk_AD"
     size = {
-        'seq_len': 96,
-        'label_len': 48,
-        'pred_len': 48
+        'seq_len': 90,
+        'label_len': 15,
+        'pred_len': 15
     }
     d_model = 64
     small_batch_size = 32
@@ -66,8 +66,9 @@ if __name__ == "__main__":
     accelerator = "cpu"
     slotattention = True # True: Our model, False: Baseline
     wandblogging = True
+    variate = 'mu'
 
-    num_slots = 10
+    num_slots = 5
     num_levels = 2
     kernel_size = 2
     dilation_c = 2
@@ -90,18 +91,21 @@ if __name__ == "__main__":
     '''
     if data_type == "sbk_AD":
         path = "data/sbk_AD_unscaled.csv"
-        enc_in = dec_in = 8
-        c_out = enc_in + 1 if slotattention else enc_in
+        enc_in = 8
+        dec_in = 8 if variate== 'm' else 1
+        c_out = dec_in + 1 if slotattention else dec_in
         freq = 'd'
     elif data_type == "ETTm2":
         path = "data/ETTm2.csv"
-        enc_in = dec_in = 7
-        c_out = enc_in + 1 if slotattention else enc_in
+        enc_in = 7
+        dec_in = 7 if variate== 'm' else 1
+        c_out = dec_in + 1 if slotattention else dec_in
         freq = 't'
     elif data_type == "ETTh1":
         path = "data/ETTh1.csv"
-        enc_in = dec_in = 7
-        c_out = enc_in + 1 if slotattention else enc_in
+        enc_in = 7
+        dec_in = 7 if variate== 'm' else 1
+        c_out = dec_in + 1 if slotattention else dec_in
         freq = 'h'
     else:
         raise NotImplementedError
@@ -115,7 +119,7 @@ if __name__ == "__main__":
         seq_len= size['seq_len'],
         label_len= size['label_len'],
         pred_len= size['pred_len'],
-        variate= 'm',
+        variate= variate,
         target= None,
         scale= True,
         is_timeencoded= True,
@@ -141,7 +145,7 @@ if __name__ == "__main__":
         lr= 0.0005,
         loss= 'mse',
         scheduler= 'exponential',
-        inverse_scaling = True,
+        inverse_scaling = False,
         num_workers = 0,
         slotattention=slotattention,
         small_batch_size = small_batch_size,

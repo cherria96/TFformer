@@ -62,7 +62,7 @@ if __name__ == "__main__":
     }
     d_model = 64
     small_batch_size = 32
-    split_sequential = False # True: chronological split; False: random split
+    split_sequential = True # True: chronological split; False: random split
     accelerator = "cpu"
     kmeans = False  # True: Our model, False: Baseline
     slotattention = False # True: Our model, False: Baseline

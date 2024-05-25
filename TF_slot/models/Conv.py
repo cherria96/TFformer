@@ -396,7 +396,7 @@ class TCNAutoEncoder(L.LightningModule):
         outputs = self(x, batch_y, batch_y_mark)
         f_dim = -1 if self.configs.variate == "mu" else 0
         batch_y = batch_y[:, :,-self.configs.pred_len :, f_dim:]
-        return outputs, batch_y
+        return outputs.contiguous(), batch_y.contiguous()
     
     def training_step(self, batch, batch_idx):
         outputs, batch_y = self.shared_step(batch, batch_idx)

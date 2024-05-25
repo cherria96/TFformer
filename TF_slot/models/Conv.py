@@ -4,6 +4,7 @@ import torch.nn.functional as F
 import numpy as np
 import lightning as L
 import torchmetrics
+from layers.SelfAttention_Family import FullAttention, AttentionLayer
 
 # class Conv2d(nn.Module):
 #     def __init__(self, in_channels, out_channels, kernel_size, stride, padding):
@@ -200,7 +201,7 @@ class TCNAutoEncoder(L.LightningModule):
         
 
         # Layers
-        timestamp = 3
+        timestamp = 4
         num_inputs = (configs.enc_in + timestamp) * configs.small_batch_size
         self.encoder = TemporalConvNet(num_inputs = num_inputs, num_outputs = configs.d_model * configs.small_batch_size, 
                                        num_levels = num_levels, kernel_size = kernel_size, dilation_c = dilation_c, groups = configs.small_batch_size)
@@ -215,7 +216,19 @@ class TCNAutoEncoder(L.LightningModule):
             hidden_dim =  configs.d_model
         )
         
-        self.decoder = TemporalConvNet(num_inputs = configs.d_model * configs.small_batch_size//16, num_outputs = (configs.c_out) * configs.small_batch_size, 
+        self.to_k = nn.Linear(configs.d_model * configs.small_batch_size//16, configs.d_model * configs.small_batch_size)
+        self.to_v = nn.Linear(configs.d_model * configs.small_batch_size//16, configs.d_model * configs.small_batch_size)
+        self.to_q = nn.Linear(configs.d_model * configs.small_batch_size, configs.d_model * configs.small_batch_size)
+        self.selfattention =AttentionLayer(
+                                        FullAttention(True, configs.factor, attention_dropout=configs.dropout, output_attention=False),
+                                        configs.small_batch_size * configs.d_model, configs.n_heads
+                                    )
+        self.crossattention =AttentionLayer(
+                                        FullAttention(True, configs.factor, attention_dropout=configs.dropout, output_attention=False),
+                                        configs.small_batch_size * configs.d_model, configs.n_heads
+                                    )
+
+        self.decoder = TemporalConvNet(num_inputs = configs.d_model * configs.small_batch_size, num_outputs = (configs.c_out) * configs.small_batch_size, 
                                        num_levels = num_levels, kernel_size = kernel_size, dilation_c = dilation_c, groups = configs.small_batch_size)
 
         metrics = torchmetrics.MetricCollection([torchmetrics.MeanSquaredError(), torchmetrics.MeanAbsoluteError()])
@@ -283,7 +296,7 @@ class TCNAutoEncoder(L.LightningModule):
         out_combine = torch.sum(recons * masks, dim = 1)
 
         return out_combine[:,:,-self.configs.pred_len:,:]
-    def forward(self, batch_x): # propose 4
+    def forward(self, x, batch_y, batch_y_mark): # propose 4
         '''
         Propose 4
         --------------
@@ -291,14 +304,14 @@ class TCNAutoEncoder(L.LightningModule):
         f'= output dim + timestamp
         x (B, b, w, f)  y (B, b, w, f')
         input (B, f * b, w) -> encoder(group=b)-> (B, d * b, w) -> (B, b, w*d) -> (B, b, w*d//16) -> slot 
-        -> (B, n_s, w*d//16) -> (B, n_s, b, w*d//16) -> (B*n_s, b*d//16, w) -> q -> (B*n_s, w, b*d)
-        decoder input (B, b, w, f') -> (B, w, f'* b) -> self attention -> (B, w, f' * b) -> k, v  -> (B, w, b*d) -> (B, n_s, w, b*d) -> (B*n_s, w, b*d)
-        crossattention output  (B*n_s, w, b*d) -> (decoder (group = b) -> (B*n_s, b(f'+1), w) -> (B, n_s, b, w, f'+1) 
+        -> (B, n_s, w*d//16) -> (B, n_s, b, w*d//16) -> (B*n_s, b*d//16, w) -> (B*n_s, w, b*d//16) -> k,v -> (B*n_s, w, b*d)
+        decoder input (B, b, w, f') -> (B, w, f'* b) -> (B, w, d*b) -> self attention -> (B, w, d * b) -> q  -> (B, w, b*d) -> (B, n_s, w, b*d) -> (B*n_s, w, b*d)
+        crossattention output  (B*n_s, w, b*d) -> (B*n_s, b*d, w)(decoder (group = b) -> (B*n_s, b(f'+1), w) -> (B, n_s, b, w, f'+1) 
         -> (B, n_s, b, w, f') & (B, n_s, b, w, 1) -> (B, b, w, f')
         '''
         device = next(self.parameters()).device
-        B, b, w, f = batch_x.shape
-        enc_input = batch_x.permute(0, 3, 2, 1).reshape(B, -1, w)
+        B, b, w, f = x.shape
+        enc_input = x.permute(0, 3, 2, 1).reshape(B, -1, w)
         enc_output = self.encoder(enc_input)
         slot_input = enc_output.reshape(B, -1, b, w).permute(0,2,3,1).reshape(B, b, -1)
         
@@ -310,11 +323,25 @@ class TCNAutoEncoder(L.LightningModule):
         slot_output = self.get_slot(slot_input)
         slot_output = slot_output.unsqueeze(2)
         slot_output = slot_output.repeat(1,1,b,1)
-        decoder_input = slot_output.reshape(B*self.num_slots, -1, w)
-        decoder_output = self.decoder(decoder_input)
+        slot_output = slot_output.reshape(B*self.num_slots, -1, w).permute(0,2,1)
+        decoder_input_k = self.to_k(slot_output) # (B*n_s, w, b*d)
+        decoder_input_v = self.to_v(slot_output) # (B*n_s, w, b*d)
 
+        B, b, w, f = batch_y.shape
+        decoder_input = torch.zeros((batch_y.size(0), batch_y.size(1), self.configs.pred_len, batch_y.size(-1))).type_as(batch_y)
+        decoder_input = torch.cat([batch_y[:, :, : self.configs.label_len, :], decoder_input], dim=2)
+        decoder_input = torch.cat((decoder_input, batch_y_mark), dim= -1)
+        decoder_input = decoder_input.permute(0,2,1,3).reshape(B, w, -1)
+        decoder_input = nn.Linear(decoder_input.shape[-1], self.configs.small_batch_size * self.configs.d_model)(decoder_input) # TBU DataEmbed
+        decoder_input, _ = self.selfattention(decoder_input,decoder_input,decoder_input, attn_mask = None)
+        decoder_input_q = self.to_q(decoder_input)
+        decoder_input_q = decoder_input_q.unsqueeze(1).repeat(1,self.num_slots, 1,1).reshape(B*self.num_slots, w, -1)
+
+        decoder_input, _ = self.crossattention(decoder_input_q, decoder_input_k, decoder_input_v, attn_mask = None)
+        decoder_input = decoder_input.permute(0,2,1)
+        decoder_output = self.decoder(decoder_input)
         decoder_output = decoder_output.reshape(B, self.num_slots, b, -1, w).permute(0,1,2,4,3)
-        recons, masks = decoder_output.split([decoder_output.shape[-1] - 1, 1], dim = -1)
+        recons, masks = decoder_output.split([f, 1], dim = -1)
         masks = nn.Softmax(dim = 1)(masks)
         out_combine = torch.sum(recons * masks, dim = 1)
 
@@ -324,7 +351,7 @@ class TCNAutoEncoder(L.LightningModule):
     def shared_step(self, batch, batch_idx):
         batch_x, batch_y, batch_x_mark, batch_y_mark = batch
         x = torch.cat((batch_x, batch_x_mark), dim = -1)
-        outputs = self(x)
+        outputs = self(x, batch_y, batch_y_mark)
         f_dim = -1 if self.configs.variate == "mu" else 0
         batch_y = batch_y[:, :,-self.configs.pred_len :, f_dim:]
         return outputs, batch_y

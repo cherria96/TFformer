@@ -201,7 +201,7 @@ class TCNAutoEncoder(L.LightningModule):
         
 
         # Layers
-        timestamp = 4
+        timestamp = 5
         num_inputs = (configs.enc_in + timestamp) * configs.small_batch_size
         self.encoder = TemporalConvNet(num_inputs = num_inputs, num_outputs = configs.d_model * configs.small_batch_size, 
                                        num_levels = num_levels, kernel_size = kernel_size, dilation_c = dilation_c, groups = configs.small_batch_size)
@@ -211,17 +211,17 @@ class TCNAutoEncoder(L.LightningModule):
         
         self.get_slot = SlotAttention(
             num_slots = self.num_slots, 
-            dim = configs.seq_len * configs.d_model//16, 
+            dim = (configs.label_len + configs.pred_len) * configs.d_model, 
             iters = 5, 
             hidden_dim =  configs.d_model
         )
         
-        self.to_k = nn.Linear(configs.d_model * configs.small_batch_size//16, configs.d_model * configs.small_batch_size)
-        self.to_v = nn.Linear(configs.d_model * configs.small_batch_size//16, configs.d_model * configs.small_batch_size)
-        self.to_q = nn.Linear(configs.d_model * configs.small_batch_size, configs.d_model * configs.small_batch_size)
+        self.to_k = nn.Linear(configs.d_model * configs.small_batch_size, configs.d_model * configs.small_batch_size)
+        self.to_v = nn.Linear(configs.d_model * configs.small_batch_size, configs.d_model * configs.small_batch_size)
+        self.to_q = nn.Linear((configs.dec_in + timestamp) * configs.small_batch_size, configs.d_model * configs.small_batch_size)
         self.selfattention =AttentionLayer(
                                         FullAttention(True, configs.factor, attention_dropout=configs.dropout, output_attention=False),
-                                        configs.small_batch_size * configs.d_model, configs.n_heads
+                                        configs.small_batch_size * (configs.dec_in + timestamp), configs.n_heads
                                     )
         self.crossattention =AttentionLayer(
                                         FullAttention(True, configs.factor, attention_dropout=configs.dropout, output_attention=False),
@@ -296,7 +296,7 @@ class TCNAutoEncoder(L.LightningModule):
         out_combine = torch.sum(recons * masks, dim = 1)
 
         return out_combine[:,:,-self.configs.pred_len:,:]
-    def forward(self, x, batch_y, batch_y_mark): # propose 4
+    def _forward(self, x, batch_y, batch_y_mark): # propose 4
         '''
         Propose 4
         --------------
@@ -339,6 +339,48 @@ class TCNAutoEncoder(L.LightningModule):
 
         decoder_input, _ = self.crossattention(decoder_input_q, decoder_input_k, decoder_input_v, attn_mask = None)
         decoder_input = decoder_input.permute(0,2,1)
+        decoder_output = self.decoder(decoder_input)
+        decoder_output = decoder_output.reshape(B, self.num_slots, b, -1, w).permute(0,1,2,4,3)
+        recons, masks = decoder_output.split([f, 1], dim = -1)
+        masks = nn.Softmax(dim = 1)(masks)
+        out_combine = torch.sum(recons * masks, dim = 1)
+
+        return out_combine[:,:,-self.configs.pred_len:,:]
+    
+    def forward(self, x, batch_y, batch_y_mark): # propose 5
+        '''
+        Propose 5
+        --------------
+        f = feature dim + timestamp
+        f'= output dim + timestamp
+        x (B, b, w, f)  y (B, b, w', f')
+        input (B, f * b, w) -> encoder(group=b)-> (B, d * b, w) -> (B, w, d*b) -> k, v -> (B, w, b*d)
+        decoder input (B, b, w', f') -> (B, w', f' * b) -> self_attention -> (B, w', f'*b) -> q -> (B, w', b*d)
+        crossattention output (B, w', b*d) -> (B, b, w'*d) -> slot -> (B, n_s, w'*d) -> (B*n_s, b, w'*d) -> (B*n_s, b*d, w')
+        -> decoder (group = b) -> (B*n_s, b(f'+1), w') -> (B, n_s, b, f'+1, w') -> (B, n_s, b, w', f') & (B, n_s, b, w', 1) -> (B, b, w', f')
+        '''
+        device = next(self.parameters()).device
+        B, b, w, f = x.shape
+        enc_input = x.permute(0, 3, 2, 1).reshape(B, -1, w)
+        enc_output = self.encoder(enc_input)
+        enc_output = enc_output.reshape(B, -1, b, w).permute(0,3,2,1).reshape(B, w, -1)
+        slot_input_k = self.to_k(enc_output)
+        slot_input_v = self.to_v(enc_output)
+
+        B, b, w, f = batch_y.shape
+        y = torch.zeros((batch_y.size(0), batch_y.size(1), self.configs.pred_len, batch_y.size(-1))).type_as(batch_y)
+        y = torch.cat([batch_y[:, :, : self.configs.label_len, :], y], dim=2)
+        y = torch.cat((y, batch_y_mark), dim= -1)
+        y = y.permute(0,2,1,3).reshape(B, w, -1)
+        y, _ = self.selfattention(y,y,y, attn_mask = None)
+        slot_input_q = self.to_q(y)
+
+        slot_input, _ = self.crossattention(slot_input_q, slot_input_k, slot_input_v, attn_mask = None)
+        slot_input = slot_input.reshape(B,w,b,-1).permute(0,2,1,3).reshape(B, b, -1)
+        slot_output = self.get_slot(slot_input)
+        slot_output = slot_output.reshape(B*self.num_slots, -1).unsqueeze(1).repeat(1,b,1)
+        decoder_input = slot_output.reshape(B*self.num_slots, -1, w)
+
         decoder_output = self.decoder(decoder_input)
         decoder_output = decoder_output.reshape(B, self.num_slots, b, -1, w).permute(0,1,2,4,3)
         recons, masks = decoder_output.split([f, 1], dim = -1)

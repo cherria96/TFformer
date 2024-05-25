@@ -10,3 +10,5 @@ lightning_logs/
 wandb/
 weights/
 data/traffic.csv
+ours_real/
+ours_AD/

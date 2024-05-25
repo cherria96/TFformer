@@ -54,18 +54,18 @@ if __name__ == "__main__":
     '''
     ########## parameters ############
     data_name = "real"
-    data_type = "ETTh1"
+    data_type = "ETTm2"
     size = {
-        'seq_len': 30,
-        'label_len': 15,
-        'pred_len': 15
+        'seq_len': 96,
+        'label_len': 48,
+        'pred_len': 48
     }
-    d_model = 64
+    d_model = 16
     small_batch_size = 64
     split_sequential = False # True: chronological split; False: random split
     accelerator = "cpu"
     slotattention = True # True: Our model, False: Baseline
-    wandblogging = True
+    wandblogging = False
     variate = 'm'
 
     num_slots = 5

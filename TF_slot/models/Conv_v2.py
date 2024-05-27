@@ -6,6 +6,7 @@ import lightning as L
 import torchmetrics
 from layers.SelfAttention_Family import FullAttention, AttentionLayer
 from layers.Transformer_EncDec import Decoder, DecoderLayer, Encoder, EncoderLayer
+from layers.Embed import DataEmbedding
 
 
 # class Conv2d(nn.Module):
@@ -203,13 +204,20 @@ class TCNAutoEncoder(L.LightningModule):
         
 
         # Layers
+        self.enc_embedding =  DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,
+                                           configs.dropout)
+        self.dec_embedding =  DataEmbedding(configs.dec_in, configs.d_model, configs.embed, configs.freq,
+                                           configs.dropout)
+        
         timestamp = 4
-        num_inputs = configs.seq_len * (configs.enc_in+timestamp)
+        num_inputs = configs.seq_len * configs.enc_in
         self.encoder = nn.Sequential(
-            nn.Linear(num_inputs, configs.d_model),
+            nn.Linear( configs.seq_len * configs.d_model, configs.d_model),
+            nn.LayerNorm(configs.d_model),
             nn.GELU(),
             nn.Dropout(p = 0.5),
             nn.Linear(configs.d_model, configs.d_model),
+            nn.LayerNorm(configs.d_model),
             nn.GELU(),
             nn.Dropout(p = 0.5),
             nn.Linear(configs.d_model, configs.d_model),
@@ -224,9 +232,11 @@ class TCNAutoEncoder(L.LightningModule):
         )
         self.decoder = nn.Sequential(
             nn.Linear(configs.d_model, num_inputs + 1),
+            nn.LayerNorm(num_inputs + 1),
             nn.GELU(),
             nn.Dropout(p = 0.5),
             nn.Linear(num_inputs + 1, num_inputs + 1),
+            nn.LayerNorm(num_inputs + 1),
             nn.GELU(),
             nn.Dropout(p = 0.5),
             nn.Linear(num_inputs + 1, num_inputs + 1),
@@ -250,6 +260,13 @@ class TCNAutoEncoder(L.LightningModule):
             norm_layer=torch.nn.LayerNorm(configs.d_model),
             projection=nn.Linear(configs.d_model, configs.c_out, bias=True)
         )
+        self.conv = nn.Sequential(
+            nn.Conv1d(in_channels = configs.d_model, out_channels = configs.d_model, kernel_size=10,),
+            nn.ReLU(),
+            nn.Conv1d(in_channels = configs.d_model, out_channels = configs.d_model, kernel_size=10,),
+            nn.ReLU(),
+            nn.Conv1d(in_channels = configs.d_model, out_channels = configs.c_out, kernel_size=10,),
+        )
 
         metrics = torchmetrics.MetricCollection([torchmetrics.MeanSquaredError(), torchmetrics.MeanAbsoluteError()])
         self.val_metrics = metrics.clone(prefix="Val_")
@@ -257,24 +274,27 @@ class TCNAutoEncoder(L.LightningModule):
         self.scaler = scaler
 
     
-    def forward(self, x, batch_y, batch_y_mark): # propose 6
+    def forward(self, batch_x, batch_x_mark, batch_y, batch_y_mark): # propose 6
         '''
         Propose 6
         --------------
         f = feature dim + timestamp
         f'= output dim + timestamp
         x (B, b, w, f)  y (B, b, w', f')
-        X = input sequence + timestamp encoding (B, b, w, f) -> encoder -> (B, b, d) -> slot attention -> (B, n_s, d) -> (B, n_s, b, d) 
+        X = input sequence + timestamp encoding (B*b, w, d) -> encoder -> (B, b, d) -> slot attention -> (B, n_s, d) -> (B, n_s, b, d) 
         -> decoder -> (B, n_s, b, wf + 1) -> recons (B, n_s, b, wf) , mask (B, n_s, b, 1) 
         Recons * softmax(mask) -> (B, n_s, b, w, f) -> LayerNorm(dim = n_s, f) -> sum -> (B*b, w, f)
 
-        Y = output sequence + timestamp encoding (B, b, w’, f) -> (B, n_s, b, w’, f) -> Y * softmax(mask) -> (B, n_s, b, w’, f) -> sum -> (B*b, w', f)
+        Y = output sequence + timestamp encoding (B, b, w’, d) -> (B, n_s, b, w’, d) -> Y * softmax(mask) -> (B, n_s, b, w’, f) -> sum -> (B*b, w', f)
 
         '''
         device = next(self.parameters()).device
-        B, b, w, f = x.shape
+        B, b, w, f = batch_x.shape
 
-        enc_input = x.reshape(B, b, -1)
+        batch_x = batch_x.reshape(B*b, w, f)
+        batch_x_mark = batch_x_mark.reshape(B*b, w, -1)
+        enc_input = self.enc_embedding(batch_x, batch_x_mark)
+        enc_input = enc_input.reshape(B, b, -1)
         enc_output = self.encoder(enc_input)
         slot_output = self.get_slot(enc_output)
         decoder_input = slot_output.unsqueeze(2).repeat(1, 1, b, 1).reshape(B*self.num_slots, b, -1)
@@ -287,11 +307,15 @@ class TCNAutoEncoder(L.LightningModule):
         X_norm = X_norm.reshape(B, b, w, self.num_slots, f).permute(0,3,1,2,4)
         X_norm = torch.sum(X_norm, dim = 1).reshape(B*b, w, f)
         X_embed = nn.Linear(f, self.configs.d_model)(X_norm)
-
+       
         B, b, w, f = batch_y.shape
-        y = torch.zeros((batch_y.size(0), batch_y.size(1), self.configs.pred_len, batch_y.size(-1))).type_as(batch_y)
-        y = torch.cat([batch_y[:, :, : self.configs.label_len, :], y], dim=2)
-        y = torch.cat((y, batch_y_mark), dim= -1)
+        batch_y = batch_y.reshape(B*b, w, f)
+        batch_y_mark = batch_y_mark.reshape(B*b, w, -1)
+        y = torch.zeros((batch_y.size(0),self.configs.pred_len, batch_y.size(-1))).type_as(batch_y)
+        y = torch.cat([batch_y[:, : self.configs.label_len, :], y], dim=1)
+        y = self.dec_embedding(y, batch_y_mark)
+        y = y.reshape(B, b, w, -1)
+
         y = y.unsqueeze(1).repeat(1,self.num_slots, 1, 1, 1).reshape(B, self.num_slots, b, -1) # (B, n_s, b, wf)
         y = y * nn.Softmax(dim = 1)(mask)
         y = torch.sum(y, dim = 1).reshape(B*b, w, -1)
@@ -299,14 +323,15 @@ class TCNAutoEncoder(L.LightningModule):
 
 
         dec_out = self.transformerdecoder(Y_embed, X_embed, x_mask=None, cross_mask=None)
+        # X_embed = X_embed.permute(0,2,1)
+        # dec_out = self.conv(X_embed)
 
         return dec_out[:, -self.configs.pred_len:, :].reshape(B, b, -1, f)
     
 
     def shared_step(self, batch, batch_idx):
         batch_x, batch_y, batch_x_mark, batch_y_mark = batch
-        x = torch.cat((batch_x, batch_x_mark), dim = -1)
-        outputs = self(x, batch_y, batch_y_mark)
+        outputs = self(batch_x,batch_x_mark, batch_y, batch_y_mark)
         f_dim = -1 if self.configs.variate == "mu" else 0
         batch_y = batch_y[:, :,-self.configs.pred_len :, f_dim:]
         return outputs.contiguous(), batch_y.contiguous()

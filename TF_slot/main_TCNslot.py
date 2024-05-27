@@ -56,12 +56,12 @@ if __name__ == "__main__":
     data_name = "real"
     data_type = "ETTh1"
     size = {
-        'seq_len': 30,
-        'label_len': 15,
-        'pred_len': 15
+        'seq_len': 96,
+        'label_len': 48,
+        'pred_len':48
     }
-    d_model = 32
-    small_batch_size = 32
+    d_model = 64
+    small_batch_size = 64
     split_sequential = True # True: chronological split; False: random split
     accelerator = "cpu"
     slotattention = True # True: Our model, False: Baseline

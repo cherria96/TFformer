@@ -1,7 +1,7 @@
 import sys
 sys.path.append("/Users/sujinchoi/Desktop/TF_slot")
 from timeseries_dataset_combine import TimeSeriesDatasetUnique, TimeSeriesDataset, TimeSeriesDataset_bb
-from models.Conv import TCNAutoEncoder, TCN
+from models.Conv_v2 import TCNAutoEncoder, TCN
 from models.Transformer import Model, Config, TimeSeriesForecasting
 import numpy as np
 import pandas as pd
@@ -54,21 +54,21 @@ if __name__ == "__main__":
     '''
     ########## parameters ############
     data_name = "real"
-    data_type = "ETTm2"
+    data_type = "ETTh1"
     size = {
-        'seq_len': 96,
-        'label_len': 48,
-        'pred_len': 48
+        'seq_len': 30,
+        'label_len': 15,
+        'pred_len': 15
     }
-    d_model = 16
-    small_batch_size = 64
-    split_sequential = False # True: chronological split; False: random split
+    d_model = 32
+    small_batch_size = 32
+    split_sequential = True # True: chronological split; False: random split
     accelerator = "cpu"
     slotattention = True # True: Our model, False: Baseline
-    wandblogging = False
+    wandblogging = True
     variate = 'm'
 
-    num_slots = 5
+    num_slots = 5 
     num_levels = 2
     kernel_size = 2
     dilation_c = 2
@@ -139,14 +139,14 @@ if __name__ == "__main__":
         n_components = 10,
         num_clusters = 5,
         d_layers = 3,
-        c_out = c_out,
-        batch_size= 32,
+        c_out = dec_in,
+        batch_size= 16,
         epoch= 20,
         lr= 0.0005,
         loss= 'mse',
         scheduler= 'exponential',
         inverse_scaling = False,
-        num_workers = 0,
+        num_workers = 31,
         slotattention=slotattention,
         small_batch_size = small_batch_size,
         small_stride = 1)
@@ -212,7 +212,7 @@ if __name__ == "__main__":
     val_dataloader = DataLoader(
                         val_data,
                         batch_size=config.batch_size,
-                        shuffle=True,
+                        shuffle=False,
                         num_workers=config.num_workers,
                         )
     test_dataloader = DataLoader(

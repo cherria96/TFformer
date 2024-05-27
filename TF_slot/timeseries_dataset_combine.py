@@ -327,7 +327,7 @@ class TimeSeriesDataset_bb(Dataset):
                 split_indices = val_indices
             elif self.split == 'test':
                 split_indices = test_indices
-            # split_indices.sort() 
+            split_indices.sort() 
         df_split = data_all[split_indices]
         timestamp_data = timestamp[split_indices]
         if self.variate == 'm' or self.variate == 'mu':
